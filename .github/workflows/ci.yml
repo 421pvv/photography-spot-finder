@@ -1,0 +1,25 @@
+name: Run CI/CD Tests
+
+on:
+  pull_request:
+    branches:
+      - '**'
+
+jobs:
+  unit-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install all dependencies
+        run: npm install
+
+      - name: Run all Jest tests
+        run: npm test
