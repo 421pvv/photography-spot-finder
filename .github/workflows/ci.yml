@@ -1,9 +1,6 @@
 name: Run CI/CD Tests
 
 on:
-  push:
-    branches: 
-      - '**'
   pull_request:
     branches:
       - '**'
