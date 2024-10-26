@@ -2,11 +2,11 @@ name: Run CI/CD Tests
 
 on:
   push:
-    branches:
-      - **
+    branches: 
+      - '**'
   pull_request:
     branches:
-      - **
+      - '**'
 
 jobs:
   unit-tests:
@@ -14,7 +14,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
