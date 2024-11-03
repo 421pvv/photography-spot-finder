@@ -35,5 +35,7 @@ jobs:
         run: npm install
 
       - name: Run all Jest tests
-        run: npm test
+        env:
+          MONGODB_URI: mongodb://localhost:27017/photography-spot-finder
+        run: npm run ci_tests
 #used https://medium.com/@clemensstich/how-to-use-mongodb-in-github-actions-bf24a0d9adf3 for integrating mongodb for tests
