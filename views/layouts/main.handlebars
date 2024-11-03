@@ -1,0 +1,31 @@
+<html lang="en">
+
+  <head>
+    <meta charset="utf-8" />
+    <title>Phtotography Spot Finder</title>
+  </head>
+
+  <body>
+
+    <header>
+      <nav>
+        <ul>
+          <li><a href="/">All Spots</a></li>
+
+          {{#if user}}
+            <li><a href="/users/profile">Profile</a></li>
+            <li><a href="/users/logout">Logout</a></li>
+          {{else}}
+            <li><a href="/users/login">Login</a></li>
+            <li><a href="/users/signup">Signup</a></li>
+          {{/if}}
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      {{{body}}}
+    </main>
+  </body>
+
+</html>

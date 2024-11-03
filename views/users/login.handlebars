@@ -1,0 +1,48 @@
+<section>
+  <h1>Login</h1>
+
+  {{#if hasAuthErrors}}
+    <ul>
+      {{#each authErrors}}
+        <li>
+          {{this}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+
+  <form action="/users/login" method="POST">
+
+    <label>
+      Username
+      <input
+        type="text"
+        name="username"
+        placeholder="Username"
+        value="{{data.username}}"
+      />
+    </label>
+
+    <label>
+      Password
+      <input
+        type="password"
+        name="password"
+        placeholder="Password"
+        value="{{data.password}}"
+      />
+    </label>
+    <button type="submit">Login</button>
+    <button type="reset">Clear Form</button>
+  </form>
+  {{#if hasErrors}}
+    <ul>
+      {{#each errors}}
+        <li>
+          {{this}}
+        </li>
+      {{/each}}
+    </ul>
+  {{/if}}
+
+</section>
