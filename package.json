@@ -3,8 +3,12 @@
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
+  "type": "module",
   "scripts": {
-    "test": "jest"
+    "start": "node app.js",
+    "watch": "node --watch app.js",
+    "test": "jest --watchAll --runInBand --verbose",
+    "ci_tests": "jest --runInBand --verbose"
   },
   "repository": {
     "type": "git",
@@ -16,18 +20,23 @@
     "nyc",
     "spot"
   ],
-  "author": "",
+  "author": "Photography Spot Finder Dev Team",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sivaanand13/photography-spot-finder/issues"
   },
   "homepage": "https://github.com/sivaanand13/photography-spot-finder#readme",
   "dependencies": {
-    "mongodb": "^6.10.0"
+    "bcrypt": "^5.1.1",
+    "express": "^4.21.1",
+    "express-handlebars": "^8.0.1",
+    "express-session": "^1.18.1",
+    "mongodb": "^6.10.0",
+    "uuid": "^11.0.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.25.9",
-    "@babel/preset-env": "^7.25.9",
+    "@babel/core": "^7.26.0",
+    "@babel/preset-env": "^7.26.0",
     "babel-jest": "^29.7.0",
     "jest": "^29.7.0"
   }
