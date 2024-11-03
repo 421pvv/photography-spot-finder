@@ -3,11 +3,24 @@ name: Run CI/CD Tests
 on:
   pull_request:
     branches:
-      - '**'
+      - "**"
 
 jobs:
   unit-tests:
     runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:4.4.6
+        env:
+          MONGO_INITDB_DATABASE: photography-spot-finder
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
     steps:
       - name: Checkout repository
@@ -16,10 +29,11 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '20'
+          node-version: "20"
 
       - name: Install all dependencies
         run: npm install
 
       - name: Run all Jest tests
         run: npm test
+#used https://medium.com/@clemensstich/how-to-use-mongodb-in-github-actions-bf24a0d9adf3 for integrating mongodb for tests
