@@ -1,5 +1,5 @@
 import { users } from "../config/mongoCollections.js";
-import { SALT_ROUNDS } from "../secrets.js";
+import { SALT_ROUNDS } from "../secrets_config.js";
 import validation from "../validation.js";
 import bcrypt from "bcrypt";
 import logging from "../log.js";
