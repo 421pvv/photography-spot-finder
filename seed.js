@@ -5,6 +5,7 @@ export async function initDB() {
   const usersCollection = await mongoCollections.users();
   await usersCollection.deleteMany({});
   const spotsCollection = await mongoCollections.spots();
+  await spotsCollection.deleteMany({});
   const spot1 = {
     name: 'TimeSquare',
     location: 'NYC',
