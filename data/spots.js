@@ -37,7 +37,7 @@ const getSpotsByRating = async (minRating, maxRating) => {
   return spotsRatingList;
 };
 
-// Returns a list of spots with the given keyword (Searchs for keyword in name, accessibility and tags)
+// Returns a list of spots with the given keyword (Searchs for keyword in name, accessibility and bestTimes)
 const getSpotsByKeywordSearch = async (keyword) => {
   keyword = validation.validateString(keyword, "keyword", false);
   const searchRegex = new RegExp("^.*" + keyword + ".*$", "i");
@@ -49,7 +49,7 @@ const getSpotsByKeywordSearch = async (keyword) => {
           $or: [
             { name: searchRegex },
             { accessibility: searchRegex },
-            { tags: { $elemMatch: searchRegex } },
+            { bestTimes: { $elemMatch: { $regex: searchRegex } } },
           ],
         },
         { reportCount: { $lt: 20 } },
@@ -62,7 +62,7 @@ const getSpotsByKeywordSearch = async (keyword) => {
   return spotsKeywordsList;
 };
 
-// Returns a list of all spots that has the given tag/tags in the tags array
+// Returns a list of all spots that have the given tag/tags in the tags array
 const getSpotsByTags = async (tagsArr) => {
   if (tagsArr === undefined) {
     throw ["tagsArr is missing"];
@@ -70,8 +70,15 @@ const getSpotsByTags = async (tagsArr) => {
   if (!Array.isArray(tagsArr)) {
     throw ["tagsArr is not an array"];
   }
-  if (tagsArr.length === 0) {
+  const len = tagsArr.length;
+  if (len === 0) {
     throw ["tagsArr is empty"];
+  }
+  for (let i = 0; i < len; i++) {
+    let tag = tagsArr[i];
+    tag = validation.validateString(tag, "tag", false);
+    tag = tag.toLowerCase();
+    tagsArr[i] = tag;
   }
   const spotsCollection = await spots();
   const spotsListByTags = await spotsCollection
