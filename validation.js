@@ -55,7 +55,11 @@ const validateString = (str, varName, checkObjectId) => {
   if (trimmedStr.length === 0) {
     throw [`String ${varName ? varName : ""} is empty or has only spaces!`];
   }
-  if (checkObjectId && !ObjectId.isValid(trimmedStr)) {
+  if (
+    checkObjectId &&
+    checkObjectId === true &&
+    !ObjectId.isValid(trimmedStr)
+  ) {
     throw [`String (${trimmedStr}) is not a valid ObjectId!`];
   }
   return trimmedStr;
