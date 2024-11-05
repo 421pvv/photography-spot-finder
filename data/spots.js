@@ -14,6 +14,7 @@ const getAllSpots = async () => {
 };
 
 // Function to get spots by rating range (inclusive). Takes two ratings as input minRating and maxRating
+// returns a list of all spots in the inclusive range
 const getAllSpotsByRating = async (minRating, maxRating) => {
   validation.validateRating(minRating);
   validation.validateRating(maxRating);

@@ -189,7 +189,7 @@ function validateRating(rating) {
   }
 
   if (!isFinite(rating)) {
-    throw ["rating is missing"];
+    throw ["rating is not finite"];
   }
 
   if (!Number.isInteger(rating)) {
