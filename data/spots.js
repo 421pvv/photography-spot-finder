@@ -15,7 +15,7 @@ const getAllSpots = async () => {
 
 // Function to get spots by rating range (inclusive). Takes two ratings as input minRating and maxRating
 // returns a list of all spots in the inclusive range
-const getAllSpotsByRating = async (minRating, maxRating) => {
+const getSpotsByRating = async (minRating, maxRating) => {
   validation.validateRating(minRating);
   validation.validateRating(maxRating);
   if (minRating > maxRating) {
@@ -37,4 +37,29 @@ const getAllSpotsByRating = async (minRating, maxRating) => {
   return spotsRatingList;
 };
 
-export default { getAllSpots };
+// Returns a list of spots with the given keyword (Searchs for keyword in name, accessibility and tags)
+const getSpotsByKeywordSearch = async (keyword) => {
+  keyword = validation.validateString(keyword, "keyword", false);
+  const searchRegex = new RegExp("^.*" + keyword + ".*$", "i");
+  const spotsCollection = await spots();
+  const spotsKeywordsList = await spotsCollection
+    .find({
+      $and: [
+        {
+          $or: [
+            { name: searchRegex },
+            { accessibility: searchRegex },
+            { tags: { $elemMatch: searchRegex } },
+          ],
+        },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
+    .toArray();
+  if (!spotsKeywordsList) {
+    throw ["Could not get spots with the specified keyword"];
+  }
+  return spotsKeywordsList;
+};
+
+export default { getAllSpots, getSpotsByRating, getSpotsByKeywordSearch };
