@@ -92,9 +92,68 @@ const getSpotsByTags = async (tagsArr) => {
   return spotsListByTags;
 };
 
+// Returns an array spots posted in the last 24 hours
+const getSpotsLastDay = async () => {
+  const spotsCollection = await spots();
+  // Reference: https://stackoverflow.com/questions/13314678/mongodb-only-fetch-documents-created-in-the-last-24hrs
+  const spotsLastDay = await spotsCollection
+    .find({
+      $and: [
+        { createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
+    .toArray();
+  if (!spotsLastDay) {
+    throw ["Could not get the spots in the last 24 hours"];
+  }
+  return spotsLastDay;
+};
+
+// Returns an array spots posted in the last 30 days
+const getSpotsLastMonth = async () => {
+  const spotsCollection = await spots();
+  // Reference: https://stackoverflow.com/questions/13314678/mongodb-only-fetch-documents-created-in-the-last-24hrs
+  const spotsLastMonth = await spotsCollection
+    .find({
+      $and: [
+        { createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000 * 30) } },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
+    .toArray();
+  if (!spotsLastMonth) {
+    throw ["Could not get the spots in the last month"];
+  }
+  return spotsLastMonth;
+};
+
+// Returns an array spots posted in the last 365 days
+const getSpotsLastYear = async () => {
+  const spotsCollection = await spots();
+  // Reference: https://stackoverflow.com/questions/13314678/mongodb-only-fetch-documents-created-in-the-last-24hrs
+  const spotsLastYear = await spotsCollection
+    .find({
+      $and: [
+        {
+          createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000 * 365) },
+        },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
+    .toArray();
+  if (!spotsLastYear) {
+    throw ["Could not get the spots in the last year"];
+  }
+  return spotsLastYear;
+};
+
 export default {
   getAllSpots,
   getSpotsByRating,
   getSpotsByKeywordSearch,
   getSpotsByTags,
+  getSpotsLastDay,
+  getSpotsLastMonth,
+  getSpotsLastYear,
 };
