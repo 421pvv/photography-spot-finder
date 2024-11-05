@@ -62,4 +62,32 @@ const getSpotsByKeywordSearch = async (keyword) => {
   return spotsKeywordsList;
 };
 
-export default { getAllSpots, getSpotsByRating, getSpotsByKeywordSearch };
+// Returns a list of all spots that has the given tag/tags in the tags array
+const getSpotsByTags = async (tagsArr) => {
+  if (tagsArr === undefined) {
+    throw ["tagsArr is missing"];
+  }
+  if (!Array.isArray(tagsArr)) {
+    throw ["tagsArr is not an array"];
+  }
+  if (tagsArr.length === 0) {
+    throw ["tagsArr is empty"];
+  }
+  const spotsCollection = await spots();
+  const spotsListByTags = await spotsCollection
+    .find({
+      $and: [{ tags: { $all: tagsArr } }, { reportCount: { $lt: 20 } }],
+    })
+    .toArray();
+  if (!spotsListByTags) {
+    throw ["Could not get spots with the given tags"];
+  }
+  return spotsListByTags;
+};
+
+export default {
+  getAllSpots,
+  getSpotsByRating,
+  getSpotsByKeywordSearch,
+  getSpotsByTags,
+};
