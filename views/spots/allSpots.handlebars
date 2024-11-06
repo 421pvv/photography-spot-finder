@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
-    const searchSpots = async (keyword) = {
+    const searchSpots = async (keyword) => {
         try {
             const response = await fetch(`/spots/search?keyword=${keyword}`);
             const spots = await response.json();
@@ -81,7 +81,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     //whenever the input event hits, it will render the spots based on inputs or all spots
-    searchInput.addEventListener("input", () = {
+    searchInput.addEventListener("input", () => {
         const keyword = searchInput.value.trim();
         if (keyword) {
             searchSpots(keyword);
