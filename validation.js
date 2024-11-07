@@ -55,7 +55,11 @@ const validateString = (str, varName, checkObjectId) => {
   if (trimmedStr.length === 0) {
     throw [`String ${varName ? varName : ""} is empty or has only spaces!`];
   }
-  if (checkObjectId && !ObjectId.isValid(trimmedStr)) {
+  if (
+    checkObjectId &&
+    checkObjectId === true &&
+    !ObjectId.isValid(trimmedStr)
+  ) {
     throw [`String (${trimmedStr}) is not a valid ObjectId!`];
   }
   return trimmedStr;
@@ -171,10 +175,37 @@ function validateBoolean(bool, varname) {
   }
 }
 
+// function to validate rating. A whole number in the range 1-10 (inclusive)
+function validateRating(rating) {
+  if (rating === undefined) {
+    throw ["rating is missing"];
+  }
+  if (typeof rating !== "number") {
+    throw ["rating is not of type number"];
+  }
+
+  if (isNaN(rating)) {
+    throw ["rating is NaN"];
+  }
+
+  if (!isFinite(rating)) {
+    throw ["rating is not finite"];
+  }
+
+  if (!Number.isInteger(rating)) {
+    throw ["Rating is not an integer"];
+  }
+
+  if (rating < 1 || rating > 10) {
+    throw ["Rating must be between 1 to 10 (inclusive)"];
+  }
+}
+
 export default {
   validateString,
   validateUsername,
   validatePassword,
   validateLoginPassword,
   validateBoolean,
+  validateRating,
 };
