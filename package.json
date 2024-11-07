@@ -8,7 +8,8 @@
     "start": "node app.js",
     "watch": "node --watch app.js",
     "test": "jest --watchAll --runInBand --verbose",
-    "ci_tests": "jest --runInBand --verbose"
+    "ci_tests": "jest --runInBand --verbose",
+    "seed": "node seedDB.js"
   },
   "repository": {
     "type": "git",

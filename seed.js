@@ -31,7 +31,7 @@ export async function initDB() {
     accessibility: 'always open to public2',
     bestTimes: ['Weekdays', 'midnight', 'early morning'],
     images: [],
-    tags: [],
+    tags: ['sunset', 'sea'],
     totalRatings: 43,
     avgRating: 5,
     currMonthTotalRating: 0,
