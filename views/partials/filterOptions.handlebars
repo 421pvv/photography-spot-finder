@@ -15,16 +15,21 @@
 
         <label for="timeFilter">Time:</label>
         <div>
+            <!--
             <input type="radio" id="lastDay" name="timeFilter" value="lastDay">
             <label for="lastDay">Last Day</label>
             <input type="radio" id="lastMonth" name="timeFilter" value="lastMonth">
             <label for="lastMonth">Last Month</label>
             <input type="radio" id="lastYear" name="timeFilter" value="lastYear">
-            <label for="lastYear">Last Year</label>
+            <label for="lastYear">Last Year</label>-->
+            <label for="fromDate">Enter a from date:</label>
+            <input id="fromDate" type="datetime-local" name="fromDate" value="2017-06-01T08:30" />
+
+            <label for="toDate">Enter a from date:</label>
+            <input id="toDate" type="datetime-local" name="toDate" value="2017-06-01T08:30" />
         </div>
 
         <button id="applyFilters">Apply Filters</button>
         <button id="clearFilters">Clear Filters</button>
     </div>
 </div>
-
