@@ -1,0 +1,94 @@
+/* general body styling */
+body {
+  background-color: #eeeeee;
+}
+
+/* top nav bar styling */
+#topNavBar {
+  margin: 2%;
+}
+#topNavBar li {
+  text-align: center;
+  height: 100%;
+  flex: 1;
+}
+#topNavBar li:hover {
+  background-color: #ff0000;
+  cursor: pointer;
+}
+#topNavBar a {
+  text-decoration: none;
+  color: white;
+  font-size: 1.5em;
+  display: block;
+  pointer-events: auto;
+  padding: 5%;
+}
+#topNavBar ul {
+  list-style-type: none;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  background-color: #04b127;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+/* title styling */
+.page_title {
+  margin: 5%;
+  text-align: center;
+  font-size: 3em;
+}
+
+/* form styling */
+form {
+  align-self: center;
+  width: 30%;
+  margin: 0 auto;
+  padding: 2%;
+  background-color: white;
+  border-radius: 1em;
+}
+form label {
+  margin: 5% 0 5% 0;
+  font-size: 1.25em;
+
+}
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 0.8em 1.25em;
+  margin: 0.5em 0;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1em;
+}
+.form_buttons {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2em;
+}
+form button {
+  cursor: pointer;
+  width: 40%;
+  padding: 0.75em;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
+}
+form button[type=submit] {
+  background-color: #37d857;
+  align-items:flex-start;
+}
+form button[type=submit]:hover {
+  background-color: #00ff33;
+}
+form button[type=reset] {
+  background-color: #ff311e;
+    align-items:flex-start;
+}
+form button[type=reset]:hover {
+  background-color: rgb(255, 0, 0);
+}

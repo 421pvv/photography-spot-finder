@@ -1,31 +1,34 @@
 <html lang="en">
 
-  <head>
-    <meta charset="utf-8" />
-    <title>Phtotography Spot Finder</title>
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <title>Phtotography Spot Finder</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+</head>
 
-  <body>
+<body>
 
-    <header>
-      <nav>
-        <ul>
-          <li><a href="/">All Spots</a></li>
+  <header>
+    <nav id="topNavBar">
+      <ul>
+        <li><a href="/">Browse Spots</a></li>
+        <li><a href="/spots/new">Add Spot</a></li>
 
-          {{#if user}}
-            <li><a href="/users/profile">Profile</a></li>
-            <li><a href="/users/logout">Logout</a></li>
-          {{else}}
-            <li><a href="/users/login">Login</a></li>
-            <li><a href="/users/signup">Signup</a></li>
-          {{/if}}
-        </ul>
-      </nav>
-    </header>
+        {{#if user}}
+        <li><a href="/users/profile">Profile</a></li>
+        <li><a href="/users/logout">Logout</a></li>
+        {{else}}
+        <li><a href="/users/login">Login</a></li>
+        <li><a href="/users/signup">Signup</a></li>
+        {{/if}}
+      </ul>
+    </nav>
+  </header>
 
-    <main>
-      {{{body}}}
-    </main>
-  </body>
+  <main>
+    {{{body}}}
+  </main>
+
+</body>
 
 </html>
