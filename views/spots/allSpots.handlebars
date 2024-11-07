@@ -9,6 +9,11 @@
     />
 </form>
 
+<button id="filterButton">Filter</button>
+
+{{!-- partial model for filters --}}
+{{> filterOptions }}
+
 <section id="spotsList">
     {{#if spots.length}}
         <ul>
@@ -41,6 +46,11 @@
 document.addEventListener("DOMContentLoaded", () => {
     const searchInput = document.getElementById("searchInput");
     const spotsList = document.getElementById("spotsList");
+    const filterButton = document.getElementById("filterButton");
+    const filterModal = document.getElementById("filterOption");
+    const closeModal = document.getElementById("closeModal"); 
+    const applyFiltersButton = document.getElementById("applyFilters"); 
+    const tagsInput = document.getElementById("tags");
 
     const renderSpots = (spots) => {
         spotsList.innerHTML = spots.length
@@ -79,6 +89,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     };
 
+    const filterSpotsByTags = async (tags) => {
+        try {
+            const response = await fetch(`/spots/searchbytags?tags=${tags}`);
+            const spots = await response.json();
+            renderSpots(spots);
+        } catch (error) {
+            console.error("Error fetching filtered spots:", error);
+        }
+    };
+
 
     //whenever the input event hits, it will render the spots based on inputs or all spots
     searchInput.addEventListener("input", () => {
@@ -91,5 +111,29 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     fetchAllSpots();
+
+    filterButton.addEventListener("click", () => {
+        filterModal.style.display = "block";
+    });
+
+    closeModal.addEventListener("click", () => {
+        filterModal.style.display = "none";
+    });
+
+    window.addEventListener("click", (event) => {
+        if (event.target === filterModal) {
+            filterModal.style.display = "none";
+        }
+    });
+
+    applyFiltersButton.addEventListener("click", () => {
+        const tags = tagsInput.value.trim();
+        if (tags) {
+            filterSpotsByTags(tags);
+            filterModal.style.display = "none"; 
+        } else {
+            alert("Please enter tags to filter.");
+        }
+    })
 });
 </script>
