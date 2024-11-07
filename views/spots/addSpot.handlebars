@@ -1,0 +1,38 @@
+<section>
+  <h1 class="page_title">Add Spot</h1>
+  <form method="POST">
+    <label>
+      Spot Name
+      <input type="text" name="spotName" placeholder="Spot Name" value="{{data.spotName}}" />
+    </label>
+
+    <label>
+      Last Name
+      <input type="text" name="lastName" placeholder="Last Name" value="{{data.lastName}}" />
+    </label>
+
+    <label>
+      Username
+      <input type="text" name="username" placeholder="Username" value="{{data.username}}" />
+    </label>
+
+    <label>
+      Password
+      <input type="password" name="password" placeholder="Password" value="{{data.password}}" />
+    </label>
+    <div class="form_buttons">
+      <button type="submit">Add</button>
+      <button type="reset">Clear Form</button>
+    </div>
+  </form>
+  {{#if hasErrors}}
+  <ul>
+    {{#each errors}}
+    <li>
+      {{this}}
+    </li>
+    {{/each}}
+  </ul>
+  {{/if}}
+
+</section>

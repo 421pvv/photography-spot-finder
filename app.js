@@ -54,5 +54,7 @@ app.use("/login", (req, res, next) => {
 configRoutes(app);
 
 app.listen(3000, () => {
-  console.log("Server runing on port 3000");
+  console.log("Application runing on port 3000");
+  console.log("URL: http://localhost:3000/");
+
 });

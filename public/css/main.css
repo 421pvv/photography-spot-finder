@@ -1,12 +1,40 @@
 /* general body styling */
 body {
   background-color: #eeeeee;
+  height: 100%;
+  width: 100%;
+  margin: 0;
+}
+
+/* general footer styling */
+
+footer{
+  vertical-align: bottom;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+}
+
+footer ul {
+  list-style-type: none;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  background-color: black;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+}
+
+footer li {
+  text-align: center;
+  height: 100%;
+  flex: 1;
+  padding: 0.5em;
 }
 
 /* top nav bar styling */
-#topNavBar {
-  margin: 2%;
-}
 #topNavBar li {
   text-align: center;
   height: 100%;
@@ -45,11 +73,15 @@ body {
 /* form styling */
 form {
   align-self: center;
-  width: 30%;
+  max-width: 25%;
+  min-width: 20%;
   margin: 0 auto;
   padding: 2%;
   background-color: white;
   border-radius: 1em;
+  box-shadow: 0.3 0.1;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+
 }
 form label {
   margin: 5% 0 5% 0;
