@@ -1,38 +1,194 @@
 <section>
   <h1 class="page_title">Add Spot</h1>
-  <form method="POST">
+  <form action="/spots/new" method="POST" class="addSpot">
     <label>
-      Spot Name
-      <input type="text" name="spotName" placeholder="Spot Name" value="{{data.spotName}}" />
+      Name
+      <input type="text" id="spotName" name="spotName" placeholder="Enter spot Name." value="{{spot.spotName}}" />
     </label>
+    {{#if errors.error_spotName}}
+    {{#each errors.error_spotName}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
+
+    <label for="spotDescription"> Description </label>
+    <textarea type="text" id="spotDescription" name="spotDescription"
+      placeholder="Describe the spot.">{{spot.spotDescription}}</textarea>
+    {{#if errors.error_spotDescription}}
+    {{#each errors.error_spotDescription}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
+
+    <label for="spotAccessibility"> Accessibility </label>
+    <textarea type="text" id="spotAccessibility" name="spotAccessibility"
+      placeholder="Describe how accessible the spot is.">{{spot.spotAccessibility}}</textarea>
+    {{#if errors.error_spotAccessibility}}
+    {{#each errors.error_spotAccessibility}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
 
     <label>
-      Last Name
-      <input type="text" name="lastName" placeholder="Last Name" value="{{data.lastName}}" />
+      Best Times
+      <input type="text" id="spotBestTimes" name="spotBestTimes"
+        placeholder="Enter best time(s) to visit the spot, seperated by commas (,)." value="{{spot.spotBestTimes}}" />
     </label>
+    {{#if errors.error_spotBestTimes}}
+    {{#each errors.error_spotBestTimes}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
 
     <label>
-      Username
-      <input type="text" name="username" placeholder="Username" value="{{data.username}}" />
+      Tags
+      <input type="text" id="spotTags" name="spotTags" placeholder="Enter any applicable tags, seperated by commas (,)."
+        value="{{spot.spotTags}}" />
     </label>
+    {{#if errors.error_spotTags}}
+    {{#each errors.error_spotTags}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
 
     <label>
-      Password
-      <input type="password" name="password" placeholder="Password" value="{{data.password}}" />
+      Location
+      <!-- Used mapbox guide to get started: https://docs.mapbox.com/help/tutorials/local-search-geocoding-api/ -->
+
     </label>
+    <div id="map"></div>
+    {{#if errors.error_spotLocation}}
+    {{#each errors.error_spotLocation}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
+
+    <label>
+      Upload Images
+      <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
+    </label>
+    {{#if errors.error_spotImages}}
+    {{#each errors.error_spotImages}}
+    <p class="formInputError">{{this}}</p>
+    {{/each}}
+    {{/if}}
+
+
+
+    <input type="hidden" id="spotLatitude" name="spotLatitude" value="{{spot.spotLatitude}}" />
+    <input type="hidden" id="spotLongitude" name="spotLongitude" value="{{spot.spotLongitude}}" />
+    <input type="hidden" id="spotAddress" name="spotAddress" value="{{spot.spotAddress}}" />
+    <input type="hidden" id="geometrySave" name="geometrySave" value="{{spot.geometrySave}}" />
+
+    <input type="hidden" id="spotImages" name="spotImages" name="spotImages" />
+
     <div class="form_buttons">
       <button type="submit">Add</button>
       <button type="reset">Clear Form</button>
     </div>
   </form>
-  {{#if hasErrors}}
-  <ul>
-    {{#each errors}}
-    <li>
-      {{this}}
-    </li>
-    {{/each}}
-  </ul>
-  {{/if}}
 
 </section>
+
+
+<script>
+  // set up map
+  const nycCoor = [-73.971321, 40.766676]; // set center to NYC
+  const prev_lat = "{{spot.spotLatitude}}";
+  const prev_long = "{{spot.spotLongitude}}";
+  let setDefault = false;
+  let defaultLoc;
+  const geoSave = document.getElementById("geometrySave")
+  if (!isNaN(parseFloat(prev_lat)) && !isNaN(parseFloat(prev_long))) {
+    setDefault = true;
+    defaultLoc = [parseFloat(prev_long), parseFloat(prev_lat)];
+    document.getElementById("spotLatitude").value = prev_lat;
+    document.getElementById("spotLongitude").value = prev_long;
+    geoSave.value = "{{spot.geometrySave}}";
+
+  }
+
+
+  mapboxgl.accessToken = "{{apikey}}"
+  let map;
+  let marker;
+  if (!setDefault) {
+    map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: nycCoor,
+      zoom: 11
+    });
+  } else {
+    map = new mapboxgl.Map({
+      container: 'map',
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: defaultLoc,
+      zoom: 15
+    });
+    marker = new mapboxgl.Marker()
+      .setLngLat(defaultLoc)
+      .addTo(map);
+
+  }
+  // set up geo coder to allow users to search
+  const geocoder = new MapboxGeocoder({
+    accessToken: mapboxgl.accessToken,
+    placeholder: 'Search for places',
+    mapboxgl: mapboxgl,
+    marker: false,
+  });
+
+  map.addControl(geocoder);
+  document.addEventListener("DOMContentLoaded", () => {
+    const latInput = document.getElementById("spotLatitude");
+    const lonInput = document.getElementById("spotLongitude");
+    const spotAddress = document.getElementById("spotAddress");
+    const spotContext = document.getElementById("spotContext");
+
+    geocoder.on("result", (loc) => {
+      console.log(loc)
+      lonInput.value = loc.result.geometry.coordinates[0];
+      latInput.value = loc.result.geometry.coordinates[1];
+      spotAddress.value = loc.result.place_name;
+      geoSave.value = JSON.stringify(loc.result.geometry);
+      console.log(geoSave.value)
+
+      if (marker) {
+        marker.setLngLat(loc.result.geometry.coordinates)
+      } else {
+        marker = new mapboxgl.Marker()
+          .setLngLat(loc.result.geometry.coordinates)
+          .addTo(map);
+      }
+    });
+  });
+
+</script>
+
+
+<script src="https://upload-widget.cloudinary.com/latest/global/all.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+  const urls = [];
+
+  const imageFileUrls = document.getElementById("spotImages");
+  var myWidget = cloudinary.createUploadWidget({
+    cloudName: 'db7w46lyt',
+    uploadPreset: 'Spot Images',
+  }, (error, result) => {
+    if (!error && result && result.event === "success") {
+      urls.push({
+        public_id: result.info.public_id,
+        url: result.info.secure_url
+      });
+      console.log(urls);
+      imageFileUrls.value = JSON.stringify(urls);
+    }
+  }
+  )
+
+  document.getElementById("upload_widget").addEventListener("click", function () {
+    myWidget.open();
+  }, false);
+</script>

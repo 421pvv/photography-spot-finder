@@ -1,25 +1,30 @@
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="utf-8" />
   <title>Phtotography Spot Finder</title>
   <link rel="stylesheet" href="/public/css/main.css">
+  {{#if styles}}
+  {{#each styles}}
+  {{{this}}}
+  {{/each}}
+  {{/if}}
+
+  {{#if scripts}}
+  {{#each scripts}}
+  {{{this}}}
+  {{/each}}
+  {{/if}}
 </head>
 
 <body>
 
-<<<<<<< HEAD
   <header>
     <nav id="topNavBar">
       <ul>
-        <li><a href="/">Browse Spots</a></li>
+        <li><a href="/spots/allSpots">Browse Spots</a></li>
         <li><a href="/spots/new">Add Spot</a></li>
-=======
-    <header>
-      <nav>
-        <ul>
-          <li><a href="/spots/allSpots">All Spots</a></li>
->>>>>>> 0b1628d79ac8f0a75e5c24dba5ed8e8b44a1de3d
 
         {{#if user}}
         <li><a href="/users/profile">Profile</a></li>
@@ -44,8 +49,6 @@
       <li><cite>Siva Anand Sivakumar</cite></li>
       <li><cite>Akshay Vanaparthi</cite></li>
     </ul>
-
-    </cite>
   </footer>
 
 </body>
