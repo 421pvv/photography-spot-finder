@@ -62,7 +62,9 @@ $("#addSpotForm").submit((event) => {
 
         $("#spotBestTimesErrors").append(
           errorMessage(
-            `Invalid best time: "${bestTimes[tagI]}". A best time cannot be blank or just spaces.`
+            `Invalid best time #${parseInt(tagI) + 1}: "${
+              bestTimes[tagI]
+            }". A best time cannot be blank or just spaces.`
           )
         );
         hasError = true;
@@ -86,16 +88,24 @@ $("#addSpotForm").submit((event) => {
         tags[tagI] = validation.validateString(tags[tagI]);
       } catch (e) {
         console.log(e);
-
         $("#spotTagsErrors").append(
           errorMessage(
-            `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
+            `Invalid tag #${parseInt(tagI) + 1}: "${
+              tags[tagI]
+            }". A tag cannot be blank or just spaces.`
           )
         );
         hasError = true;
       }
     }
     spotTags.val(tags.join(","));
+    if (tags.length > 5) {
+      console.log("more than five tags present");
+      $("#spotTagsErrors").append(
+        errorMessage(`A maximum of five tags is allowed!`)
+      );
+      hasError = true;
+    }
   } catch (e) {}
 
   try {
