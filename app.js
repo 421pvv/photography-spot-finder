@@ -19,6 +19,8 @@ const rewriteUnsupportedBrowserMethods = (req, res, next) => {
   next();
 };
 app.use('/public', express.static('public'));
+app.use('/validation.js', express.static('public'));
+
 app.use(express.json());
 app.use(
   session({

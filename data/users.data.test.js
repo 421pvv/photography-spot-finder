@@ -23,6 +23,7 @@ describe("Testing users data functions", () => {
     });
 
     describe("Testing input validation", () => {
+      ß;
       it("Throws when when valid firstName, lastName, username, and password are not provided", async () => {
         let expectedUserInfo;
 

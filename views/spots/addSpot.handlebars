@@ -1,55 +1,66 @@
 <section>
   <h1 class="page_title">Add Spot</h1>
-  <form action="/spots/new" method="POST" class="addSpot">
+  <form id="addSpotForm" action="/spots/new" method="POST" class="addSpot">
     <label>
       Name
-      <input type="text" id="spotName" name="spotName" placeholder="Enter spot Name." value="{{spot.spotName}}" />
+      <input type="text" id="spotName" name="spotName" placeholder="Enter spot Name." value="{{spot.spotName}}">
     </label>
-    {{#if errors.error_spotName}}
-    {{#each errors.error_spotName}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+    <div id="spotNameErrors">
+      {{#if errors.error_spotName}}
+      {{#each errors.error_spotName}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
     <label for="spotDescription"> Description </label>
-    <textarea type="text" id="spotDescription" name="spotDescription"
+    <textarea id="spotDescription" name="spotDescription"
       placeholder="Describe the spot.">{{spot.spotDescription}}</textarea>
-    {{#if errors.error_spotDescription}}
-    {{#each errors.error_spotDescription}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+    <div id="spotDescriptionErrors">
+      {{#if errors.error_spotDescription}}
+      {{#each errors.error_spotDescription}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
     <label for="spotAccessibility"> Accessibility </label>
-    <textarea type="text" id="spotAccessibility" name="spotAccessibility"
+    <textarea id="spotAccessibility" name="spotAccessibility"
       placeholder="Describe how accessible the spot is.">{{spot.spotAccessibility}}</textarea>
-    {{#if errors.error_spotAccessibility}}
-    {{#each errors.error_spotAccessibility}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+    <div id="spotAccessibilityErrors">
+      {{#if errors.error_spotAccessibility}}
+      {{#each errors.error_spotAccessibility}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
     <label>
       Best Times
       <input type="text" id="spotBestTimes" name="spotBestTimes"
-        placeholder="Enter best time(s) to visit the spot, seperated by commas (,)." value="{{spot.spotBestTimes}}" />
+        placeholder="Enter best time(s) to visit the spot, seperated by commas (,)." value="{{spot.spotBestTimes}}">
     </label>
-    {{#if errors.error_spotBestTimes}}
-    {{#each errors.error_spotBestTimes}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+    <div id="spotBestTimesErrors">
+      {{#if errors.error_spotBestTimes}}
+      {{#each errors.error_spotBestTimes}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
     <label>
       Tags
       <input type="text" id="spotTags" name="spotTags" placeholder="Enter any applicable tags, seperated by commas (,)."
-        value="{{spot.spotTags}}" />
+        value="{{spot.spotTags}}">
     </label>
-    {{#if errors.error_spotTags}}
-    {{#each errors.error_spotTags}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+    <div id="spotTagsErrors">
+
+      {{#if errors.error_spotTags}}
+      {{#each errors.error_spotTags}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
     <label>
       Location
@@ -57,30 +68,38 @@
 
     </label>
     <div id="map"></div>
-    {{#if errors.error_spotLocation}}
-    {{#each errors.error_spotLocation}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+    <div id="spotLocationErrors">
+      {{#if errors.error_spotLocation}}
+      {{#each errors.error_spotLocation}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
-    <label>
-      Upload Images
+
+    <label id="imageUploadLabel">
+      Upload Images (At most 3 allowed)
       <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
     </label>
-    {{#if errors.error_spotImages}}
-    {{#each errors.error_spotImages}}
-    <p class="formInputError">{{this}}</p>
-    {{/each}}
-    {{/if}}
+
+    <div id="imageUploadPreviews">
+    </div>
+    <div id="spotImagesErrors">
+      {{#if errors.error_spotImages}}
+      {{#each errors.error_spotImages}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
 
 
+    <input type="hidden" id="spotLatitude" name="spotLatitude" value="{{spot.spotLatitude}}">
+    <input type="hidden" id="spotLongitude" name="spotLongitude" value="{{spot.spotLongitude}}">
+    <input type="hidden" id="spotAddress" name="spotAddress" value="{{spot.spotAddress}}">
+    <input type="hidden" id="geometrySave" name="geometrySave" value="{{spot.geometrySave}}">
 
-    <input type="hidden" id="spotLatitude" name="spotLatitude" value="{{spot.spotLatitude}}" />
-    <input type="hidden" id="spotLongitude" name="spotLongitude" value="{{spot.spotLongitude}}" />
-    <input type="hidden" id="spotAddress" name="spotAddress" value="{{spot.spotAddress}}" />
-    <input type="hidden" id="geometrySave" name="geometrySave" value="{{spot.geometrySave}}" />
-
-    <input type="hidden" id="spotImages" name="spotImages" name="spotImages" />
+    <input type="hidden" id="spotImages" name="spotImages">
+    <input type="hidden" id="spotDiscardedImages" name="spotDiscardedImages">
 
     <div class="form_buttons">
       <button type="submit">Add</button>
@@ -165,30 +184,62 @@
   });
 
 </script>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+  crossorigin="anonymous"></script>
 
 
-<script src="https://upload-widget.cloudinary.com/latest/global/all.js" type="text/javascript"></script>
-
-<script type="text/javascript">
-  const urls = [];
-
+<script>
+  let urls = [];
+  const discardedImagesIds = [];
+  const discardedImages = $("#spotDiscardedImages");
+  const previewContainer = $("#imageUploadPreviews");
   const imageFileUrls = document.getElementById("spotImages");
+
   var myWidget = cloudinary.createUploadWidget({
     cloudName: 'db7w46lyt',
     uploadPreset: 'Spot Images',
+    resourceType: "image",
+    multiple: false,
   }, (error, result) => {
     if (!error && result && result.event === "success") {
       urls.push({
         public_id: result.info.public_id,
         url: result.info.secure_url
       });
-      console.log(urls);
       imageFileUrls.value = JSON.stringify(urls);
+
+
+      previewContainer.append(
+        `<div id="${result.info.public_id}" class="previewImageContainer">
+        <img
+          src="${result.info.secure_url}">
+        <span class="removeImageIcon">❌</span>
+      </div>`);
+
+      $(`#${result.info.public_id} span`).click((event) => {
+        console.log("click");
+        discardedImagesIds.push(result.info.public_id);
+        urls = urls.filter(image => image.public_id !== result.info.public_id);
+
+        discardedImages.val(JSON.stringify(discardedImagesIds));
+        $("#spotImages").val(JSON.stringify(urls));
+
+        $(`#${result.info.public_id}`).remove();
+      });
+
     }
   }
-  )
+  );
 
   document.getElementById("upload_widget").addEventListener("click", function () {
-    myWidget.open();
+    if (urls.length == 3) {
+      alert("You have reached the image upload limit.");
+    } else {
+      myWidget.open();
+    }
   }, false);
 </script>
+
+
+
+<script type="module" src="/public/js/spots/addspotValidation.js"> </script>
