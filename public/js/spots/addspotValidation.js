@@ -21,6 +21,7 @@ $("#addSpotForm").submit((event) => {
   try {
     spotName.val(validation.validateString(spotName.val()));
   } catch (e) {
+    console.log(e);
     $("#spotNameErrors").append(
       errorMessage("Spot Name must not be blank or just spaces!")
     );
@@ -30,6 +31,8 @@ $("#addSpotForm").submit((event) => {
   try {
     spotDescription.val(validation.validateString(spotDescription.val()));
   } catch (e) {
+    console.log(e);
+
     $("#spotDescriptionErrors").append(
       errorMessage(`Spot Description must not be blank or just spaces!`)
     );
@@ -39,13 +42,14 @@ $("#addSpotForm").submit((event) => {
   try {
     spotAccessibility.val(validation.validateString(spotAccessibility.val()));
   } catch (e) {
+    console.log(e);
+
     $("#spotAccessibilityErrors").append(
       errorMessage(`Spot Accessibility  must not be blank or just spaces!`)
     );
     hasError = true;
   }
 
-  console.log(spotBestTimes.val());
   let bestTimes;
   try {
     bestTimes = validation.validateString(spotBestTimes.val());
@@ -54,6 +58,8 @@ $("#addSpotForm").submit((event) => {
       try {
         bestTimes[tagI] = validation.validateString(bestTimes[tagI]);
       } catch (e) {
+        console.log(e);
+
         $("#spotBestTimesErrors").append(
           errorMessage(
             `Invalid best time: "${bestTimes[tagI]}". A best time cannot be blank or just spaces.`
@@ -64,6 +70,8 @@ $("#addSpotForm").submit((event) => {
     }
     spotBestTimes.val(bestTimes.join(","));
   } catch (e) {
+    console.log(e);
+
     $("#spotBestTimesErrors").append(
       errorMessage(`Must provide at least one valid best time!`)
     );
@@ -77,6 +85,8 @@ $("#addSpotForm").submit((event) => {
       try {
         tags[tagI] = validation.validateString(tags[tagI]);
       } catch (e) {
+        console.log(e);
+
         $("#spotTagsErrors").append(
           errorMessage(
             `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
@@ -86,11 +96,7 @@ $("#addSpotForm").submit((event) => {
       }
     }
     spotTags.val(tags.join(","));
-  } catch (e) {
-    $("#spotTagsErrors").append(
-      errorMessage(`Must provide at least one valid tag!`)
-    );
-  }
+  } catch (e) {}
 
   try {
     validation.validateCoordinates(spotLongitude.val(), spotLatitude.val());
@@ -108,17 +114,19 @@ $("#addSpotForm").submit((event) => {
   try {
     JSON.parse(spotImages.val());
   } catch (e) {
-    console.log(e);
-    $("#spotImagesErrors").append(
-      errorMessage(`Please upload at least one image of the spot!`)
-    );
-    hasError = true;
+    if (spotImages.val().trim().length == 0) {
+      console.log("No images selected");
+
+      spotImages.val("");
+      $("#spotImagesErrors").append(
+        errorMessage(`Please upload at least one image of the spot!`)
+      );
+      hasError = true;
+    }
   }
 
   if (hasError) {
-    console.log("Errors: submission stopped");
+    console.log("Errors present: submission stopped");
     event.preventDefault();
-  } else {
-    this.submit();
   }
 });

@@ -88,25 +88,31 @@ router
       newSpot.spotBestTimes = bestTimes;
     }
 
-    const tags = newSpot.spotTags.split(",");
-    tagErrors = [];
-    for (const tagI in tags) {
-      try {
-        tags[tagI] = validation.validateString(tags[tagI]);
-      } catch (e) {
-        tagErrors.push(
-          `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
-        );
+    if (
+      typeof newSpot.spotTags === "string" &&
+      newSpot.spotTags.trim().length !== 0
+    ) {
+      const tags = newSpot.spotTags.split(",");
+      tagErrors = [];
+      for (const tagI in tags) {
+        try {
+          tags[tagI] = validation.validateString(tags[tagI]);
+        } catch (e) {
+          tagErrors.push(
+            `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
+          );
+        }
       }
-    }
-    if (Array.isArray(tags) && tags.length > 5) {
-      tagErrors.push(`A maximum of five tags is allowed`);
-    }
-
-    if (tagErrors.length > 0) {
-      errors.error_spotTags = tagErrors;
+      if (Array.isArray(tags) && tags.length > 5) {
+        tagErrors.push(`A maximum of five tags is allowed`);
+      }
+      if (tagErrors.length > 0) {
+        errors.error_spotTags = tagErrors;
+      } else {
+        newSpot.spotTags = tags;
+      }
     } else {
-      newSpot.spotTags = tags;
+      newSpot.spotTags = [];
     }
 
     try {

@@ -108,6 +108,8 @@
   </form>
 
 </section>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+  crossorigin="anonymous"></script>
 
 
 <script>
@@ -148,7 +150,7 @@
     marker = new mapboxgl.Marker()
       .setLngLat(defaultLoc)
       .addTo(map);
-
+    $("#map input[type=text]").val($("#spotAddress").val());
   }
   // set up geo coder to allow users to search
   const geocoder = new MapboxGeocoder({
@@ -157,8 +159,10 @@
     mapboxgl: mapboxgl,
     marker: false,
   });
-
   map.addControl(geocoder);
+  if (!isNaN(parseFloat(prev_lat)) && !isNaN(parseFloat(prev_long))) {
+    $("#map input").val($("#spotAddress").val());
+  }
   document.addEventListener("DOMContentLoaded", () => {
     const latInput = document.getElementById("spotLatitude");
     const lonInput = document.getElementById("spotLongitude");
@@ -184,8 +188,6 @@
   });
 
 </script>
-<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
-  crossorigin="anonymous"></script>
 
 
 <script>
@@ -209,6 +211,8 @@
       imageFileUrls.value = JSON.stringify(urls);
 
 
+
+      // set up image preview and handle images to be removed at server side
       previewContainer.append(
         `<div id="${result.info.public_id}" class="previewImageContainer">
         <img
@@ -217,7 +221,7 @@
       </div>`);
 
       $(`#${result.info.public_id} span`).click((event) => {
-        console.log("click");
+        console.log("Removing image: ", result.info.public_id);
         discardedImagesIds.push(result.info.public_id);
         urls = urls.filter(image => image.public_id !== result.info.public_id);
 
