@@ -1,31 +1,56 @@
+<!DOCTYPE html>
 <html lang="en">
 
-  <head>
-    <meta charset="utf-8" />
-    <title>Phtotography Spot Finder</title>
-  </head>
+<head>
+  <meta charset="utf-8">
+  <title>Phtotography Spot Finder</title>
+  <link rel="stylesheet" href="/public/css/main.css">
+  {{#if styles}}
+  {{#each styles}}
+  {{{this}}}
+  {{/each}}
+  {{/if}}
 
-  <body>
+  {{#if scripts}}
+  {{#each scripts}}
+  {{{this}}}
+  {{/each}}
+  {{/if}}
+</head>
 
-    <header>
-      <nav>
-        <ul>
-          <li><a href="/">All Spots</a></li>
+<body>
 
-          {{#if user}}
-            <li><a href="/users/profile">Profile</a></li>
-            <li><a href="/users/logout">Logout</a></li>
-          {{else}}
-            <li><a href="/users/login">Login</a></li>
-            <li><a href="/users/signup">Signup</a></li>
-          {{/if}}
-        </ul>
-      </nav>
-    </header>
+  <header>
+    <nav id="topNavBar">
+      <ul>
+        <li><a href="/spots/allSpots">Browse Spots</a></li>
+        <li><a href="/spots/new">Add Spot</a></li>
 
-    <main>
-      {{{body}}}
-    </main>
-  </body>
+        {{#if user}}
+        <li><a href="/users/profile">Profile</a></li>
+        <li><a href="/users/logout">Logout</a></li>
+        {{else}}
+        <li><a href="/users/login">Login</a></li>
+        <li><a href="/users/signup">Signup</a></li>
+        {{/if}}
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    {{{body}}}
+  </main>
+
+  <footer>
+    <ul class="citeDevs">
+      <li><cite>Suraj Janakiraman</cite></li>
+      <li><cite>Dhruvish Tarakbhai Parekh</cite></li>
+      <li><cite>Vishnu Vardhan Putta</cite></li>
+      <li><cite>Siva Anand Sivakumar</cite></li>
+      <li><cite>Akshay Vanaparthi</cite></li>
+    </ul>
+  </footer>
+
+</body>
 
 </html>

@@ -175,10 +175,61 @@ function validateBoolean(bool, varname) {
   }
 }
 
+function validateNumber(num, varName) {
+  if (typeof num !== "number") {
+    throw [`${varName || ''} is not a number`]
+  }
+  if (isNaN(num)) {
+    throw [`${varName || ''} is a not a valid number`]
+  }
+}
+
+function validateCoordinates(logitude, latitude) {
+  logitude = parseFloat(logitude);
+  latitude = parseFloat(latitude);
+  validateNumber(logitude, "logitude");
+  validateNumber(latitude, "latitude");
+  if (logitude < -90 || logitude > 90) {
+    throw `Longitude must be between -90 and 90`
+  }
+  if (latitude < -180 || latitude > 180) {
+    throw `Latitude must be between -180 and 180`
+  }
+
+}
+
+// function to validate rating. A whole number in the range 1-10 (inclusive)
+function validateRating(rating) {
+  if (rating === undefined) {
+    throw ["rating is missing"];
+  }
+  if (typeof rating !== "number") {
+    throw ["rating is not of type number"];
+  }
+
+  if (isNaN(rating)) {
+    throw ["rating is NaN"];
+  }
+
+  if (!isFinite(rating)) {
+    throw ["rating is not finite"];
+  }
+
+  if (!Number.isInteger(rating)) {
+    throw ["Rating is not an integer"];
+  }
+
+  if (rating < 1 || rating > 10) {
+    throw ["Rating must be between 1 to 10 (inclusive)"];
+  }
+}
+
 export default {
   validateString,
   validateUsername,
   validatePassword,
   validateLoginPassword,
   validateBoolean,
+  validateRating,
+  validateCoordinates
 };

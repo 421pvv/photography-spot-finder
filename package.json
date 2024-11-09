@@ -8,7 +8,8 @@
     "start": "node app.js",
     "watch": "node --watch app.js",
     "test": "jest --watchAll --runInBand --verbose",
-    "ci_tests": "jest --runInBand --verbose"
+    "ci_tests": "jest --runInBand --verbose",
+    "seed": "node seedDB.js"
   },
   "repository": {
     "type": "git",
@@ -27,7 +28,10 @@
   },
   "homepage": "https://github.com/sivaanand13/photography-spot-finder#readme",
   "dependencies": {
+    "@mapbox/search-js-web": "^1.0.0-beta.22",
     "bcrypt": "^5.1.1",
+    "cloudinary": "^2.5.1",
+    "dotenv": "^16.4.5",
     "express": "^4.21.1",
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.1",
