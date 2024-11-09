@@ -277,4 +277,21 @@ router.route("/searchbyrating").get(async (req, res) => {
   }
 });
 
+router.route("/searchbyrating").get(async (req, res) => {
+  try {
+    const minRating = parseFloat(req.query.minRating);
+    const maxRating = parseFloat(req.query.maxRating);
+
+    if (isNaN(minRating) || isNaN(maxRating)) {
+      return res
+        .status(400)
+        .json({ error: "invalid min and max rating values prvided" });
+    }
+    const spotList = await spotsData.getSpotsByRating(minRating, maxRating);
+    res.json(spotList);
+  } catch (e) {
+    res.status(400).json({ error: "Invalid rating values provided" });
+  }
+});
+
 export default router;
