@@ -1,5 +1,6 @@
 import { spots } from "../config/mongoCollections.js";
 import validation from "../validation.js";
+import { ObjectId } from "mongodb";
 
 // Function to get all spots which have number of reports less than 20, to be displayed on the spots list page
 const getAllSpots = async () => {
@@ -178,6 +179,19 @@ const getSpotsByDateRange = async (startDate, endDate) => {
   }
 
   return spotsInDateRange;
+};
+
+// takes id as a string parameter and returns the spot with that id
+const getSpotById = async (id) => {
+  id = validation.validateString(id, "id", true);
+  const spotsCollection = await spots();
+  const spot = await spotsCollection.findOne({
+    _id: ObjectId.createFromHexString(id),
+  });
+  if (spot === null) {
+    throw [`No spot with id of ${id}`];
+  }
+  return spot;
 };
 
 export default {
