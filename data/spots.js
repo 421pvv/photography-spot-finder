@@ -150,31 +150,35 @@ const getSpotsLastYear = async () => {
 
 const getSpotsByDateRange = async (startDate, endDate) => {
   if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
-      throw new Error("Both startDate and endDate must be valid Date objects.");
+    throw ["Both startDate and endDate must be valid Date objects."];
   }
 
   if (startDate >= endDate) {
-      throw new Error("The startDate must be earlier than the endDate.");
+    throw ["The startDate must be earlier than the endDate."];
   }
 
   const spotsCollection = await spots();
 
   const spotsInDateRange = await spotsCollection
-      .find({
+    .find({
+      $and: [
+        {
           createdAt: {
-              $gte: startDate,
-              $lte: endDate
-          }
-      })
-      .toArray();
+            $gte: startDate,
+          },
+        },
+        { createdAt: { $lte: endDate } },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
+    .toArray();
 
   if (spotsInDateRange.length === 0) {
-      throw new Error("No spots found within the specified date range.");
+    throw ["No spots found within the specified date range."];
   }
 
   return spotsInDateRange;
 };
-
 
 export default {
   getAllSpots,
@@ -184,5 +188,5 @@ export default {
   getSpotsLastDay,
   getSpotsLastMonth,
   getSpotsLastYear,
-  getSpotsByDateRange
+  getSpotsByDateRange,
 };
