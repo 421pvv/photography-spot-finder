@@ -1,15 +1,15 @@
 <section>
   <h1 class="page_title">Login</h1>
 
-  {{#if hasAuthErrors}}
-  <ul>
+  <div id="authErrors">
+    {{#if hasAuthErrors}}
     {{#each authErrors}}
-    <li>
+    <p class="authError">
       {{this}}
-    </li>
+    </p>
     {{/each}}
-  </ul>
-  {{/if}}
+    {{/if}}
+  </div>
 
   <form action="/users/login" method="POST" class="mainForms" id="login-form">
 

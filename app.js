@@ -7,7 +7,7 @@ import exphbs from "express-handlebars";
 import logging from "./log.js";
 import logger from "./log.js";
 import log from "./log.js";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 dotenv.config();
 
@@ -18,8 +18,8 @@ const rewriteUnsupportedBrowserMethods = (req, res, next) => {
   }
   next();
 };
-app.use('/public', express.static('public'));
-app.use('/validation.js', express.static('public'));
+app.use("/public", express.static("public"));
+app.use("/validation.js", express.static("public"));
 
 app.use(express.json());
 app.use(
@@ -39,17 +39,17 @@ app.set("view engine", "handlebars");
 
 app.get("*", (req, res, next) => {
   const restrictedPaths = [
-    {url: "/users/profile", error: "access profile!"},
-    //{url: "/spots/new", error: "add a new spot!"},
+    { url: "/users/profile", error: "access profile!" },
+    //{ url: "/spots/new", error: "add a new spot!" },
   ];
   let curPath = req.baseUrl + req.path;
-  if (curPath.charAt(curPath.length - 1) === '/') {
+  if (curPath.charAt(curPath.length - 1) === "/") {
     curPath = curPath.substring(0, curPath.length - 1);
   }
-  const restrictedPath = restrictedPaths.filter(path => path.url === curPath);
+  const restrictedPath = restrictedPaths.filter((path) => path.url === curPath);
 
   if (restrictedPath.length > 0 && !req.session.user) {
-    logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`)
+    logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
     req.body.authErrors = [
       `You're not logged in! Please login in (or signup) before attempting to ${restrictedPath[0].error}`,
     ];
@@ -80,5 +80,4 @@ configRoutes(app);
 app.listen(3000, () => {
   console.log("Application runing on port 3000");
   console.log("URL: http://localhost:3000/");
-
 });

@@ -20,6 +20,17 @@ export const createUser = async (firstName, lastName, username, password) => {
     lastName,
     username,
     password: encryptedPassword,
+    bio: "",
+    email: "",
+    favoriteSpots: [],
+    comments: [],
+    ratings: [],
+    spots: [],
+    contestSubmissions: [],
+    contestVotes: [],
+    sportReports: [],
+    commentReports: [],
+    contestReports: [],
   };
 
   const usersCollection = await users();
@@ -48,12 +59,77 @@ const authenticateUser = async (username, password) => {
   }
 };
 
-export const createProfile = (email, bio) => {};
-
-export const updateUserProfile = (userObject) => {
+export const updateUserProfile = async (userObject) => {
   validateObject(userObject, "Update object");
-  // got email regex from https://regex101.com/library/SOgUIV
-  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+  let firstName = userObject.firstName;
+  let lastName = userObject.lastName;
+  let email = userObject.email;
+  let bio = userObject.bio;
+  let password = userObject.password;
+
+  let errors = [];
+  let updateUserProfile = {};
+
+  if (password !== undefined) {
+    try {
+      validation.validatePassword(password, "Password");
+      const salt = bcrypt.genSaltSync(SALT_ROUNDS);
+      password = bcrypt.hashSync(password, salt);
+      updateUserProfile.password = password;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (firstName !== undefined) {
+    try {
+      firstName = validation.validateString(firstName);
+      updateUserProfile.firstName = firstName;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (lastName !== undefined) {
+    try {
+      lastName = validation.validateString(lastName);
+      updateUserProfile.lastName = lastName;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (email !== undefined) {
+    try {
+      email = validation.validateEmail(email);
+      updateUserProfile.email = email;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (bio !== undefined) {
+    try {
+      bio = validation.validateString(bio);
+      updateUserProfile.bio = bio;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (errors.length > 0) {
+    throw errors;
+  }
+
+  const filter = {
+    username,
+  };
+  const userProfile = {
+    $set: updateUserProfile,
+  };
+
+  const usersCollection = await users();
+  const insertInfo = await usersCollection.updateOne(filter, userProfile);
 };
 
 const getUserByUsername = async (username, includePassword) => {
@@ -69,13 +145,39 @@ const getUserByUsername = async (username, includePassword) => {
   if (includePassword && includePassword === true) {
     options.projection = {
       _id: 0,
+      firstName: 1,
+      lastName: 1,
+      username: 1,
+      password: 1,
     };
   } else {
     options.projection = {
       _id: 0,
-      password: 0,
+      firstName: 1,
+      username: 1,
+      lastName: 1,
     };
   }
+
+  const usersCollection = await users();
+  const userInfo = await usersCollection.findOne(filter, options);
+  if (!userInfo) throw [`Could not find user with username (${username})`];
+
+  return userInfo;
+};
+
+const getUserInfo = async (username) => {
+  username = validation.validateUsername(username, "Username");
+
+  const filter = {
+    username,
+  };
+
+  let options = {};
+  options.projection = {
+    _id: 1,
+    password: 0,
+  };
 
   const usersCollection = await users();
   const userInfo = await usersCollection.findOne(filter, options);

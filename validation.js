@@ -144,6 +144,17 @@ function validateUsername(str, varName) {
   return str.toLowerCase();
 }
 
+const validateEmail = (email) => {
+  email = validation.validateString(email);
+  // got email regex from https://regex101.com/library/SOgUIV
+  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+
+  if (!email.test(emailRegex)) {
+    throw [`Email (${email}) is not valid!`];
+  }
+  return email.toLowerCase();
+};
+
 function validatePassword(str, varName) {
   let errors = [];
   try {
@@ -256,4 +267,5 @@ export default {
   validateRating,
   validateCoordinates,
   validateObject,
+  validateEmail,
 };

@@ -2,6 +2,7 @@ import express from "express";
 import validation from "../validation.js";
 import { userData } from "../data/index.js";
 import logging from "../log.js";
+import logger from "../log.js";
 const router = express.Router();
 
 router
@@ -95,6 +96,7 @@ router
     });
   })
   .post(async (req, res) => {
+    logger.log("Attempting log in for: " + req.body.username);
     const loginData = req.body;
     let errors = [];
     try {
