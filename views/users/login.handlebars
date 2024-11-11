@@ -11,30 +11,34 @@
   </ul>
   {{/if}}
 
-  <form action="/users/login" method="POST" class="mainForms">
+  <form action="/users/login" method="POST" class="mainForms" id="login-form">
 
     <label>
       Username
-      <input type="text" name="username" placeholder="Username" value="{{data.username}}" />
+      <input type="text" name="username" placeholder="Username" value="{{data.username}}" id="user-name" required>
     </label>
 
     <label>
       Password
-      <input type="password" name="password" placeholder="Password" value="{{data.password}}" />
+      <input type="password" name="password" placeholder="Password" value="{{data.password}}" id="password" required>
     </label>
+    <div id="form-errors-div">
+      {{#if hasErrors}}
+      <ul id="login-form-errors">
+        {{#each errors}}
+        <li>
+          {{this}}
+        </li>
+        {{/each}}
+      </ul>
+      {{/if}}
+    </div>
     <div class="form_buttons">
       <button type="submit">Login</button>
-      <button type="reset">Clear Form</button>
+      <button type="reset" id="clear-login-form">Clear Form</button>
     </div>
+    <p>Don't have an account? <a href="/users/signup" id="login-here-link">Sign up here</a></p>
   </form>
-  {{#if hasErrors}}
-  <ul>
-    {{#each errors}}
-    <li>
-      {{this}}
-    </li>
-    {{/each}}
-  </ul>
-  {{/if}}
 
 </section>
+<script src="/public/js/validation/login_validation.js"></script>
