@@ -8,7 +8,7 @@ body {
 
 /* general footer styling */
 
-footer{
+footer {
   vertical-align: bottom;
   position: relative;
   bottom: 0;
@@ -18,7 +18,7 @@ footer{
 
 footer ul {
   list-style-type: none;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
   background-color: black;
   color: white;
   display: flex;
@@ -55,7 +55,7 @@ footer li {
 }
 #topNavBar ul {
   list-style-type: none;
-  font-family: Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
   background-color: #04b127;
   display: flex;
   justify-content: center;
@@ -74,7 +74,7 @@ footer li {
 /* form styling */
 .mainForms {
   align-self: center;
-  max-width: 25%;
+  max-width: 50%;
   min-width: 20%;
   margin: 0 auto;
   padding: 2%;
@@ -82,14 +82,19 @@ footer li {
   border-radius: 1em;
   box-shadow: 0.3 0.1;
   box-shadow: #d2d2d7 0em 0.5em 2em;
-
 }
 .mainForms label {
   margin: 5% 0 5% 0;
-  font-size: 1.25em;
-
+  font-size: 1.3em;
 }
-.mainForms input[type=text], input[type=password], input[type=file]  {
+.mainForms p {
+  margin: 5% 0 5% 0;
+  font-size: 1.5em;
+  text-align: center;
+}
+.mainForms input[type="text"],
+input[type="password"],
+input[type="file"] {
   width: 100%;
   padding: 0.8em 1.25em;
   margin: 0.5em 0;
@@ -111,18 +116,18 @@ footer li {
   border-radius: 1em;
   font-size: 1.5em;
 }
-.mainForms button[type=submit] {
+.mainForms button[type="submit"] {
   background-color: #37d857;
-  align-items:flex-start;
+  align-items: flex-start;
 }
-.mainForms button[type=submit]:hover {
+.mainForms button[type="submit"]:hover {
   background-color: #00ff33;
 }
-.mainForms button[type=reset] {
+.mainForms button[type="reset"] {
   background-color: #ff311e;
-    align-items:flex-start;
+  align-items: flex-start;
 }
-.mainForms button[type=reset]:hover {
+.mainForms button[type="reset"]:hover {
   background-color: rgb(255, 0, 0);
 }
 
@@ -130,4 +135,22 @@ footer li {
   text-align: center;
   color: red;
   font-weight: bold;
+}
+
+#form-errors-div {
+  color: red;
+  font-weight: bold;
+  font-size: 1.3em;
+}
+
+#login-here-link {
+  text-decoration: none;
+}
+
+#login-here-link:visited {
+  color: blue;
+}
+
+#login-here-link:hover {
+  color: red;
 }
