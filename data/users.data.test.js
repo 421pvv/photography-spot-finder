@@ -684,6 +684,7 @@ describe("Testing users data functions", () => {
         );
         expectedUserInfo.username = expectedUserInfo.username.toLowerCase();
         delete expectedUserInfo.password;
+        expectedUserInfo._id = receivedUserInfo._id;
         expect(receivedUserInfo).toEqual(expectedUserInfo);
       });
     });
@@ -949,6 +950,7 @@ describe("Testing users data functions", () => {
         );
         expectedUserInfo.username = expectedUserInfo.username.toLowerCase();
         delete expectedUserInfo.password;
+        expectedUserInfo._id = receivedUserInfo._id;
         expect(receivedUserInfo).toEqual(expectedUserInfo);
       });
       it("It throw user's info when password is invalid for valid user", async () => {

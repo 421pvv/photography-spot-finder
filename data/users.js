@@ -144,7 +144,7 @@ const getUserByUsername = async (username, includePassword) => {
   let options = {};
   if (includePassword && includePassword === true) {
     options.projection = {
-      _id: 0,
+      _id: 1,
       firstName: 1,
       lastName: 1,
       username: 1,
@@ -152,7 +152,7 @@ const getUserByUsername = async (username, includePassword) => {
     };
   } else {
     options.projection = {
-      _id: 0,
+      _id: 1,
       firstName: 1,
       username: 1,
       lastName: 1,
@@ -166,11 +166,11 @@ const getUserByUsername = async (username, includePassword) => {
   return userInfo;
 };
 
-const getUserInfo = async (username) => {
-  username = validation.validateUsername(username, "Username");
+const getUserProfileById = async (id) => {
+  id = validation.validateString(id, "User Id", true);
 
   const filter = {
-    username,
+    _id: id,
   };
 
   let options = {};
@@ -181,7 +181,7 @@ const getUserInfo = async (username) => {
 
   const usersCollection = await users();
   const userInfo = await usersCollection.findOne(filter, options);
-  if (!userInfo) throw [`Could not find user with username (${username})`];
+  if (!userInfo) throw [`Could not find user with id (${id})`];
 
   return userInfo;
 };
@@ -204,4 +204,5 @@ export default {
   getUserByUsername,
   authenticateUser,
   verifyNewUsername,
+  getUserProfileById,
 };

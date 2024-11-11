@@ -40,7 +40,7 @@ app.set("view engine", "handlebars");
 app.get("*", (req, res, next) => {
   const restrictedPaths = [
     { url: "/users/profile", error: "access profile!" },
-    //{ url: "/spots/new", error: "add a new spot!" },
+    { url: "/spots/new", error: "add a new spot!" },
   ];
   let curPath = req.baseUrl + req.path;
   if (curPath.charAt(curPath.length - 1) === "/") {

@@ -2,7 +2,6 @@ import express from "express";
 import validation from "../validation.js";
 import { userData } from "../data/index.js";
 import logging from "../log.js";
-import logger from "../log.js";
 const router = express.Router();
 
 router
@@ -80,6 +79,7 @@ router
       });
     }
     req.session.user = {
+      _id: userFromDb._id,
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
@@ -96,7 +96,6 @@ router
     });
   })
   .post(async (req, res) => {
-    logger.log("Attempting log in for: " + req.body.username);
     const loginData = req.body;
     let errors = [];
     try {
@@ -143,6 +142,7 @@ router
     }
 
     req.session.user = {
+      _id: userFromDb._id,
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
