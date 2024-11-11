@@ -40,13 +40,11 @@ signupForm.addEventListener("submit", (event) => {
     errors = errors.concat(e);
   }
   if (errors.length !== 0) {
-    const errorsList = document.createElement("ul");
     for (const error of errors) {
-      const listItem = document.createElement("li");
-      listItem.textContent = error;
-      errorsList.appendChild(listItem);
+      const pItem = document.createElement("p");
+      pItem.textContent = error;
+      errorsDiv.appendChild(pItem);
     }
-    errorsDiv.appendChild(errorsList);
   } else {
     signupForm.submit();
   }

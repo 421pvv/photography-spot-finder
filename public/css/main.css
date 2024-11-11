@@ -137,12 +137,6 @@ input[type="file"] {
   font-weight: bold;
 }
 
-#form-errors-div {
-  color: red;
-  font-weight: bold;
-  font-size: 1.3em;
-}
-
 #login-here-link {
   text-decoration: none;
 }

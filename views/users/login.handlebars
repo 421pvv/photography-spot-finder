@@ -22,15 +22,13 @@
       Password
       <input type="password" name="password" placeholder="Password" value="{{data.password}}" id="password" required>
     </label>
-    <div id="form-errors-div">
+    <div class="formInputError" id="form-errors-div">
       {{#if hasErrors}}
-      <ul id="login-form-errors">
-        {{#each errors}}
-        <li>
-          {{this}}
-        </li>
-        {{/each}}
-      </ul>
+      {{#each errors}}
+      <p>
+        {{this}}
+      </p>
+      {{/each}}
       {{/if}}
     </div>
     <div class="form_buttons">
