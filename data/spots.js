@@ -1,5 +1,6 @@
 import { spots } from "../config/mongoCollections.js";
 import validation from "../validation.js";
+import { ObjectId } from "mongodb";
 
 // Function to get all spots which have number of reports less than 20, to be displayed on the spots list page
 const getAllSpots = async () => {
@@ -150,31 +151,48 @@ const getSpotsLastYear = async () => {
 
 const getSpotsByDateRange = async (startDate, endDate) => {
   if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
-      throw new Error("Both startDate and endDate must be valid Date objects.");
+    throw ["Both startDate and endDate must be valid Date objects."];
   }
 
   if (startDate >= endDate) {
-      throw new Error("The startDate must be earlier than the endDate.");
+    throw ["The startDate must be earlier than the endDate."];
   }
 
   const spotsCollection = await spots();
 
   const spotsInDateRange = await spotsCollection
-      .find({
+    .find({
+      $and: [
+        {
           createdAt: {
-              $gte: startDate,
-              $lte: endDate
-          }
-      })
-      .toArray();
+            $gte: startDate,
+            $lte: endDate,
+          },
+        },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
+    .toArray();
 
   if (spotsInDateRange.length === 0) {
-      throw new Error("No spots found within the specified date range.");
+    throw ["No spots found within the specified date range."];
   }
 
   return spotsInDateRange;
 };
 
+// Takes a string input of spotId and returns the matching spot
+const getSpotById = async (spotId) => {
+  spotId = validation.validateString(spotId, "spotId", true);
+  const spotsCollection = await spots();
+  const spot = await spotsCollection.findOne({
+    _id: ObjectId.createFromHexString(spotId),
+  });
+  if (spot === null) {
+    throw [`No team with id of ${spotId}`];
+  }
+  return spot;
+};
 
 export default {
   getAllSpots,
@@ -184,5 +202,5 @@ export default {
   getSpotsLastDay,
   getSpotsLastMonth,
   getSpotsLastYear,
-  getSpotsByDateRange
+  getSpotsByDateRange,
 };
