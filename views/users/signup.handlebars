@@ -20,16 +20,14 @@
       Password
       <input type="password" name="password" placeholder="Password" value="{{data.password}}" id="password" required>
     </label>
-    <div id="form-errors-div">
+    <div class="formInputError" id="form-errors-div">
       {{#if hasErrors}}
-      <ul id="signup-form-errors">
-        {{#each errors}}
-        <li>
-          {{this}}
-        </li>
+      {{#each errors}}
+      <p>
+        {{this}}
+      <p>
         {{/each}}
-      </ul>
-      {{/if}}
+        {{/if}}
     </div>
     <div class="form_buttons">
       <button type="submit">Sign up</button>
