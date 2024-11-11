@@ -22,6 +22,30 @@ export const passwordPolicies = [
   },
 ];
 
+const validateObject = (checkingObject, varName) => {
+  if (typeof checkingObject === "undefined") {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type object, but it is undefined!`,
+    ];
+  }
+  if (checkingObject == null) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type object, but it is null!`,
+    ];
+  }
+  if (Array.isArray(checkingObject)) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type object, but it is an array!`,
+    ];
+  }
+};
+
 const validateString = (str, varName, checkObjectId) => {
   if (str == undefined) {
     throw [
@@ -177,10 +201,10 @@ function validateBoolean(bool, varname) {
 
 function validateNumber(num, varName) {
   if (typeof num !== "number") {
-    throw [`${varName || ''} is not a number`]
+    throw [`${varName || ""} is not a number`];
   }
   if (isNaN(num)) {
-    throw [`${varName || ''} is a not a valid number`]
+    throw [`${varName || ""} is a not a valid number`];
   }
 }
 
@@ -190,12 +214,11 @@ function validateCoordinates(logitude, latitude) {
   validateNumber(logitude, "logitude");
   validateNumber(latitude, "latitude");
   if (logitude < -90 || logitude > 90) {
-    throw `Longitude must be between -90 and 90`
+    throw `Longitude must be between -90 and 90`;
   }
   if (latitude < -180 || latitude > 180) {
-    throw `Latitude must be between -180 and 180`
+    throw `Latitude must be between -180 and 180`;
   }
-
 }
 
 // function to validate rating. A whole number in the range 1-10 (inclusive)
@@ -231,5 +254,6 @@ export default {
   validateLoginPassword,
   validateBoolean,
   validateRating,
-  validateCoordinates
+  validateCoordinates,
+  validateObject,
 };

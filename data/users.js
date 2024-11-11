@@ -48,6 +48,14 @@ const authenticateUser = async (username, password) => {
   }
 };
 
+export const createProfile = (email, bio) => {};
+
+export const updateUserProfile = (userObject) => {
+  validateObject(userObject, "Update object");
+  // got email regex from https://regex101.com/library/SOgUIV
+  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+};
+
 const getUserByUsername = async (username, includePassword) => {
   username = validation.validateUsername(username, "Username");
   if (includePassword)
