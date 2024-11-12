@@ -1,135 +1,42 @@
-<h1> All Spots Page </h1>
-<form id="searchForm" action="javascript:void(0);"> <!-- Prevents form from submitting -->
-    <input type="text" name="keyword" id="searchInput" placeholder="Search for spots..." autocomplete="off" />
-</form>
+<div class="search-and-filter">
+  <form action="/spots/search" method="get">
+    <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
+    <button type="submit">Search</button>
+  </form>
 
-<button id="filterButton">Filter</button>
+  <button id="filterButton" onclick="toggleFilter()">Filter</button>
+</div>
 
-{{!-- partial model for filters --}}
-{{> filterOptions }}
+{{!-- Filter Options will appear when the filter button is clicked --}}
+<div id="filterOptions" style="display: none;">
+  {{> filterOptions }}
+</div>
 
 <section id="spotsList">
-    {{#if spots.length}}
+  {{#if spots.length}}
     <ul>
-        {{#each spots}}
+      {{#each spots}}
         <li>
-            <h2>{{this.name}}</h2>
-            <p>Rating: {{this.avgRating}}</p>
-            <p>Accessibility: {{this.accessibility}}</p>
-            <p>Best Times to Visit:
-                {{#each this.bestTimes}} {{this}} {{/each}}
-            </p>
-            <p>Tags:
-                {{#each this.tags}} <span>{{this}}</span> {{/each}}
-            </p>
+          <h2>{{this.name}}</h2>
+          <p>Rating: {{this.avgRating}}</p>
+          <p>Accessibility: {{this.accessibility}}</p>
+          <p>Best Times to Visit: 
+            {{#each this.bestTimes}} {{this}} {{/each}}
+          </p>
+          <p>Tags:
+            {{#each this.tags}} <span>{{this}}</span> {{/each}}
+          </p>
         </li>
-        {{/each}}
+      {{/each}}
     </ul>
-    {{else}}
+  {{else}}
     <p>No spots available.</p>
-    {{/if}}
+  {{/if}}
 </section>
 
-
-{{!-- Reference from stackoverflow to learn more about dynamic searchbars using Ajax:
-https://stackoverflow.com/questions/51782023/using-ajax-in-node-js-and-displaying-data-using-handlebars --}}
-{{!-- https://stackoverflow.com/questions/42395075/node-js-ajax-call-and-display-results-with-handlebars --}}
-
-
-{{!-- I didn't know that we cann't use arrow functions directly in the script but this is still working. I will update
-it using normal function if this don't work in your computer --}}
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const searchInput = document.getElementById("searchInput");
-        const spotsList = document.getElementById("spotsList");
-        const filterButton = document.getElementById("filterButton");
-        const filterModal = document.getElementById("filterOption");
-        const closeModal = document.getElementById("closeModal");
-        const applyFiltersButton = document.getElementById("applyFilters");
-        const tagsInput = document.getElementById("tags");
-
-        const renderSpots = (spots) => {
-            spotsList.innerHTML = spots.length
-                ? `<ul>
-                ${spots.map(spot => `
-                    <li>
-                        <h2>${spot.name}</h2>
-                        <p>Rating: ${spot.avgRating}</p>
-                        <p>Accessibility: ${spot.accessibility}</p>
-                        <p>Best Times to Visit: ${spot.bestTimes.join(", ")}</p>
-                        <p>Tags: ${spot.tags.map(tag => `<span>${tag}</span>`).join(" ")}</p>
-                    </li>
-                `).join('')}
-               </ul>`
-                : `<p>No spots available.</p>`;
-        };
-
-        //fetching all spots before searchning anything
-        const fetchAllSpots = async () => {
-            try {
-                const response = await fetch("/spots/allSpots");
-                const spots = await response.json();
-                renderSpots(spots);
-            } catch (error) {
-                console.error("Error fetching spots:", error);
-            }
-        };
-
-        const searchSpots = async (keyword) => {
-            try {
-                const response = await fetch(`/spots/search?keyword=${keyword}`);
-                const spots = await response.json();
-                renderSpots(spots);
-            } catch (error) {
-                console.error("Error fetching search results:", error);
-            }
-        };
-
-        const filterSpotsByTags = async (tags) => {
-            try {
-                const response = await fetch(`/spots/searchbytags?tags=${tags}`);
-                const spots = await response.json();
-                renderSpots(spots);
-            } catch (error) {
-                console.error("Error fetching filtered spots:", error);
-            }
-        };
-
-
-        //whenever the input event hits, it will render the spots based on inputs or all spots
-        searchInput.addEventListener("input", () => {
-            const keyword = searchInput.value.trim();
-            if (keyword) {
-                searchSpots(keyword);
-            } else {
-                fetchAllSpots();
-            }
-        });
-
-        fetchAllSpots();
-
-        filterButton.addEventListener("click", () => {
-            filterModal.style.display = "block";
-        });
-
-        closeModal.addEventListener("click", () => {
-            filterModal.style.display = "none";
-        });
-
-        window.addEventListener("click", (event) => {
-            if (event.target === filterModal) {
-                filterModal.style.display = "none";
-            }
-        });
-
-        applyFiltersButton.addEventListener("click", () => {
-            const tags = tagsInput.value.trim();
-            if (tags) {
-                filterSpotsByTags(tags);
-                filterModal.style.display = "none";
-            } else {
-                alert("Please enter tags to filter.");
-            }
-        })
-    });
+  function toggleFilter() {
+    const filterOptions = document.getElementById('filterOptions');
+    filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
+  }
 </script>

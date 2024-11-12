@@ -1,35 +1,36 @@
-<div id="filterOption" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close" id="closeModal">&times;</span>
-        <h2>Filter Options</h2>
+<h3>Filter Spots</h3>
 
-        <label for="ratingRange">Rating Range:</label>
-        <div>
-            <input 
-                type="range" 
-                id="minRatingSlider" 
-                min="0" 
-                max="10" 
-                step="0.5" 
-                value="0" 
-                oninput="minRatingValueDisplay.textContent = minRatingSlider.value; updateMaxSliderMin()"
-            />
-            <span>Min: <span id="minRatingValueDisplay">0</span></span>
-        </div>
+<form id="filterForm" action="/spots/search" method="get">
+  <div class="filter-section">
+    <label for="minRating">Min Rating:</label>
+    <input type="range" id="minRating" name="minRating" min="1" max="10" value="1">
+    <span id="minRatingValue">1</span>
+  </div>
 
-        <label for="tags">Tags:</label>
-        <input type="text" id="tags" placeholder="Enter a tag">
+  <script>
+    const minRatingInput = document.getElementById('minRating');
+    const minRatingValue = document.getElementById('minRatingValue');
+    
+    minRatingInput.addEventListener('input', function() {
+      minRatingValue.textContent = minRatingInput.value;
+    });
+  </script>
 
-        <label for="timeFilter">Time:</label>
-        <div>
-            <label for="fromDate">Enter a from date:</label>
-            <input id="fromDate" type="datetime-local" name="fromDate" value="2017-06-01T08:30" />
+  <div class="filter-section">
+    <label for="tags">Tags (comma separated):</label>
+    <input type="text" id="tags" name="tags" placeholder="e.g. nature, sunset" value="{{tags}}">
+  </div>
 
-            <label for="toDate">Enter a from date:</label>
-            <input id="toDate" type="datetime-local" name="toDate" value="2017-06-01T08:30" />
-        </div>
-
-        <button id="applyFilters">Apply Filters</button>
-        <button id="clearFilters">Clear Filters</button>
+  <div class="filter-section">
+    <label for="timeFilter">Time:</label>
+    <div>
+      <label for="fromDate">From Date:</label>
+      <input id="fromDate" type="datetime-local" name="fromDate" value="{{fromDate}}" />
+      
+      <label for="toDate">To Date:</label>
+      <input id="toDate" type="datetime-local" name="toDate" value="{{toDate}}" />
     </div>
-</div>
+  </div>
+
+  <button type="submit">Apply Filters</button>
+</form>
