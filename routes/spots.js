@@ -4,6 +4,7 @@ import validation from "../validation.js";
 import logger from "../log.js";
 import cloudinary from "../cloudinary/cloudinary.js";
 import { MongoCryptKMSRequestNetworkTimeoutError } from "mongodb";
+import { spots } from "../config/mongoCollections.js";
 const router = express.Router();
 
 router
@@ -197,9 +198,34 @@ router
       bestTimes: newSpot.spotBestTimes,
       images: newSpot.spotImages,
       tags: newSpot.spotTags,
+      posterId: req.session.user._id,
       createdAt: new Date(),
     };
     logger.log(spot);
+    try {
+      await spotsData.createSpot(spot);
+    } catch (e) {
+      return res.status(500).render("spots/addSpot", {
+        user: req.session.user,
+        styles: [
+          `<link rel="stylesheet" href="/public/css/addSpot.css">`,
+          `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" >`,
+          `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
+        ],
+        scripts: [
+          `<script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js"></script>`,
+          `<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>`,
+          `<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.min.js"></script>`,
+          `<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+        ],
+        apikey: process.env.MAPBOX_API_TOKEN,
+        errors: {
+          server_errors: ["Spot submission failed! Please try again."],
+        },
+        spot: newSpot,
+      });
+    }
+
     return res.status(200);
   });
 

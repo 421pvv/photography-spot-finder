@@ -137,6 +137,12 @@ input[type="file"] {
   font-weight: bold;
 }
 
+.authError {
+  text-align: center;
+  color: blue;
+  font-weight: bold;
+  font-size: 2em;
+}
 #login-here-link {
   text-decoration: none;
 }
