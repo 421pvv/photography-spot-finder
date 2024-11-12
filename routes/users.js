@@ -79,7 +79,7 @@ router
       });
     }
     req.session.user = {
-      _id: userFromDb._id,
+      _id: userFromDb._id.toString(),
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
@@ -142,7 +142,7 @@ router
     }
 
     req.session.user = {
-      _id: userFromDb._id,
+      _id: userFromDb._id.toString(),
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,

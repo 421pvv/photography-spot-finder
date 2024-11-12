@@ -77,7 +77,7 @@ app.use("/users/signup", (req, res, next) => {
 });
 configRoutes(app);
 
-app.listen(3000, () => {
+app.listen(3001, () => {
   console.log("Application runing on port 3000");
   console.log("URL: http://localhost:3000/");
 });

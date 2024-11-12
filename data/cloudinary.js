@@ -16,19 +16,19 @@ export const cleanUpCloudinary = async () => {
   } while (next_cursor);
 
   const spotsCollection = await spots();
-  const validIds = (
-    await spotsCollection
-      .aggregate([
-        { $unwind: "$images" },
-        {
-          $group: {
-            _id: null,
-            pubicIds: { $addToSet: "$images.public_id" },
-          },
+  const validIds = await spotsCollection
+    .aggregate([
+      { $unwind: "$images" },
+      {
+        $group: {
+          _id: null,
+          pubicIds: { $addToSet: "$images.public_id" },
         },
-      ])
-      .toArray()
-  )[0].pubicIds;
+      },
+    ])
+    .toArray();
+
+  console.log(validIds);
 
   pubicIds = pubicIds.filter((public_id) => !validIds.includes(public_id));
 
