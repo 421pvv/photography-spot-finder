@@ -17,6 +17,7 @@
     <ul>
       {{#each spots}}
         <li>
+<<<<<<< HEAD
           <h2>{{this.name}}</h2>
           <p>Rating: {{this.avgRating}}</p>
           <p>Accessibility: {{this.accessibility}}</p>
@@ -26,6 +27,17 @@
           <p>Tags:
             {{#each this.tags}} <span>{{this}}</span> {{/each}}
           </p>
+=======
+            <h2>{{this.name}}</h2>
+            <p>Rating: {{this.averageRating}}</p>
+            <p>Accessibility: {{this.accessibility}}</p>
+            <p>Best Times to Visit:
+                {{#each this.bestTimes}} {{this}} {{/each}}
+            </p>
+            <p>Tags:
+                {{#each this.tags}} <span>{{this}}</span> {{/each}}
+            </p>
+>>>>>>> 0029b7e732bd077ab774528276facd67137b8d5e
         </li>
       {{/each}}
     </ul>

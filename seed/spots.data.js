@@ -29,6 +29,8 @@ export const spotsData = [
       $date: "2024-11-12T13:34:49.053Z",
     },
     reportCount: 0,
+    averageRating: 0,
+    totalRatings: 0,
   },
   {
     _id: {
@@ -64,5 +66,7 @@ export const spotsData = [
       $date: "2024-11-12T13:50:57.450Z",
     },
     reportCount: 0,
+    averageRating: 0,
+    totalRatings: 0,
   },
 ];
