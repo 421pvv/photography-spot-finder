@@ -17,22 +17,17 @@ export const createUser = async (firstName, lastName, username, password) => {
   const encryptedPassword = bcrypt.hashSync(password, salt);
 
   const newUser = {
+    username,
+    email: "",
     firstName,
     lastName,
-    username,
-    password: encryptedPassword,
     bio: "",
-    email: "",
+    password: encryptedPassword,
+    role: "user",
     favoriteSpots: [],
-    comments: [],
-    ratings: [],
-    spots: [],
-    contestSubmissions: [],
-    contestVotes: [],
     sportReports: [],
     commentReports: [],
     contestReports: [],
-    role: "user",
   };
 
   const usersCollection = await users();

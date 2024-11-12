@@ -23,7 +23,6 @@ const createSpot = async (
   await userData.getUserProfileById(posterId);
   posterId = ObjectId.createFromHexString(posterId);
 
-  console.log(bestTimes);
   validation.validateArray(bestTimes, "Best Times");
   if (bestTimes.length == 0) throw [`Must provide at least one best time!`];
   for (const tagI in bestTimes) {
@@ -33,13 +32,7 @@ const createSpot = async (
   validation.validateArray(tags, "tags");
   if (tags.length > 0) {
     for (const tagI in tags) {
-      try {
-        tags[tagI] = validation.validateString(tags[tagI]).toLowerCase();
-      } catch (e) {
-        tagErrors.push(
-          `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
-        );
-      }
+      tags[tagI] = validation.validateString(tags[tagI], "tag").toLowerCase();
     }
   }
   if (Array.isArray(tags) && tags.length > 5) {
@@ -49,9 +42,9 @@ const createSpot = async (
   validation.validateObject(location, "Location");
   validation.validateCoordinates(...location.coordinates);
 
-  console.log(images);
   validation.validateArray(images, "images");
   for (const image of images) {
+    validation.validateObject(image, "image");
     if (!image.public_id || !image.url) {
       throw ["Missing image object attributes"];
     }
@@ -60,6 +53,15 @@ const createSpot = async (
   }
   if (images.length === 0 || images.length > 3) {
     throw [`Invalid number of images!`];
+  }
+
+  if (
+    !createdAt ||
+    typeof createdAt !== "object" ||
+    !(createdAt instanceof Date) ||
+    createdAt > new Date()
+  ) {
+    throw [`Expected createdAt to be a Date object, but it's not`];
   }
 
   const create_new_spot = {
