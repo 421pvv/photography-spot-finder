@@ -8,12 +8,12 @@ describe("Testing users data functions", () => {
     await closeConnection();
   });
   describe("Testing userData.createUser", () => {
-    let validUserInfo = (validUserInfo = {
+    let validUserInfo = {
       firstName: "Siva Anand",
       lastName: "Sivakumar",
       username: "SivaAnand1",
       password: "FakePassword#2313",
-    });
+    };
     const validUserCopy = () => {
       return JSON.parse(JSON.stringify(validUserInfo));
     };
