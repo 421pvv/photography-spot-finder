@@ -100,26 +100,21 @@ const getAllSpots = async () => {
   return allSpotsList;
 };
 
-// Function to get spots by rating range (inclusive). Takes two ratings as input minRating and maxRating
-// returns a list of all spots in the inclusive range
-const getSpotsByRating = async (minRating, maxRating) => {
+// Function to get spots by rating. Takes one rating as input.
+// returns a list of all spots which have rating greater than or equal to that minRating
+const getSpotsByRating = async (minRating) => {
   validation.validateRating(minRating);
-  validation.validateRating(maxRating);
-  if (minRating > maxRating) {
-    throw ["minRating cannot be greater than maxRating"];
-  }
   const spotsCollection = await spots();
   const spotsRatingList = await spotsCollection
     .find({
       $and: [
-        { avgRating: { $gte: minRating } },
-        { avgRating: { $lte: maxRating } },
+        { averageRating: { $gte: minRating } },
         { reportCount: { $lt: 20 } },
       ],
     })
     .toArray();
   if (!spotsRatingList) {
-    throw ["Could not get spots in the specified rating range"];
+    throw ["Could not get spots greated than the given minRating"];
   }
   return spotsRatingList;
 };
