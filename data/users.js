@@ -25,7 +25,7 @@ export const createUser = async (firstName, lastName, username, password) => {
     password: encryptedPassword,
     role: "user",
     favoriteSpots: [],
-    sportReports: [],
+    spotReports: [],
     commentReports: [],
     contestReports: [],
   };
