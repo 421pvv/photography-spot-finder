@@ -2,6 +2,103 @@ import { spots } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { ObjectId } from "mongodb";
 
+const createSpot = async (
+  name,
+  location,
+  description,
+  accessibility,
+  bestTimes,
+  images,
+  tags,
+  totalRatings,
+  avgRating,
+  currMonthTotalRating,
+  currMonthAvgRating,
+  posterId,
+  comments,
+  createdAt,
+  reportCount
+) => {
+  
+
+  // check if the value exists by checking if value is undefined or not for the following Spot Collection parameters. 
+  name= validation.validateValueExists(name);
+  location=validation.validateValueExists(location);
+  description=validation.validateValueExists(description);
+  accessibility=validation.validateValueExists(accessibility);
+  bestTimes=validation.validateValueExists(bestTimes);
+  images=validation.validateValueExists(images);
+  totalRatings=validation.validateValueExists(totalRatings);
+  avgRating=validation.validateValueExists(avgRating);
+  currMonthTotalRating=validation.validateValueExists(currMonthTotalRating);
+  currMonthAvgRating=validation.validateValueExists(currMonthAvgRating);
+  posterId=validation.validateValueExists(posterId);
+  comments=validation.validateValueExists(comments);
+  createdAt=validation.validateValueExists(createdAt);
+  reportCount=validation.validateValueExists(reportCount);
+
+  // Moving on to the Strings
+  name=validation.validateString(name, "Name");
+  location=validation.validateString(location, "Location");
+  description=validation.validateString(description, "Description");
+  accessibility=validation.validateString(accessibility, "Accessibility");
+  posterId=validation.validateString(posterId, "Poster ID");
+
+  // Moving on to Arrays
+  bestTimes=validation.validateArrayOfStrings(bestTimes,"Best Times");
+  images=validation.validateArrayOfStrings(images,"Images");
+  // keep tags as optional.
+  if(!tags || tags == undefined || tags.length ===0){
+    tags = [];
+  }
+  tags=validation.validateArrayOfStrings(tags, "Tags");
+  comments=validation.validateArrayOfStrings(comments, "Comments");
+
+
+  // Moving on to numbers
+  totalRatings= validation.validateNumber(totalRatings);
+  avgRating=validation.validateNumber(avgRating);
+  currMonthTotalRating=validation.validateNumber(currMonthTotalRating);
+  currMonthAvgRating=validation.validateNumber(currMonthAvgRating);
+  reportCount=validation.validateNumber(reportCount);
+
+  // Moving on to the date. 
+  createdAt=validation.validateDate(validation);
+
+  if(bestTimes.length ===0){
+    bestTimes=[];
+  }
+
+  if(images.length ===0){
+    images=[];
+  }
+
+let create_new_spot = {
+    _id: new ObjectId(),
+    name: name,
+    location: location,
+    description: description,
+    accessibility: accessibility,
+    bestTimes: bestTimes,
+    images: images,
+    tags: tags,
+    avgRating: avgRating,
+    currMonthTotalRating: currMonthTotalRating,
+    currMonthAvgRating: currMonthAvgRating,
+    posterId: new ObjectId(posterId),
+    comments: comments,
+    createdAt: createdAt,
+    reportCount: reportCount
+}
+
+const spotsCollection = await spots();
+const insertInfo = await spotsCollection.insertOne(create_new_spot);
+if(!insertInfo.acknowledged || !insertedId.toString())
+  throw "Could not add spot";
+const spotId = insertInfo.insertedId.toString();
+const spot = await getSpotById(spotId);
+return spot;
+}
 // Function to get all spots which have number of reports less than 20, to be displayed on the spots list page
 const getAllSpots = async () => {
   const spotsCollection = await spots();
