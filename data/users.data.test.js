@@ -1,6 +1,6 @@
 import { userData } from ".";
 import { closeConnection } from "../config/mongoConnection.js";
-import { initDB } from "../seed.js";
+import { initDB } from "../seed/seed.js";
 import { passwordPolicies } from "../validation.js";
 
 describe("Testing users data functions", () => {

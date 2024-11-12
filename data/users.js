@@ -32,6 +32,7 @@ export const createUser = async (firstName, lastName, username, password) => {
     sportReports: [],
     commentReports: [],
     contestReports: [],
+    role: "user",
   };
 
   const usersCollection = await users();

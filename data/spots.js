@@ -27,14 +27,14 @@ const createSpot = async (
   validation.validateArray(bestTimes, "Best Times");
   if (bestTimes.length == 0) throw [`Must provide at least one best time!`];
   for (const tagI in bestTimes) {
-    bestTimes[tagI] = validation.validateString(bestTimes[tagI]);
+    bestTimes[tagI] = validation.validateString(bestTimes[tagI]).toLowerCase();
   }
 
   validation.validateArray(tags, "tags");
   if (tags.length > 0) {
     for (const tagI in tags) {
       try {
-        tags[tagI] = validation.validateString(tags[tagI]);
+        tags[tagI] = validation.validateString(tags[tagI]).toLowerCase();
       } catch (e) {
         tagErrors.push(
           `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
