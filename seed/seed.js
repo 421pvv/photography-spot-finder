@@ -10,25 +10,27 @@ export async function initDB() {
   await spotsCollection.deleteMany({});
 }
 
-function makeConversions(element) {
+function convertUserObject(element) {
   element._id = ObjectId.createFromHexString(element._id.$oid);
-  if (element.posterId) {
-    element.posterId = ObjectId.createFromHexString(element.posterId.$oid);
-  }
-  if (element.createdAt) {
-    element.createdAt = new Date(element.createdAt.$date);
-  }
   return element;
+}
+
+function convertSpotObject(spot) {
+  spot._id = ObjectId.createFromHexString(spot._id.$oid);
+  spot.posterId = ObjectId.createFromHexString(spot.posterId.$oid);
+  spot.createdAt = new Date(spot.createdAt.$date);
+
+  return spot;
 }
 
 export async function seedDB() {
   const usersCollection = await mongoCollections.users();
   /* adding new users */
-  let users = usersData.map(makeConversions);
+  let users = usersData.map(convertUserObject);
   await usersCollection.insertMany(users);
 
   const spotsCollection = await mongoCollections.spots();
   // got some spots from: https://nycphotojourneys.com/best-places-to-take-pictures-in-nyc/
-  let spots = spotsData.map(makeConversions);
+  let spots = spotsData.map(convertSpotObject);
   await spotsCollection.insertMany(spots);
 }

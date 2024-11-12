@@ -601,6 +601,8 @@ describe("Testing users data functions", () => {
         posterId: receivedUserInfo._id.toString(),
         createdAt: new Date("2024-11-12T13:50:57.450Z"),
         reportCount: 0,
+        averageRating: 0,
+        totalRatings: 0,
       };
     });
     const validSpotCopy = () => {

@@ -76,6 +76,8 @@ const createSpot = async (
     posterId,
     createdAt,
     reportCount: 0,
+    averageRating: 0,
+    totalRatings: 0,
   };
 
   const spotsCollection = await spots();
