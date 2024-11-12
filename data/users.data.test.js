@@ -1,6 +1,6 @@
 import { userData } from ".";
 import { closeConnection } from "../config/mongoConnection.js";
-import { initDB } from "../seed.js";
+import { initDB } from "../seed/seed.js";
 import { passwordPolicies } from "../validation.js";
 
 describe("Testing users data functions", () => {
@@ -8,12 +8,12 @@ describe("Testing users data functions", () => {
     await closeConnection();
   });
   describe("Testing userData.createUser", () => {
-    let validUserInfo = (validUserInfo = {
+    let validUserInfo = {
       firstName: "Siva Anand",
       lastName: "Sivakumar",
       username: "SivaAnand1",
       password: "FakePassword#2313",
-    });
+    };
     const validUserCopy = () => {
       return JSON.parse(JSON.stringify(validUserInfo));
     };
@@ -684,6 +684,7 @@ describe("Testing users data functions", () => {
         );
         expectedUserInfo.username = expectedUserInfo.username.toLowerCase();
         delete expectedUserInfo.password;
+        expectedUserInfo._id = receivedUserInfo._id;
         expect(receivedUserInfo).toEqual(expectedUserInfo);
       });
     });
@@ -949,6 +950,7 @@ describe("Testing users data functions", () => {
         );
         expectedUserInfo.username = expectedUserInfo.username.toLowerCase();
         delete expectedUserInfo.password;
+        expectedUserInfo._id = receivedUserInfo._id;
         expect(receivedUserInfo).toEqual(expectedUserInfo);
       });
       it("It throw user's info when password is invalid for valid user", async () => {

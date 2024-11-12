@@ -1,9 +1,10 @@
-import spotsData from "../data/spots.js";
+import { spotsData } from "../data/index.js";
 import express from "express";
 import validation from "../validation.js";
 import logger from "../log.js";
 import cloudinary from "../cloudinary/cloudinary.js";
 import { MongoCryptKMSRequestNetworkTimeoutError } from "mongodb";
+import { spots } from "../config/mongoCollections.js";
 const router = express.Router();
 
 router
@@ -197,10 +198,48 @@ router
       bestTimes: newSpot.spotBestTimes,
       images: newSpot.spotImages,
       tags: newSpot.spotTags,
+      posterId: req.session.user._id,
       createdAt: new Date(),
     };
+    logger.log("Attempting to insert spot");
     logger.log(spot);
-    return res.status(200);
+    try {
+      await spotsData.createSpot(
+        spot.name,
+        spot.location,
+        spot.address,
+        spot.description,
+        spot.accessibility,
+        spot.bestTimes,
+        spot.images,
+        spot.tags,
+        spot.posterId,
+        spot.createdAt
+      );
+      return res.status(200);
+    } catch (e) {
+      logger.log(e);
+      return res.status(500).render("spots/addSpot", {
+        user: req.session.user,
+        styles: [
+          `<link rel="stylesheet" href="/public/css/addSpot.css">`,
+          `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet" >`,
+          `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
+        ],
+        scripts: [
+          `<script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js"></script>`,
+          `<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>`,
+          `<script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.min.js"></script>`,
+          `<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+        ],
+        apikey: process.env.MAPBOX_API_TOKEN,
+        errors: {
+          server_errors: ["Spot submission failed! Please try again."],
+          error_spotImages: [`Please re-upload your images.`],
+        },
+        spot: newSpot,
+      });
+    }
   });
 
 router.route("/allSpots").get(async (req, res) => {
@@ -225,11 +264,11 @@ router.route("/search").get(async (req, res) => {
     } else {
       spots = await spotsData.getSpotsByKeywordSearch(keyword);
     }
-    res.json(spots);
-    // res.render('spots/allSpots', {
-    //     spots: spots,
-    //     user: req.session.user
-    // });
+    res.render("spots/allSpots", {
+      spots: spots,
+      user: req.session.user,
+      keyword: keyword, 
+    });
   } catch (error) {
     res.status(500).json({ error: "Could not perform search." });
   }
@@ -251,12 +290,63 @@ router.route("/searchbytags").get(async (req, res) => {
     }
 
     const spotList = await spotsData.getSpotsByTags(tagsArr);
-    // if(spotList.lenghth == 0){
-    //     return res.status(404).json({ message: "No spots found" });
-    // }
-    res.json(spotList);
+    res.render("spots/allSpots", {
+      spots: spotList,
+      user: req.session.user,
+      tags: tagsArr,  
+    });
   } catch (e) {
     res.status(500).json({ error: e });
+  }
+});
+
+router.route("/searchbyrating").get(async (req, res) => {
+  try {
+    const minRating = parseFloat(req.query.minRating);
+    const maxRating = parseFloat(10);
+
+    if (isNaN(minRating) || isNaN(maxRating)) {
+      return res.status(400).json({ error: "invalid min and max rating values provided" });
+    }
+
+    const spotList = await spotsData.getSpotsByRating(minRating, maxRating);
+
+    res.render("spots/allSpots", {
+      spots: spotList,
+      user: req.session.user,
+      minRating: minRating,
+      maxRating: maxRating,  
+    });
+  } catch (e) {
+    res.status(400).json({ error: "Invalid rating values provided" });
+  }
+});
+
+router.route("/searchbytimerange").get(async (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+
+    const parsedStartDate = new Date(startDate);
+    const parsedEndDate = new Date(endDate);
+
+    if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
+      return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD." });
+    }
+
+    if (parsedStartDate >= parsedEndDate) {
+      return res.status(400).json({ error: "Start date must be earlier than end date." });
+    }
+
+    const spotsInDateRange = await spotsData.getSpotsByDateRange(parsedStartDate, parsedEndDate);
+
+    res.render("spots/allSpots", {
+      spots: spotsInDateRange,
+      user: req.session.user,
+      startDate: parsedStartDate.toISOString().split('T')[0],  
+      endDate: parsedEndDate.toISOString().split('T')[0],   
+    });
+  } catch (error) {
+    res.status(500).json({ error: "Could not fetch spots by date range." });
   }
 });
 
