@@ -1,96 +1,84 @@
 import { spots } from "../config/mongoCollections.js";
 import validation from "../validation.js";
+import { userData } from "./index.js";
 import { ObjectId } from "mongodb";
 
 const createSpot = async (
   name,
   location,
+  address,
   description,
   accessibility,
   bestTimes,
   images,
   tags,
-  totalRatings,
-  avgRating,
-  currMonthTotalRating,
-  currMonthAvgRating,
   posterId,
-  comments,
-  createdAt,
-  reportCount
+  createdAt
 ) => {
-  // check if the value exists by checking if value is undefined or not for the following Spot Collection parameters.
-  name = validation.validateValueExists(name);
-  location = validation.validateValueExists(location);
-  description = validation.validateValueExists(description);
-  accessibility = validation.validateValueExists(accessibility);
-  bestTimes = validation.validateValueExists(bestTimes);
-  images = validation.validateValueExists(images);
-  totalRatings = validation.validateValueExists(totalRatings);
-  avgRating = validation.validateValueExists(avgRating);
-  currMonthTotalRating = validation.validateValueExists(currMonthTotalRating);
-  currMonthAvgRating = validation.validateValueExists(currMonthAvgRating);
-  posterId = validation.validateValueExists(posterId);
-  comments = validation.validateValueExists(comments);
-  createdAt = validation.validateValueExists(createdAt);
-  reportCount = validation.validateValueExists(reportCount);
-
-  // Moving on to the Strings
   name = validation.validateString(name, "Name");
-  location = validation.validateString(location, "Location");
+  address = validation.validateString(address, "Address");
   description = validation.validateString(description, "Description");
   accessibility = validation.validateString(accessibility, "Accessibility");
-  posterId = validation.validateString(posterId, "Poster ID");
+  posterId = validation.validateString(posterId, "Poster ID", true);
+  await userData.getUserProfileById(posterId);
+  posterId = ObjectId.createFromHexString(posterId);
 
-  // Moving on to Arrays
-  bestTimes = validation.validateArrayOfStrings(bestTimes, "Best Times");
-  images = validation.validateArrayOfStrings(images, "Images");
-  // keep tags as optional.
-  if (!tags || tags == undefined || tags.length === 0) {
-    tags = [];
-  }
-  tags = validation.validateArrayOfStrings(tags, "Tags");
-  comments = validation.validateArrayOfStrings(comments, "Comments");
-
-  // Moving on to numbers
-  totalRatings = validation.validateNumber(totalRatings);
-  avgRating = validation.validateNumber(avgRating);
-  currMonthTotalRating = validation.validateNumber(currMonthTotalRating);
-  currMonthAvgRating = validation.validateNumber(currMonthAvgRating);
-  reportCount = validation.validateNumber(reportCount);
-
-  // Moving on to the date.
-  createdAt = validation.validateDate(validation);
-
-  if (bestTimes.length === 0) {
-    bestTimes = [];
+  console.log(bestTimes);
+  validation.validateArray(bestTimes, "Best Times");
+  if (bestTimes.length == 0) throw [`Must provide at least one best time!`];
+  for (const tagI in bestTimes) {
+    bestTimes[tagI] = validation.validateString(bestTimes[tagI]);
   }
 
-  if (images.length === 0) {
-    images = [];
+  validation.validateArray(tags, "tags");
+  if (tags.length > 0) {
+    for (const tagI in tags) {
+      try {
+        tags[tagI] = validation.validateString(tags[tagI]);
+      } catch (e) {
+        tagErrors.push(
+          `Invalid tag: "${tags[tagI]}". A tag cannot be blank or just spaces.`
+        );
+      }
+    }
+  }
+  if (Array.isArray(tags) && tags.length > 5) {
+    throw `A maximum of five tags is allowed`;
   }
 
-  let create_new_spot = {
-    _id: new ObjectId(),
-    name: name,
-    location: location,
-    description: description,
-    accessibility: accessibility,
-    bestTimes: bestTimes,
-    images: images,
-    tags: tags,
-    avgRating: avgRating,
-    currMonthTotalRating: currMonthTotalRating,
-    currMonthAvgRating: currMonthAvgRating,
-    posterId: new ObjectId(posterId),
-    comments: comments,
-    createdAt: createdAt,
-    reportCount: reportCount,
+  validation.validateObject(location, "Location");
+  validation.validateCoordinates(...location.coordinates);
+
+  console.log(images);
+  validation.validateArray(images, "images");
+  for (const image of images) {
+    if (!image.public_id || !image.url) {
+      throw ["Missing image object attributes"];
+    }
+    validation.validateString(image.public_id);
+    validation.validateString(image.url);
+  }
+  if (images.length === 0 || images.length > 3) {
+    throw [`Invalid number of images!`];
+  }
+
+  const create_new_spot = {
+    name,
+    location,
+    address,
+    description,
+    accessibility,
+    bestTimes,
+    images,
+    tags,
+    posterId,
+    createdAt,
+    reportCount: 0,
   };
 
   const spotsCollection = await spots();
   const insertInfo = await spotsCollection.insertOne(create_new_spot);
-  if (!insertInfo.acknowledged || !insertedId.toString())
+  if (!insertInfo.acknowledged || !insertInfo.insertedId.toString())
     throw "Could not add spot";
   const spotId = insertInfo.insertedId.toString();
   const spot = await getSpotById(spotId);
@@ -289,6 +277,7 @@ const getSpotById = async (id) => {
 };
 
 export default {
+  createSpot,
   getAllSpots,
   getSpotsByRating,
   getSpotsByKeywordSearch,

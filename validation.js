@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 export const usernamePolicies = [
   { regex: /^[^ ]{6,}$/, error: "Username must have at least six characters!" },
 ];
@@ -258,6 +259,16 @@ function validateRating(rating) {
   }
 }
 
+function validateArray(array, varName) {
+  if (!Array.isArray(array)) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type array, but it is not an array!`,
+    ];
+  }
+}
+
 export default {
   validateString,
   validateUsername,
@@ -268,4 +279,5 @@ export default {
   validateCoordinates,
   validateObject,
   validateEmail,
+  validateArray,
 };

@@ -91,9 +91,10 @@ router
   .route("/login")
   .get(async (req, res) => {
     res.render("users/login", {
-      authErrors: req.body.authErrors,
+      authErrors: req.session.authErrors,
       hasAuthErrors: true,
     });
+    delete req.session.authErrors;
   })
   .post(async (req, res) => {
     const loginData = req.body;

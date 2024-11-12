@@ -37,7 +37,7 @@ app.use(rewriteUnsupportedBrowserMethods);
 app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
 
-app.get("*", (req, res, next) => {
+app.use("*", (req, res, next) => {
   const restrictedPaths = [
     { url: "/users/profile", error: "access profile!" },
     { url: "/spots/new", error: "add a new spot!" },
@@ -50,11 +50,10 @@ app.get("*", (req, res, next) => {
 
   if (restrictedPath.length > 0 && !req.session.user) {
     logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
-    req.body.authErrors = [
+    req.session.authErrors = [
       `You're not logged in! Please login in (or signup) before attempting to ${restrictedPath[0].error}`,
     ];
-    req.url = "/users/login";
-    next();
+    return res.redirect("/users/login");
   } else {
     next();
   }
@@ -77,7 +76,7 @@ app.use("/users/signup", (req, res, next) => {
 });
 configRoutes(app);
 
-app.listen(3001, () => {
+app.listen(3000, () => {
   console.log("Application runing on port 3000");
   console.log("URL: http://localhost:3000/");
 });

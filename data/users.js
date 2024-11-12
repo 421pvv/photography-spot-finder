@@ -3,6 +3,7 @@ import { SALT_ROUNDS } from "../config/secrets.js";
 import validation from "../validation.js";
 import bcrypt from "bcrypt";
 import logging from "../log.js";
+import { ObjectId } from "mongodb";
 
 export const createUser = async (firstName, lastName, username, password) => {
   firstName = validation.validateString(firstName, "First Name");
@@ -170,7 +171,7 @@ const getUserProfileById = async (id) => {
   id = validation.validateString(id, "User Id", true);
 
   const filter = {
-    _id: id,
+    _id: ObjectId.createFromHexString(id),
   };
 
   let options = {};

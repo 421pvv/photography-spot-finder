@@ -1,4 +1,4 @@
-import spotsData from "../data/spots.js";
+import { spotsData } from "../data/index.js";
 import express from "express";
 import validation from "../validation.js";
 import logger from "../log.js";
@@ -201,10 +201,24 @@ router
       posterId: req.session.user._id,
       createdAt: new Date(),
     };
+    logger.log("Attempting to insert spot");
     logger.log(spot);
     try {
-      await spotsData.createSpot(spot);
+      await spotsData.createSpot(
+        spot.name,
+        spot.location,
+        spot.address,
+        spot.description,
+        spot.accessibility,
+        spot.bestTimes,
+        spot.images,
+        spot.tags,
+        spot.posterId,
+        spot.createdAt
+      );
+      return res.status(200);
     } catch (e) {
+      logger.log(e);
       return res.status(500).render("spots/addSpot", {
         user: req.session.user,
         styles: [
@@ -221,12 +235,11 @@ router
         apikey: process.env.MAPBOX_API_TOKEN,
         errors: {
           server_errors: ["Spot submission failed! Please try again."],
+          error_spotImages: [`Please re-upload your images.`],
         },
         spot: newSpot,
       });
     }
-
-    return res.status(200);
   });
 
 router.route("/allSpots").get(async (req, res) => {
