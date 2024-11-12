@@ -25,9 +25,7 @@ export const spotsData = [
     posterId: {
       $oid: "507f191e810c19729de860ea",
     },
-    createdAt: {
-      $date: "2024-11-12T13:34:49.053Z",
-    },
+    createdAt: new Date("2024-11-12T13:34:49.053Z"),
     reportCount: 0,
   },
   {
@@ -60,9 +58,7 @@ export const spotsData = [
     posterId: {
       $oid: "507f191e810c19729de860ea",
     },
-    createdAt: {
-      $date: "2024-11-12T13:50:57.450Z",
-    },
+    createdAt: new Date("2024-11-12T13:50:57.450Z"),
     reportCount: 0,
   },
 ];

@@ -15,6 +15,11 @@ function convertToObjectId(element) {
   return element;
 }
 
+function convertPosterIdToObjectId(spot) {
+  spot.posterId = ObjectId.createFromHexString(spot.posterId.$oid);
+  return spot;
+}
+
 export async function seedDB() {
   const usersCollection = await mongoCollections.users();
   /* adding new users */
@@ -23,6 +28,6 @@ export async function seedDB() {
 
   const spotsCollection = await mongoCollections.spots();
   // got some spots from: https://nycphotojourneys.com/best-places-to-take-pictures-in-nyc/
-  let spots = spotsData.map(convertToObjectId);
+  let spots = spotsData.map(convertToObjectId).map(convertPosterIdToObjectId);
   await spotsCollection.insertMany(spots);
 }
