@@ -375,6 +375,14 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
         $set: updateObject,
       }
     );
+
+    if (images) {
+      curSpot.images.forEach((image) => {
+        cloudinary.uploader
+          .destroy(image.public_id)
+          .catch((error) => logger.log(error));
+      });
+    }
   } catch (e) {
     throw [`Spot update failed!`];
   }
@@ -519,6 +527,12 @@ const updateComment = async (commentId, userId, message, image) => {
         $set: commentObject,
       }
     );
+
+    if (image) {
+      cloudinary.uploader
+        .destroy(image.public_id)
+        .catch((error) => logger.log(error));
+    }
   } catch (e) {
     throw [`Comment update failed!`];
   }
