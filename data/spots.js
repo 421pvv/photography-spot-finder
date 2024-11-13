@@ -415,6 +415,8 @@ const addComment = async (spotId, userId, message, image) => {
     commentObject.image = null;
   }
 
+  commentObject.reportCount = 0;
+
   try {
     const commentsCollectin = await comments();
     await commentsCollectin.insertOne(commentObject);
@@ -561,6 +563,72 @@ const putspotRatings = async (spotId, userId, rating, date) => {
     );
   } catch (e) {
     throw [`Comment submision failed!`];
+  }
+};
+
+const deleteSpotRatings = async (spotId, userId, rating, date) => {
+  spotId = validation.validateString(spotId, "Spot Id", true);
+  await getSpotById(spot_id);
+
+  userId = validation.validateString(userId, "User Id", true);
+  await userData.getUserProfileById(userId);
+
+  try {
+    const spotRatingsCollection = await spotRatings();
+    await spotRatingsCollection.deleteOne({
+      posterId: ObjectId.createFromHexString(userId),
+      spotId: ObjectId.createFromHexString(spotId),
+    });
+  } catch (e) {
+    throw [`Rating deletation failed!`];
+  }
+};
+
+const reportSpot = async (userId, spotId) => {
+  spotId = validation.validateString(spotId, "Spot Id", true);
+  await getSpotById(spot_id);
+
+  userId = validation.validateString(userId, "User Id", true);
+  await userData.getUserProfileById(userId);
+
+  try {
+    const spotsCollection = await spots();
+    spotsCollection.updateOne(
+      {
+        _id: ObjectId.createFromHexString(spotId),
+      },
+      {
+        $inc: {
+          reportCount: 1,
+        },
+      }
+    );
+  } catch (e) {
+    throw [`Spot report failed!`];
+  }
+};
+
+const reportComment = async (userId, commentId) => {
+  commentId = validation.validateString(commentId, "Comment Id", true);
+  await getCommentById(spot_id);
+
+  userId = validation.validateString(userId, "User Id", true);
+  await userData.getUserProfileById(userId);
+
+  try {
+    const commentsCollection = await spots();
+    commentsCollection.updateOne(
+      {
+        _id: ObjectId.createFromHexString(commentId),
+      },
+      {
+        $inc: {
+          reportCount: 1,
+        },
+      }
+    );
+  } catch (e) {
+    throw [`Spot report failed!`];
   }
 };
 
