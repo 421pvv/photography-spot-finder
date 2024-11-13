@@ -4,11 +4,10 @@ import spotsData from "../data/spots.js";
 
 const constructorMethod = (app) => {
   app.use("/users", usersRouter);
-  app.use("/spots" , spotsRouter)
+  app.use("/spots", spotsRouter);
 
-
-  app.use("*", async(req, res) => {
-    const allSpots = await spotsData.getAllSpots()
+  app.use("*", async (req, res) => {
+    const allSpots = await spotsData.getAllSpots(undefined, {});
     res.render("spots/allSpots", {
       spots: allSpots,
       user: req.session.user,

@@ -89,178 +89,73 @@ const createSpot = async (
   const spot = await getSpotById(spotId);
   return spot;
 };
-// Function to get all spots which have number of reports less than 20, to be displayed on the spots list page
-const getAllSpots = async () => {
+
+// gets all spots with report count less than 20 and with the given filters (if filters are ptovided)
+const getAllSpots = async (keyword, filter) => {
+  let query = { $and: [{ reportCount: { $lt: 20 } }] };
+  if (keyword) {
+    keyword = validation.validateString(keyword, "keyword", false);
+    const searchRegex = new RegExp("^.*" + keyword + ".*$", "i");
+    const keywordQuery = {
+      $or: [
+        { name: searchRegex },
+        { accessibility: searchRegex },
+        { bestTimes: { $elemMatch: { $regex: searchRegex } } },
+      ],
+    };
+    query.$and.push(keywordQuery);
+  }
+  if (filter.tag) {
+    if (!Array.isArray(filter.tag)) {
+      throw ["tags is not an array"];
+    }
+    if (filter.tag.length === 0) {
+      throw ["tags is empty"];
+    }
+    filter.tag = filter.tag.map((tag) =>
+      validation.validateString(tag, "tag", false).toLowerCase()
+    );
+    const tagQuery = { tags: { $all: filter.tag } };
+    query.$and.push(tagQuery);
+  }
+  if (filter.minRating) {
+    validation.validateRating(filter.minRating);
+    const ratingQuery = { averageRating: { $gte: filter.minRating } };
+    query.$and.push(ratingQuery);
+  }
+  if (filter.fromDate && filter.toDate) {
+    if (
+      !(filter.fromDate instanceof Date) ||
+      !(filter.toDate instanceof Date)
+    ) {
+      throw ["Both fromDate and toDate must be valid Date objects."];
+    }
+    if (filter.fromDate > filter.toDate) {
+      throw ["The fromDate must not be later than the endDate."];
+    }
+    const fromDateQuery = { createdAt: { $gte: filter.fromDate } };
+    const toDateQuery = { createdAt: { $lte: filter.toDate } };
+    query.$and.push(fromDateQuery);
+    query.$and.push(toDateQuery);
+  } else if (filter.fromDate) {
+    if (!(filter.fromDate instanceof Date)) {
+      throw ["fromDate and toDate must be valid Date object."];
+    }
+    const fromDateQuery = { createdAt: { $gte: filter.fromDate } };
+    query.$and.push(fromDateQuery);
+  } else if (filter.toDate) {
+    if (!(filter.toDate instanceof Date)) {
+      throw ["toDate must be valid Date object."];
+    }
+    const toDateQuery = { createdAt: { $lte: filter.toDate } };
+    query.$and.push(toDateQuery);
+  }
   const spotsCollection = await spots();
-  const allSpotsList = await spotsCollection
-    .find({ reportCount: { $lt: 20 } })
-    .toArray();
+  const allSpotsList = await spotsCollection.find(query).toArray();
   if (!allSpotsList) {
     throw ["Could not get all spots"];
   }
   return allSpotsList;
-};
-
-// Function to get spots by rating. Takes one rating as input.
-// returns a list of all spots which have rating greater than or equal to that minRating
-const getSpotsByRating = async (minRating) => {
-  validation.validateRating(minRating);
-  const spotsCollection = await spots();
-  const spotsRatingList = await spotsCollection
-    .find({
-      $and: [
-        { averageRating: { $gte: minRating } },
-        { reportCount: { $lt: 20 } },
-      ],
-    })
-    .toArray();
-  if (!spotsRatingList) {
-    throw ["Could not get spots greated than the given minRating"];
-  }
-  return spotsRatingList;
-};
-
-// Returns a list of spots with the given keyword (Searchs for keyword in name, accessibility and bestTimes)
-const getSpotsByKeywordSearch = async (keyword) => {
-  keyword = validation.validateString(keyword, "keyword", false);
-  const searchRegex = new RegExp("^.*" + keyword + ".*$", "i");
-  const spotsCollection = await spots();
-  const spotsKeywordsList = await spotsCollection
-    .find({
-      $and: [
-        {
-          $or: [
-            { name: searchRegex },
-            { accessibility: searchRegex },
-            { bestTimes: { $elemMatch: { $regex: searchRegex } } },
-          ],
-        },
-        { reportCount: { $lt: 20 } },
-      ],
-    })
-    .toArray();
-  if (!spotsKeywordsList) {
-    throw ["Could not get spots with the specified keyword"];
-  }
-  return spotsKeywordsList;
-};
-
-// Returns a list of all spots that have the given tag/tags in the tags array
-const getSpotsByTags = async (tagsArr) => {
-  if (tagsArr === undefined) {
-    throw ["tagsArr is missing"];
-  }
-  if (!Array.isArray(tagsArr)) {
-    throw ["tagsArr is not an array"];
-  }
-  const len = tagsArr.length;
-  if (len === 0) {
-    throw ["tagsArr is empty"];
-  }
-  for (let i = 0; i < len; i++) {
-    let tag = tagsArr[i];
-    tag = validation.validateString(tag, "tag", false);
-    tag = tag.toLowerCase();
-    tagsArr[i] = tag;
-  }
-  const spotsCollection = await spots();
-  const spotsListByTags = await spotsCollection
-    .find({
-      $and: [{ tags: { $all: tagsArr } }, { reportCount: { $lt: 20 } }],
-    })
-    .toArray();
-  if (!spotsListByTags) {
-    throw ["Could not get spots with the given tags"];
-  }
-  return spotsListByTags;
-};
-
-// Returns an array spots posted in the last 24 hours
-const getSpotsLastDay = async () => {
-  const spotsCollection = await spots();
-  // Reference: https://stackoverflow.com/questions/13314678/mongodb-only-fetch-documents-created-in-the-last-24hrs
-  const spotsLastDay = await spotsCollection
-    .find({
-      $and: [
-        { createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) } },
-        { reportCount: { $lt: 20 } },
-      ],
-    })
-    .toArray();
-  if (!spotsLastDay) {
-    throw ["Could not get the spots in the last 24 hours"];
-  }
-  return spotsLastDay;
-};
-
-// Returns an array spots posted in the last 30 days
-const getSpotsLastMonth = async () => {
-  const spotsCollection = await spots();
-  // Reference: https://stackoverflow.com/questions/13314678/mongodb-only-fetch-documents-created-in-the-last-24hrs
-  const spotsLastMonth = await spotsCollection
-    .find({
-      $and: [
-        { createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000 * 30) } },
-        { reportCount: { $lt: 20 } },
-      ],
-    })
-    .toArray();
-  if (!spotsLastMonth) {
-    throw ["Could not get the spots in the last month"];
-  }
-  return spotsLastMonth;
-};
-
-// Returns an array spots posted in the last 365 days
-const getSpotsLastYear = async () => {
-  const spotsCollection = await spots();
-  // Reference: https://stackoverflow.com/questions/13314678/mongodb-only-fetch-documents-created-in-the-last-24hrs
-  const spotsLastYear = await spotsCollection
-    .find({
-      $and: [
-        {
-          createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000 * 365) },
-        },
-        { reportCount: { $lt: 20 } },
-      ],
-    })
-    .toArray();
-  if (!spotsLastYear) {
-    throw ["Could not get the spots in the last year"];
-  }
-  return spotsLastYear;
-};
-
-const getSpotsByDateRange = async (startDate, endDate) => {
-  if (!(startDate instanceof Date) || !(endDate instanceof Date)) {
-    throw ["Both startDate and endDate must be valid Date objects."];
-  }
-
-  if (startDate >= endDate) {
-    throw ["The startDate must be earlier than the endDate."];
-  }
-
-  const spotsCollection = await spots();
-
-  const spotsInDateRange = await spotsCollection
-    .find({
-      $and: [
-        {
-          createdAt: {
-            $gte: startDate,
-          },
-        },
-        { createdAt: { $lte: endDate } },
-        { reportCount: { $lt: 20 } },
-      ],
-    })
-    .toArray();
-
-  if (spotsInDateRange.length === 0) {
-    throw ["No spots found within the specified date range."];
-  }
-
-  return spotsInDateRange;
 };
 
 // takes id as a string parameter and returns the spot with that id
@@ -708,11 +603,4 @@ const reportComment = async (userId, commentId) => {
 export default {
   createSpot,
   getAllSpots,
-  getSpotsByRating,
-  getSpotsByKeywordSearch,
-  getSpotsByTags,
-  getSpotsLastDay,
-  getSpotsLastMonth,
-  getSpotsLastYear,
-  getSpotsByDateRange,
 };
