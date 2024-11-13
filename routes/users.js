@@ -79,6 +79,7 @@ router
       });
     }
     req.session.user = {
+      _id: userFromDb._id.toString(),
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
@@ -90,9 +91,10 @@ router
   .route("/login")
   .get(async (req, res) => {
     res.render("users/login", {
-      authErrors: req.body.authErrors,
+      authErrors: req.session.authErrors,
       hasAuthErrors: true,
     });
+    delete req.session.authErrors;
   })
   .post(async (req, res) => {
     const loginData = req.body;
@@ -141,6 +143,7 @@ router
     }
 
     req.session.user = {
+      _id: userFromDb._id.toString(),
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,

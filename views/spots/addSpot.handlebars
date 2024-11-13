@@ -1,6 +1,13 @@
 <section>
   <h1 class="page_title">Add Spot</h1>
   <form id="addSpotForm" action="/spots/new" method="POST" class="addSpot">
+    <div id="spotSubmissionErrors">
+      {{#if errors.server_errors}}
+      {{#each errors.server_errors}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
     <label>
       Name
       <input type="text" id="spotName" name="spotName" placeholder="Enter spot Name." value="{{spot.spotName}}">
@@ -184,7 +191,19 @@
           .setLngLat(loc.result.geometry.coordinates)
           .addTo(map);
       }
+
+
     });
+
+    $("#addSpotForm").on("reset", () => {
+      map.setZoom(11);
+      map.setCenter(nycCoor);
+      if (marker) {
+        marker.remove();
+      }
+    })
+
+
   });
 
 </script>
@@ -234,6 +253,17 @@
     }
   }
   );
+
+  $("#addSpotForm").on("reset", () => {
+    urls.forEach(image => {
+      discardedImagesIds.push(image.public_id);
+    })
+    discardedImages.val(JSON.stringify(discardedImagesIds));
+    urls = []
+    $("#spotImages").val(JSON.stringify(urls));
+    previewContainer.empty()
+
+  })
 
   document.getElementById("upload_widget").addEventListener("click", function () {
     if (urls.length == 3) {

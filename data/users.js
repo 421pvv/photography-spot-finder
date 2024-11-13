@@ -3,6 +3,7 @@ import { SALT_ROUNDS } from "../config/secrets.js";
 import validation from "../validation.js";
 import bcrypt from "bcrypt";
 import logging from "../log.js";
+import { ObjectId } from "mongodb";
 
 export const createUser = async (firstName, lastName, username, password) => {
   firstName = validation.validateString(firstName, "First Name");
@@ -16,10 +17,17 @@ export const createUser = async (firstName, lastName, username, password) => {
   const encryptedPassword = bcrypt.hashSync(password, salt);
 
   const newUser = {
+    username,
+    email: "",
     firstName,
     lastName,
-    username,
+    bio: "",
     password: encryptedPassword,
+    role: "user",
+    favoriteSpots: [],
+    spotReports: [],
+    commentReports: [],
+    contestReports: [],
   };
 
   const usersCollection = await users();
@@ -48,6 +56,79 @@ const authenticateUser = async (username, password) => {
   }
 };
 
+export const updateUserProfile = async (userObject) => {
+  validateObject(userObject, "Update object");
+  let firstName = userObject.firstName;
+  let lastName = userObject.lastName;
+  let email = userObject.email;
+  let bio = userObject.bio;
+  let password = userObject.password;
+
+  let errors = [];
+  let updateUserProfile = {};
+
+  if (password !== undefined) {
+    try {
+      validation.validatePassword(password, "Password");
+      const salt = bcrypt.genSaltSync(SALT_ROUNDS);
+      password = bcrypt.hashSync(password, salt);
+      updateUserProfile.password = password;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (firstName !== undefined) {
+    try {
+      firstName = validation.validateString(firstName);
+      updateUserProfile.firstName = firstName;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (lastName !== undefined) {
+    try {
+      lastName = validation.validateString(lastName);
+      updateUserProfile.lastName = lastName;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (email !== undefined) {
+    try {
+      email = validation.validateEmail(email);
+      updateUserProfile.email = email;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (bio !== undefined) {
+    try {
+      bio = validation.validateString(bio);
+      updateUserProfile.bio = bio;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
+  if (errors.length > 0) {
+    throw errors;
+  }
+
+  const filter = {
+    username,
+  };
+  const userProfile = {
+    $set: updateUserProfile,
+  };
+
+  const usersCollection = await users();
+  const insertInfo = await usersCollection.updateOne(filter, userProfile);
+};
+
 const getUserByUsername = async (username, includePassword) => {
   username = validation.validateUsername(username, "Username");
   if (includePassword)
@@ -60,18 +141,44 @@ const getUserByUsername = async (username, includePassword) => {
   let options = {};
   if (includePassword && includePassword === true) {
     options.projection = {
-      _id: 0,
+      _id: 1,
+      firstName: 1,
+      lastName: 1,
+      username: 1,
+      password: 1,
     };
   } else {
     options.projection = {
-      _id: 0,
-      password: 0,
+      _id: 1,
+      firstName: 1,
+      username: 1,
+      lastName: 1,
     };
   }
 
   const usersCollection = await users();
   const userInfo = await usersCollection.findOne(filter, options);
   if (!userInfo) throw [`Could not find user with username (${username})`];
+
+  return userInfo;
+};
+
+const getUserProfileById = async (id) => {
+  id = validation.validateString(id, "User Id", true);
+
+  const filter = {
+    _id: ObjectId.createFromHexString(id),
+  };
+
+  let options = {};
+  options.projection = {
+    _id: 1,
+    password: 0,
+  };
+
+  const usersCollection = await users();
+  const userInfo = await usersCollection.findOne(filter, options);
+  if (!userInfo) throw [`Could not find user with id (${id})`];
 
   return userInfo;
 };
@@ -94,4 +201,5 @@ export default {
   getUserByUsername,
   authenticateUser,
   verifyNewUsername,
+  getUserProfileById,
 };

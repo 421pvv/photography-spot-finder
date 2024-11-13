@@ -140,3 +140,7 @@ $("#addSpotForm").submit((event) => {
     event.preventDefault();
   }
 });
+
+$("#addSpotForm").on("reset", (event) => {
+  $(".formInputError").remove();
+});

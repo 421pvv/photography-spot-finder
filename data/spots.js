@@ -1,6 +1,93 @@
 import { spots, comments, spotRatings } from "../config/mongoCollections.js";
 import validation from "../validation.js";
+import { userData } from "./index.js";
+import { ObjectId } from "mongodb";
 
+const createSpot = async (
+  name,
+  location,
+  address,
+  description,
+  accessibility,
+  bestTimes,
+  images,
+  tags,
+  posterId,
+  createdAt
+) => {
+  name = validation.validateString(name, "Name");
+  address = validation.validateString(address, "Address");
+  description = validation.validateString(description, "Description");
+  accessibility = validation.validateString(accessibility, "Accessibility");
+  posterId = validation.validateString(posterId, "Poster ID", true);
+  await userData.getUserProfileById(posterId);
+  posterId = ObjectId.createFromHexString(posterId);
+
+  validation.validateArray(bestTimes, "Best Times");
+  if (bestTimes.length == 0) throw [`Must provide at least one best time!`];
+  for (const tagI in bestTimes) {
+    bestTimes[tagI] = validation.validateString(bestTimes[tagI]).toLowerCase();
+  }
+
+  validation.validateArray(tags, "tags");
+  if (tags.length > 0) {
+    for (const tagI in tags) {
+      tags[tagI] = validation.validateString(tags[tagI], "tag").toLowerCase();
+    }
+  }
+  if (Array.isArray(tags) && tags.length > 5) {
+    throw `A maximum of five tags is allowed`;
+  }
+
+  validation.validateObject(location, "Location");
+  validation.validateCoordinates(...location.coordinates);
+
+  validation.validateArray(images, "images");
+  for (const image of images) {
+    validation.validateObject(image, "image");
+    if (!image.public_id || !image.url) {
+      throw ["Missing image object attributes"];
+    }
+    validation.validateString(image.public_id);
+    validation.validateString(image.url);
+  }
+  if (images.length === 0 || images.length > 3) {
+    throw [`Invalid number of images!`];
+  }
+
+  if (
+    !createdAt ||
+    typeof createdAt !== "object" ||
+    !(createdAt instanceof Date) ||
+    createdAt > new Date()
+  ) {
+    throw [`Expected createdAt to be a Date object, but it's not`];
+  }
+
+  const create_new_spot = {
+    name,
+    location,
+    address,
+    description,
+    accessibility,
+    bestTimes,
+    images,
+    tags,
+    posterId,
+    createdAt,
+    reportCount: 0,
+    averageRating: 0,
+    totalRatings: 0,
+  };
+
+  const spotsCollection = await spots();
+  const insertInfo = await spotsCollection.insertOne(create_new_spot);
+  if (!insertInfo.acknowledged || !insertInfo.insertedId.toString())
+    throw "Could not add spot";
+  const spotId = insertInfo.insertedId.toString();
+  const spot = await getSpotById(spotId);
+  return spot;
+};
 // Function to get all spots which have number of reports less than 20, to be displayed on the spots list page
 const getAllSpots = async () => {
   const spotsCollection = await spots();
@@ -13,26 +100,21 @@ const getAllSpots = async () => {
   return allSpotsList;
 };
 
-// Function to get spots by rating range (inclusive). Takes two ratings as input minRating and maxRating
-// returns a list of all spots in the inclusive range
-const getSpotsByRating = async (minRating, maxRating) => {
+// Function to get spots by rating. Takes one rating as input.
+// returns a list of all spots which have rating greater than or equal to that minRating
+const getSpotsByRating = async (minRating) => {
   validation.validateRating(minRating);
-  validation.validateRating(maxRating);
-  if (minRating > maxRating) {
-    throw ["minRating cannot be greater than maxRating"];
-  }
   const spotsCollection = await spots();
   const spotsRatingList = await spotsCollection
     .find({
       $and: [
-        { avgRating: { $gte: minRating } },
-        { avgRating: { $lte: maxRating } },
+        { averageRating: { $gte: minRating } },
         { reportCount: { $lt: 20 } },
       ],
     })
     .toArray();
   if (!spotsRatingList) {
-    throw ["Could not get spots in the specified rating range"];
+    throw ["Could not get spots greated than the given minRating"];
   }
   return spotsRatingList;
 };
@@ -483,6 +565,7 @@ const putspotRatings = async (spotId, userId, rating, date) => {
 };
 
 export default {
+  createSpot,
   getAllSpots,
   getSpotsByRating,
   getSpotsByKeywordSearch,
@@ -490,4 +573,5 @@ export default {
   getSpotsLastDay,
   getSpotsLastMonth,
   getSpotsLastYear,
+  getSpotsByDateRange,
 };

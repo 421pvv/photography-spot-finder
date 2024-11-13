@@ -9,7 +9,7 @@
     "watch": "node --watch app.js",
     "test": "jest --watchAll --runInBand --verbose",
     "ci_tests": "jest --runInBand --verbose",
-    "seed": "node seedDB.js"
+    "seed": "node ./seed/seedDB.js"
   },
   "repository": {
     "type": "git",
@@ -36,6 +36,7 @@
     "express-handlebars": "^8.0.1",
     "express-session": "^1.18.1",
     "mongodb": "^6.10.0",
+    "node-cron": "^3.0.3",
     "uuid": "^11.0.2"
   },
   "devDependencies": {

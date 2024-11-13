@@ -1,38 +1,41 @@
 <section>
   <h1 class="page_title">Sign Up</h1>
-  <form method="POST" class="mainForms">
+  <form method="POST" class="mainForms" id="signup-form">
     <label>
       First Name
-      <input type="text" name="firstName" placeholder="First Name" value="{{data.firstName}}" />
+      <input type="text" name="firstName" placeholder="First Name" value="{{data.firstName}}" id="first-name" required>
     </label>
 
     <label>
       Last Name
-      <input type="text" name="lastName" placeholder="Last Name" value="{{data.lastName}}" />
+      <input type="text" name="lastName" placeholder="Last Name" value="{{data.lastName}}" id="last-name" required>
     </label>
 
     <label>
       Username
-      <input type="text" name="username" placeholder="Username" value="{{data.username}}" />
+      <input type="text" name="username" placeholder="Username" value="{{data.username}}" id="user-name" required>
     </label>
 
     <label>
       Password
-      <input type="password" name="password" placeholder="Password" value="{{data.password}}" />
+      <input type="password" name="password" placeholder="Password" value="{{data.password}}" id="password" required>
     </label>
-    <div class="form_buttons">
-      <button type="submit">Login</button>
-      <button type="reset">Clear Form</button>
+    <div class="formInputError" id="form-errors-div">
+      {{#if hasErrors}}
+      {{#each errors}}
+      <p>
+        {{this}}
+      <p>
+        {{/each}}
+        {{/if}}
     </div>
+    <div class="form_buttons">
+      <button type="submit">Sign up</button>
+      <button type="reset" id="clear-signup-form">Clear Form</button>
+    </div>
+    <p>Already have an account? <a href="/users/login" id="login-here-link">Login here</a></p>
   </form>
-  {{#if hasErrors}}
-  <ul>
-    {{#each errors}}
-    <li>
-      {{this}}
-    </li>
-    {{/each}}
-  </ul>
-  {{/if}}
-
 </section>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+  crossorigin="anonymous"></script>
+<script type="module" src="/public/js/users/signup_validation.js"></script>
