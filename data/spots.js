@@ -2,7 +2,8 @@ import { spots, comments, spotRatings } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { userData } from "./index.js";
 import { ObjectId } from "mongodb";
-
+import logger from "../log.js";
+import cloudinary from "../cloudinary/cloudinary.js";
 const createSpot = async (
   name,
   location,
@@ -379,6 +380,58 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
   }
 };
 
+const deleteSpot = async (spotId, userId) => {
+  const updateObject = {};
+
+  spotId = validation.validateString(spotId, "Spot Id", true);
+  const curSpot = await getSpotById(spot_id);
+
+  userId = validation.validateString(userId, "User Id", true);
+  const userInfo = await userData.getUserProfileById(userId);
+
+  if (userId.toString() !== curSpot.posterId.toString()) {
+    throw [`Invalid spot delete attempt. User is not the original poster!`];
+  }
+
+  try {
+    const spotsCollection = await spots();
+
+    curSpot.images.forEach((image) => {
+      cloudinary.uploader
+        .destroy(image.public_id)
+        .catch((error) => logger.log(error));
+    });
+    await spotsCollection.deleteOne({
+      _id: ObjectId.createFromHexString(spotId),
+    });
+
+    const commentsCollection = await comments();
+    const comments = await commentsCollection
+      .find({
+        spotId: ObjectId.createFromHexString(spotId),
+      })
+      .toArray();
+    comments.forEach((comment) => {
+      if (comment.image) {
+        cloudinary.uploader
+          .destroy(comment.image.public_id)
+          .catch((error) => logger.log(error));
+      }
+    });
+    await commentsCollection.deleteMany({
+      spotId: ObjectId.createFromHexString(spotId),
+    });
+
+    const spotRatingsCollection = await spotRatings();
+    await spotRatingsCollection.deleteMany({
+      spotId: ObjectId.createFromHexString(spotId),
+    });
+  } catch (e) {
+    logger.log(e);
+    throw [`Spot delete failed!`];
+  }
+};
+
 const getCommentById = async (id) => {
   id = validation.validateString(id, "Comment Id", true);
   const commentsCollection = comments();
@@ -628,7 +681,7 @@ const reportComment = async (userId, commentId) => {
       }
     );
   } catch (e) {
-    throw [`Spot report failed!`];
+    throw [`Comment report failed!`];
   }
 };
 
