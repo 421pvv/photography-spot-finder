@@ -527,7 +527,7 @@ const updateComment = async (commentId, userId, message, image) => {
 const deleteComment = async (commentId, userId) => {
   const commentObject = {};
   commentId = validation.validateString(commentId, "Comment Id", true);
-  const spot = await getCommentById(commentId);
+  const comment = await getCommentById(commentId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
@@ -539,12 +539,18 @@ const deleteComment = async (commentId, userId) => {
   }
 
   try {
+    if (comment.image) {
+      cloudinary.uploader
+        .destroy(comment.image.public_id)
+        .catch((error) => logger.log(error));
+    }
     const commentsCollection = await comments();
     await commentsCollection.deleteOne({
       _id: ObjectId.createFromHexString(commentId),
       posterId: ObjectId.createFromHexString(userId),
     });
   } catch (e) {
+    logger.log(e);
     throw [`Delete comment failed`];
   }
 };
