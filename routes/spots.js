@@ -242,112 +242,87 @@ router
     }
   });
 
-router.route("/allSpots").get(async (req, res) => {
-  try {
-    const allSpots = await spotsData.getAllSpots();
-    res.render("spots/allSpots", {
-      spots: allSpots,
-      user: req.session.user,
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Could not fetch spots." });
-  }
-});
 
 router.route("/search").get(async (req, res) => {
-  try {
-    const keyword = req.query.keyword?.trim() || "";
-    let spots;
+ 
+    const keyword = req.query.keyword?.trim() || undefined;
+    let { tags, minRating, fromDate, toDate } = req.query;
+    let filter = {}
+    let errors = []
+  
+      if (tags) {
+        //spots = await spotsData.getSpotsByTags(tags.split(','));
+        tags = tags.split(',');
+        for (const tagI in tags) {
+          let tag = tags[tagI];
+          tags[tagI] = validation.validateString(tag, "tag");
+        }
 
-    if (!keyword) {
-      spots = await spotsData.getAllSpots();
-    } else {
-      spots = await spotsData.getSpotsByKeywordSearch(keyword);
-    }
+        filter.tag = tags;
+      }
+  
+      if (minRating) {
+        validation.validateNumber(minRating);
+        if (minRating > 10 || minRating < 1) {
+          errors.push('Min Rating must be between 1 and 10 (inclusive)')
+        }
+        filter.minRating = minRating;
+
+      }
+  
+      if (fromDate) {
+        validation.validateString(fromDate);
+        try {
+          fromDate = new Date(fromDate);
+        } catch(e) {
+          errors.push("From date is invalid")
+        }
+
+        if (isNaN(fromDate) ) {
+          errors.push("From date is invalid")
+        }
+        else if (fromDate < new Date(2024, 10, 1)) {
+          errors.push('From date must be after or on November 1, 2024')
+        }
+
+        filter.fromDate = fromDate;
+      }
+
+      if (toDate) {
+        validation.validateString(toDate);
+        try {
+          toDate = new Date(toDate);
+        } catch(e) {
+          errors.push("To date is invalid")
+        }
+
+        if (isNaN(toDate) ) {
+          errors.push("To date is invalid")
+        }
+        else if (toDate > new Date()) {
+          errors.push('To date cannot be after current time')
+        }
+
+        filter.toDate = toDate;
+      }
+
+      if (errors.length > 0) {
+        res.render("spots/allSpots", {
+          spots: spots,
+          user: req.session.user,
+          keyword: keyword,
+          errors
+        });
+      }
+
+      const spots = await spotsData.getAllSpots(keyword, filter);
     res.render("spots/allSpots", {
       spots: spots,
       user: req.session.user,
       keyword: keyword, 
     });
-  } catch (error) {
-    res.status(500).json({ error: "Could not perform search." });
-  }
-});
+  } 
+);
 
-router.route("/searchbytags").get(async (req, res) => {
-  try {
-    const tagString = req.query.tags;
-    if (!tagString) {
-      return res.status(400).json({ error: "incorrect input, not provided" });
-    }
-
-    const tagsArr = tagString
-      .split(",")
-      .map((tag) => tag.trim())
-      .filter(Boolean);
-    if (tagsArr.length === 0) {
-      return res.status(400).json({ error: "tags array is empty" });
-    }
-
-    const spotList = await spotsData.getSpotsByTags(tagsArr);
-    res.render("spots/allSpots", {
-      spots: spotList,
-      user: req.session.user,
-      tags: tagsArr,  
-    });
-  } catch (e) {
-    res.status(500).json({ error: e });
-  }
-});
-
-router.route("/searchbyrating").get(async (req, res) => {
-  try {
-    const minRating = parseFloat(req.query.minRating);
-    const maxRating = parseFloat(10);
-
-    if (isNaN(minRating) || isNaN(maxRating)) {
-      return res.status(400).json({ error: "invalid min and max rating values provided" });
-    }
-
-    const spotList = await spotsData.getSpotsByRating(minRating, maxRating);
-
-    res.render("spots/allSpots", {
-      spots: spotList,
-      user: req.session.user,
-      minRating: minRating,
-      maxRating: maxRating,  
-    });
-  } catch (e) {
-    res.status(400).json({ error: "Invalid rating values provided" });
-  }
-});
-
-router.route("/searchbytimerange").get(async (req, res) => {
-  try {
-    const { startDate, endDate } = req.query;
-
-    const parsedStartDate = new Date(startDate);
-    const parsedEndDate = new Date(endDate);
-
-    if (isNaN(parsedStartDate.getTime()) || isNaN(parsedEndDate.getTime())) {
-      return res.status(400).json({ error: "Invalid date format. Use YYYY-MM-DD." });
-    }
-
-    if (parsedStartDate >= parsedEndDate) {
-      return res.status(400).json({ error: "Start date must be earlier than end date." });
-    }
-
-    const spotsInDateRange = await spotsData.getSpotsByDateRange(parsedStartDate, parsedEndDate);
-
-    res.render("spots/allSpots", {
-      spots: spotsInDateRange,
-      user: req.session.user,
-      startDate: parsedStartDate.toISOString().split('T')[0],  
-      endDate: parsedEndDate.toISOString().split('T')[0],   
-    });
-  } catch (error) {
-    res.status(500).json({ error: "Could not fetch spots by date range." });
-  }
-});
 
 export default router;

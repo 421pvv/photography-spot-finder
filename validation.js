@@ -280,4 +280,5 @@ export default {
   validateObject,
   validateEmail,
   validateArray,
+  validateNumber
 };

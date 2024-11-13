@@ -1,36 +1,30 @@
 <h3>Filter Spots</h3>
 
-<form id="filterForm" action="/spots/search" method="get">
-  <div class="filter-section">
-    <label for="minRating">Min Rating:</label>
-    <input type="range" id="minRating" name="minRating" min="1" max="10" value="1">
-    <span id="minRatingValue">1</span>
+<div class="filter-section">
+  <label for="minRating">Min Rating:</label>
+  <input type="range" id="minRating" name="minRating" min="1" max="10" value="1">
+  <span id="minRatingValue">1</span>
+</div>
+
+<script>
+  const minRatingInput = document.getElementById('minRating');
+  const minRatingValue = document.getElementById('minRatingValue');
+  minRatingInput.addEventListener('input', function() {
+    minRatingValue.textContent = minRatingInput.value;
+  });
+</script>
+
+<div class="filter-section">
+  <label for="tags">Tags (comma separated):</label>
+  <input type="text" id="tags" name="tags" placeholder="e.g. nature, sunset" value="{{tags}}">
+</div>
+
+<div class="filter-section">
+  <label for="timeFilter">Time:</label>
+  <div>
+    <label for="fromDate">From Date:</label>
+    <input id="fromDate" type="datetime-local" name="fromDate" value="{{fromDate}}" />
+    <label for="toDate">To Date:</label>
+    <input id="toDate" type="datetime-local" name="toDate" value="{{toDate}}" />
   </div>
-
-  <script>
-    const minRatingInput = document.getElementById('minRating');
-    const minRatingValue = document.getElementById('minRatingValue');
-    
-    minRatingInput.addEventListener('input', function() {
-      minRatingValue.textContent = minRatingInput.value;
-    });
-  </script>
-
-  <div class="filter-section">
-    <label for="tags">Tags (comma separated):</label>
-    <input type="text" id="tags" name="tags" placeholder="e.g. nature, sunset" value="{{tags}}">
-  </div>
-
-  <div class="filter-section">
-    <label for="timeFilter">Time:</label>
-    <div>
-      <label for="fromDate">From Date:</label>
-      <input id="fromDate" type="datetime-local" name="fromDate" value="{{fromDate}}" />
-      
-      <label for="toDate">To Date:</label>
-      <input id="toDate" type="datetime-local" name="toDate" value="{{toDate}}" />
-    </div>
-  </div>
-
-  <button type="submit">Apply Filters</button>
-</form>
+</div>

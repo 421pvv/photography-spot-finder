@@ -1,6 +1,6 @@
 import usersRouter from "./users.js";
 import spotsRouter from "./spots.js";
-import spotsData from "../data/spots.js";
+import {spotsData} from "../data/index.js";
 
 const constructorMethod = (app) => {
   app.use("/users", usersRouter);
