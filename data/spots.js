@@ -92,6 +92,9 @@ const createSpot = async (
 
 // gets all spots with report count less than 20 and with the given filters (if filters are ptovided)
 const getAllSpots = async (keyword, filter) => {
+  logger.log("Getting all spots with query: ");
+  logger.log(keyword, filter);
+
   let query = { $and: [{ reportCount: { $lt: 20 } }] };
   if (keyword) {
     keyword = validation.validateString(keyword, "keyword", false);

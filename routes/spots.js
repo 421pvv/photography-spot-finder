@@ -244,10 +244,27 @@ router
 
 router.route("/search").get(async (req, res) => {
   try {
-    const keyword = req.query.keyword?.trim() || undefined;
+    let keyword = req.query.keyword;
     let { tags, minRating, fromDate, toDate } = req.query;
     let filter = {};
     let errors = [];
+
+    if (keyword) {
+      try {
+        keyword = validation.validateString(keyword);
+      } catch (e) {
+        logger.log(e);
+        return res.status(400).render("spots/allSpots", {
+          spots: [],
+          user: req.session.user,
+          keyword: keyword,
+          errors: ["Invalid filter keyword"],
+        });
+      }
+    }
+    if (keyword === "") {
+      keyword = undefined;
+    }
 
     if (tags) {
       //spots = await spotsData.getSpotsByTags(tags.split(','));
@@ -263,7 +280,7 @@ router.route("/search").get(async (req, res) => {
     if (minRating) {
       minRating = parseFloat(minRating);
       validation.validateNumber(minRating);
-      if (minRating > 10 || minRating < 1) {
+      if (minRating > 10 || minRating < 0) {
         errors.push("Min Rating must be between 1 and 10 (inclusive)");
       }
       filter.minRating = minRating;
@@ -302,6 +319,8 @@ router.route("/search").get(async (req, res) => {
 
       filter.toDate = toDate;
     }
+    logger.log("Fetching all spots with keyword: ", keyword);
+    logger.log(filter);
     const spots = await spotsData.getAllSpots(keyword, filter);
     res.render("spots/allSpots", {
       spots: spots,
