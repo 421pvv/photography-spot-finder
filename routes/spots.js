@@ -242,87 +242,79 @@ router
     }
   });
 
-
 router.route("/search").get(async (req, res) => {
- 
-    const keyword = req.query.keyword?.trim() || undefined;
-    let { tags, minRating, fromDate, toDate } = req.query;
-    let filter = {}
-    let errors = []
-  
-      if (tags) {
-        //spots = await spotsData.getSpotsByTags(tags.split(','));
-        tags = tags.split(',');
-        for (const tagI in tags) {
-          let tag = tags[tagI];
-          tags[tagI] = validation.validateString(tag, "tag");
-        }
+  const keyword = req.query.keyword?.trim() || undefined;
+  let { tags, minRating, fromDate, toDate } = req.query;
+  let filter = {};
+  let errors = [];
 
-        filter.tag = tags;
-      }
-  
-      if (minRating) {
-        validation.validateNumber(minRating);
-        if (minRating > 10 || minRating < 1) {
-          errors.push('Min Rating must be between 1 and 10 (inclusive)')
-        }
-        filter.minRating = minRating;
+  if (tags) {
+    //spots = await spotsData.getSpotsByTags(tags.split(','));
+    tags = tags.split(",");
+    for (const tagI in tags) {
+      let tag = tags[tagI];
+      tags[tagI] = validation.validateString(tag, "tag");
+    }
 
-      }
-  
-      if (fromDate) {
-        validation.validateString(fromDate);
-        try {
-          fromDate = new Date(fromDate);
-        } catch(e) {
-          errors.push("From date is invalid")
-        }
+    filter.tag = tags;
+  }
 
-        if (isNaN(fromDate) ) {
-          errors.push("From date is invalid")
-        }
-        else if (fromDate < new Date(2024, 10, 1)) {
-          errors.push('From date must be after or on November 1, 2024')
-        }
+  if (minRating) {
+    validation.validateNumber(minRating);
+    if (minRating > 10 || minRating < 1) {
+      errors.push("Min Rating must be between 1 and 10 (inclusive)");
+    }
+    filter.minRating = minRating;
+  }
 
-        filter.fromDate = fromDate;
-      }
+  if (fromDate) {
+    validation.validateString(fromDate);
+    try {
+      fromDate = new Date(fromDate);
+    } catch (e) {
+      errors.push("From date is invalid");
+    }
 
-      if (toDate) {
-        validation.validateString(toDate);
-        try {
-          toDate = new Date(toDate);
-        } catch(e) {
-          errors.push("To date is invalid")
-        }
+    if (isNaN(fromDate)) {
+      errors.push("From date is invalid");
+    } else if (fromDate < new Date(2024, 10, 1)) {
+      errors.push("From date must be after or on November 1, 2024");
+    }
 
-        if (isNaN(toDate) ) {
-          errors.push("To date is invalid")
-        }
-        else if (toDate > new Date()) {
-          errors.push('To date cannot be after current time')
-        }
+    filter.fromDate = fromDate;
+  }
 
-        filter.toDate = toDate;
-      }
+  if (toDate) {
+    validation.validateString(toDate);
+    try {
+      toDate = new Date(toDate);
+    } catch (e) {
+      errors.push("To date is invalid");
+    }
 
-      if (errors.length > 0) {
-        res.render("spots/allSpots", {
-          spots: spots,
-          user: req.session.user,
-          keyword: keyword,
-          errors
-        });
-      }
+    if (isNaN(toDate)) {
+      errors.push("To date is invalid");
+    } else if (toDate > new Date()) {
+      errors.push("To date cannot be after current time");
+    }
 
-      const spots = await spotsData.getAllSpots(keyword, filter);
+    filter.toDate = toDate;
+  }
+
+  if (errors.length > 0) {
     res.render("spots/allSpots", {
       spots: spots,
       user: req.session.user,
-      keyword: keyword, 
+      keyword: keyword,
+      errors,
     });
-  } 
-);
+  }
 
-
+  const spots = await spotsData.getAllSpots(keyword, filter);
+  res.render("spots/allSpots", {
+    spots: spots,
+    user: req.session.user,
+    keyword: keyword,
+  });
+});
 export default router;

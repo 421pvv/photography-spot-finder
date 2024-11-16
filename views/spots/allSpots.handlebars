@@ -2,43 +2,50 @@
   <form id="filterForm" action="/spots/search" method="get">
     <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
 
-    <button type="button" id="filterButton" onclick="toggleFilter()">Filter</button>
-
-    <div id="filterOptions" hidden>
-      {{> filterOptions }}
-    </div>
-
-    {{!-- <input type="submit" id="spotsSearchButton" value="Search"> --}}
+    <button type="button" id="filterButton" onclick="toggleFilter()">Filter Options</button>
+    <button type="submit">Search</button>
   </form>
+</div>
+
+<div id="filterOptions" hidden="true">
+  {{> filterOptions }}
 </div>
 
 <div>
   {{#if errors}}
-    {{#each errors}}
-      <p class="formInputError">{{this}}</p>
-    {{/each}}
+  {{#each errors}}
+  <p class="formInputError">{{this}}</p>
+  {{/each}}
+  {{/if}}
+</div>
+
+<div>
+  {{#if errors}}
+  {{#each errors}}
+  <p class="formInputError">{{this}}</p>
+  {{/each}}
   {{/if}}
 </div>
 
 <section id="spotsList">
   {{#if spots.length}}
-    <ul>
-      {{#each spots}}
-        <li>
-          <h2>{{this.name}}</h2>
-          <p>Rating: {{this.avgRating}}</p>
-          <p>Accessibility: {{this.accessibility}}</p>
-          <p>Best Times to Visit: 
-            {{#each this.bestTimes}} {{this}} {{/each}}
-          </p>
-          <p>Tags:
-            {{#each this.tags}} <span>{{this}}</span> {{/each}}
-          </p>
-        </li>
-      {{/each}}
-    </ul>
+  <ul>
+    {{#each spots}}
+    <li>
+      <h2>{{this.name}}</h2>
+      <p>Rating: {{this.avgRating}}</p>
+      <p>Accessibility: {{this.accessibility}}</p>
+      <p>Best Times to Visit:
+        {{#each this.bestTimes}} {{this}} {{/each}}
+      </p>
+      <p>Tags:
+        {{#each this.tags}} <span>{{this}}</span> {{/each}}
+      </p>
+    </li>
+    {{/each}}
+  </ul>
   {{else}}
-    <p>No spots available.</p>
+  <p>No spots available.</p>
   {{/if}}
 </section>
 
@@ -58,4 +65,3 @@
 </script>
 
 <script type="module" src="/public/js/spots/filter.js"></script>
- 

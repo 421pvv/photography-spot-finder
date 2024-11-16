@@ -9,7 +9,7 @@
 <script>
   const minRatingInput = document.getElementById('minRating');
   const minRatingValue = document.getElementById('minRatingValue');
-  minRatingInput.addEventListener('input', function() {
+  minRatingInput.addEventListener('input', function () {
     minRatingValue.textContent = minRatingInput.value;
   });
 </script>
@@ -24,7 +24,10 @@
   <div>
     <label for="fromDate">From Date:</label>
     <input id="fromDate" type="datetime-local" name="fromDate" value="{{fromDate}}" />
+
     <label for="toDate">To Date:</label>
     <input id="toDate" type="datetime-local" name="toDate" value="{{toDate}}" />
   </div>
 </div>
+
+<button type="submit" id="applyFilterButton">Apply Filter</button>
