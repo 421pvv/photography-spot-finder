@@ -1,9 +1,7 @@
 import { spots, comments, spotRatings } from "../config/mongoCollections.js";
 import validation from "../validation.js";
-import { userData } from "./index.js";
 import { ObjectId } from "mongodb";
-import logger from "../log.js";
-import cloudinary from "../cloudinary/cloudinary.js";
+import { userData } from "./index.js";
 const createSpot = async (
   name,
   location,
@@ -89,6 +87,7 @@ const createSpot = async (
   const spot = await getSpotById(spotId);
   return spot;
 };
+
 // Function to get all spots which have number of reports less than 20, to be displayed on the spots list page
 const getAllSpots = async () => {
   const spotsCollection = await spots();
@@ -101,21 +100,26 @@ const getAllSpots = async () => {
   return allSpotsList;
 };
 
-// Function to get spots by rating. Takes one rating as input.
-// returns a list of all spots which have rating greater than or equal to that minRating
-const getSpotsByRating = async (minRating) => {
+// Function to get spots by rating range (inclusive). Takes two ratings as input minRating and maxRating
+// returns a list of all spots in the inclusive range
+const getSpotsByRating = async (minRating, maxRating) => {
   validation.validateRating(minRating);
+  validation.validateRating(maxRating);
+  if (minRating > maxRating) {
+    throw ["minRating cannot be greater than maxRating"];
+  }
   const spotsCollection = await spots();
   const spotsRatingList = await spotsCollection
     .find({
       $and: [
-        { averageRating: { $gte: minRating } },
+        { avgRating: { $gte: minRating } },
+        { avgRating: { $lte: maxRating } },
         { reportCount: { $lt: 20 } },
       ],
     })
     .toArray();
   if (!spotsRatingList) {
-    throw ["Could not get spots greated than the given minRating"];
+    throw ["Could not get spots in the specified rating range"];
   }
   return spotsRatingList;
 };
@@ -292,7 +296,7 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
   const updateObject = {};
 
   spotId = validation.validateString(spotId, "Spot Id", true);
-  const curSpot = await getSpotById(spot_id);
+  const curSpot = await getSpotById(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
@@ -375,68 +379,8 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
         $set: updateObject,
       }
     );
-
-    if (images) {
-      curSpot.images.forEach((image) => {
-        cloudinary.uploader
-          .destroy(image.public_id)
-          .catch((error) => logger.log(error));
-      });
-    }
   } catch (e) {
     throw [`Spot update failed!`];
-  }
-};
-
-const deleteSpot = async (spotId, userId) => {
-  const updateObject = {};
-
-  spotId = validation.validateString(spotId, "Spot Id", true);
-  const curSpot = await getSpotById(spot_id);
-
-  userId = validation.validateString(userId, "User Id", true);
-  const userInfo = await userData.getUserProfileById(userId);
-
-  if (userId.toString() !== curSpot.posterId.toString()) {
-    throw [`Invalid spot delete attempt. User is not the original poster!`];
-  }
-
-  try {
-    const spotsCollection = await spots();
-
-    curSpot.images.forEach((image) => {
-      cloudinary.uploader
-        .destroy(image.public_id)
-        .catch((error) => logger.log(error));
-    });
-    await spotsCollection.deleteOne({
-      _id: ObjectId.createFromHexString(spotId),
-    });
-
-    const commentsCollection = await comments();
-    const comments = await commentsCollection
-      .find({
-        spotId: ObjectId.createFromHexString(spotId),
-      })
-      .toArray();
-    comments.forEach((comment) => {
-      if (comment.image) {
-        cloudinary.uploader
-          .destroy(comment.image.public_id)
-          .catch((error) => logger.log(error));
-      }
-    });
-    await commentsCollection.deleteMany({
-      spotId: ObjectId.createFromHexString(spotId),
-    });
-
-    const spotRatingsCollection = await spotRatings();
-    await spotRatingsCollection.deleteMany({
-      spotId: ObjectId.createFromHexString(spotId),
-    });
-  } catch (e) {
-    logger.log(e);
-    throw [`Spot delete failed!`];
   }
 };
 
@@ -475,8 +419,6 @@ const addComment = async (spotId, userId, message, image) => {
   } else {
     commentObject.image = null;
   }
-
-  commentObject.reportCount = 0;
 
   try {
     const commentsCollectin = await comments();
@@ -527,12 +469,6 @@ const updateComment = async (commentId, userId, message, image) => {
         $set: commentObject,
       }
     );
-
-    if (image) {
-      cloudinary.uploader
-        .destroy(image.public_id)
-        .catch((error) => logger.log(error));
-    }
   } catch (e) {
     throw [`Comment update failed!`];
   }
@@ -541,7 +477,7 @@ const updateComment = async (commentId, userId, message, image) => {
 const deleteComment = async (commentId, userId) => {
   const commentObject = {};
   commentId = validation.validateString(commentId, "Comment Id", true);
-  const comment = await getCommentById(commentId);
+  const spot = await getCommentById(commentId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
@@ -553,18 +489,12 @@ const deleteComment = async (commentId, userId) => {
   }
 
   try {
-    if (comment.image) {
-      cloudinary.uploader
-        .destroy(comment.image.public_id)
-        .catch((error) => logger.log(error));
-    }
     const commentsCollection = await comments();
     await commentsCollection.deleteOne({
       _id: ObjectId.createFromHexString(commentId),
       posterId: ObjectId.createFromHexString(userId),
     });
   } catch (e) {
-    logger.log(e);
     throw [`Delete comment failed`];
   }
 };
@@ -639,74 +569,9 @@ const putspotRatings = async (spotId, userId, rating, date) => {
   }
 };
 
-const deleteSpotRatings = async (spotId, userId, rating, date) => {
-  spotId = validation.validateString(spotId, "Spot Id", true);
-  await getSpotById(spot_id);
-
-  userId = validation.validateString(userId, "User Id", true);
-  await userData.getUserProfileById(userId);
-
-  try {
-    const spotRatingsCollection = await spotRatings();
-    await spotRatingsCollection.deleteOne({
-      posterId: ObjectId.createFromHexString(userId),
-      spotId: ObjectId.createFromHexString(spotId),
-    });
-  } catch (e) {
-    throw [`Rating deletation failed!`];
-  }
-};
-
-const reportSpot = async (userId, spotId) => {
-  spotId = validation.validateString(spotId, "Spot Id", true);
-  await getSpotById(spot_id);
-
-  userId = validation.validateString(userId, "User Id", true);
-  await userData.getUserProfileById(userId);
-
-  try {
-    const spotsCollection = await spots();
-    spotsCollection.updateOne(
-      {
-        _id: ObjectId.createFromHexString(spotId),
-      },
-      {
-        $inc: {
-          reportCount: 1,
-        },
-      }
-    );
-  } catch (e) {
-    throw [`Spot report failed!`];
-  }
-};
-
-const reportComment = async (userId, commentId) => {
-  commentId = validation.validateString(commentId, "Comment Id", true);
-  await getCommentById(spot_id);
-
-  userId = validation.validateString(userId, "User Id", true);
-  await userData.getUserProfileById(userId);
-
-  try {
-    const commentsCollection = await spots();
-    commentsCollection.updateOne(
-      {
-        _id: ObjectId.createFromHexString(commentId),
-      },
-      {
-        $inc: {
-          reportCount: 1,
-        },
-      }
-    );
-  } catch (e) {
-    throw [`Comment report failed!`];
-  }
-};
-
 export default {
   createSpot,
+  updateSpot,
   getAllSpots,
   getSpotsByRating,
   getSpotsByKeywordSearch,
@@ -714,5 +579,5 @@ export default {
   getSpotsLastDay,
   getSpotsLastMonth,
   getSpotsLastYear,
-  getSpotsByDateRange,
+  getSpotById,
 };

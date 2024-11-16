@@ -39,14 +39,14 @@ app.set("view engine", "handlebars");
 
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
-    { url: "/users/profile", error: "access profile!" },
-    { url: "/spots/new", error: "add a new spot!" },
+    { url: "users/profile", error: "access profile!" },
+    { url: "spots/new", error: "add a new spot!" },
+    { url: "spots/edit", error: "modify a spot!" },
   ];
   let curPath = req.baseUrl + req.path;
-  if (curPath.charAt(curPath.length - 1) === "/") {
-    curPath = curPath.substring(0, curPath.length - 1);
-  }
-  const restrictedPath = restrictedPaths.filter((path) => path.url === curPath);
+  const restrictedPath = restrictedPaths.filter((path) =>
+    curPath.includes(path.url)
+  );
 
   if (restrictedPath.length > 0 && !req.session.user) {
     logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
@@ -57,6 +57,11 @@ app.use("*", (req, res, next) => {
   } else {
     next();
   }
+});
+
+app.post("/spots/edit/:spotId", (req, res, next) => {
+  req.method = "PUT";
+  next();
 });
 
 app.use("/users/login", (req, res, next) => {

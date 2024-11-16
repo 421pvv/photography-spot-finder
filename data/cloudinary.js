@@ -47,4 +47,12 @@ function batchGroupPublicIds(pubicIds) {
   return batches;
 }
 
-await cleanUpCloudinary();
+const deleteImages = async (image_ids) => {
+  for (const pubicIDSet of batchGroupPublicIds(image_ids)) {
+    await cloudinary.api.delete_resources(pubicIDSet);
+  }
+};
+
+export default {
+  deleteImages,
+};

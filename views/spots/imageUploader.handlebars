@@ -1,0 +1,83 @@
+    <label id="imageUploadLabel">
+      Upload Images (At most {{imageLimit}} allowed)
+      <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
+    </label>
+
+    <div id="imageUploadPreviews">
+    </div>
+    <div id="spotImagesErrors">
+      {{#if errors.error_spotImages}}
+      {{#each errors.error_spotImages}}
+      <p class="formInputError">{{this}}</p>
+      {{/each}}
+      {{/if}}
+    </div>
+
+
+
+
+<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>
+<script>
+  let urls = [];
+  const discardedImagesIds = [];
+  const discardedImages = $("#spotDiscardedImages");
+  const previewContainer = $("#imageUploadPreviews");
+  const imageFileUrls = document.getElementById("spotImages");
+
+  var myWidget = cloudinary.createUploadWidget({
+    cloudName: 'db7w46lyt',
+    uploadPreset: 'Spot Images',
+    resourceType: "image",
+    multiple: false,
+  }, (error, result) => {
+    if (!error && result && result.event === "success") {
+      urls.push({
+        public_id: result.info.public_id,
+        url: result.info.secure_url
+      });
+      imageFileUrls.value = JSON.stringify(urls);
+
+
+
+      // set up image preview and handle images to be removed at server side
+      previewContainer.append(
+        `<div id="${result.info.public_id}" class="previewImageContainer">
+        <img
+          src="${result.info.secure_url}">
+        <span class="removeImageIcon">❌</span>
+      </div>`);
+
+      $(`#${result.info.public_id} span`).click((event) => {
+        console.log("Removing image: ", result.info.public_id);
+        discardedImagesIds.push(result.info.public_id);
+        urls = urls.filter(image => image.public_id !== result.info.public_id);
+
+        discardedImages.val(JSON.stringify(discardedImagesIds));
+        $("#spotImages").val(JSON.stringify(urls));
+
+        $(`#${result.info.public_id}`).remove();
+      });
+
+    }
+  }
+  );
+
+  $("#addSpotForm").on("reset", () => {
+    urls.forEach(image => {
+      discardedImagesIds.push(image.public_id);
+    })
+    discardedImages.val(JSON.stringify(discardedImagesIds));
+    urls = []
+    $("#spotImages").val(JSON.stringify(urls));
+    previewContainer.empty()
+
+  })
+
+  document.getElementById("upload_widget").addEventListener("click", function () {
+    if (urls.length == 3) {
+      alert("You have reached the image upload limit.");
+    } else {
+      myWidget.open();
+    }
+  }, false);
+</script>
