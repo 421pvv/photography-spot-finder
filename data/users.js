@@ -2,10 +2,11 @@ import { users } from "../config/mongoCollections.js";
 import { SALT_ROUNDS } from "../config/secrets.js";
 import validation from "../validation.js";
 import bcrypt from "bcrypt";
-import logging from "../log.js";
+import logger from "../log.js";
 import { ObjectId } from "mongodb";
 
 export const createUser = async (firstName, lastName, username, password) => {
+  console.log(firstName, lastName, username, password);
   firstName = validation.validateString(firstName, "First Name");
   lastName = validation.validateString(lastName, "Last Name");
   username = validation.validateUsername(username, "Username");
@@ -57,7 +58,23 @@ const authenticateUser = async (username, password) => {
 };
 
 export const updateUserProfile = async (userObject) => {
-  validateObject(userObject, "Update object");
+  logger.log("Tring to update profile: ");
+  logger.log(userObject);
+  validation.validateObject(userObject, "Update object");
+
+  //validate existing user
+  let username = userObject.username;
+  let userInfo;
+  try {
+    username = validation.validateString(username, "username");
+    userInfo = await getUserByUsername(username);
+  } catch (e) {
+    throw ["User profile update failed. Invlaid username."];
+  }
+  //thorw if no addtional fields provided for udpate
+  if (Object.keys(userObject).length === 1) {
+    throw [`Must provide at leaset one update field to update user profile!`];
+  }
   let firstName = userObject.firstName;
   let lastName = userObject.lastName;
   let email = userObject.email;
@@ -119,14 +136,20 @@ export const updateUserProfile = async (userObject) => {
   }
 
   const filter = {
-    username,
+    _id: ObjectId.createFromHexString(userInfo._id.toString()),
   };
   const userProfile = {
     $set: updateUserProfile,
   };
 
   const usersCollection = await users();
-  const insertInfo = await usersCollection.updateOne(filter, userProfile);
+  try {
+    const insertInfo = await usersCollection.updateOne(filter, userProfile);
+  } catch (e) {
+    throw ["Update failed!"];
+  }
+
+  return await getUserProfileById(userInfo._id.toString());
 };
 
 const getUserByUsername = async (username, includePassword) => {
@@ -202,4 +225,5 @@ export default {
   authenticateUser,
   verifyNewUsername,
   getUserProfileById,
+  updateUserProfile,
 };

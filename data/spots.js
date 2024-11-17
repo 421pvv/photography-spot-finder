@@ -2,6 +2,7 @@ import { spots, comments, spotRatings } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { ObjectId } from "mongodb";
 import { userData } from "./index.js";
+import logger from "../log.js";
 const createSpot = async (
   name,
   location,
@@ -368,10 +369,15 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
     if (images.length === 0 || images.length > 3) {
       throw [`Invalid number of images!`];
     }
+    updateObject.images = images;
+  }
+
+  if (Object.keys(updateObject).length === 0) {
+    throw [`Must provide at lead one update field for spot edit!`];
   }
   try {
     const spotsCollection = await spots();
-    spotsCollection.updateOne(
+    await spotsCollection.updateOne(
       {
         _id: ObjectId.createFromHexString(spotId),
       },
@@ -382,27 +388,50 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
   } catch (e) {
     throw [`Spot update failed!`];
   }
+
+  const spot = await getSpotById(spotId);
+  return spot;
 };
 
 const getCommentById = async (id) => {
   id = validation.validateString(id, "Comment Id", true);
-  const commentsCollection = comments();
+  const commentsCollection = await comments();
   return await commentsCollection.findOne({
     _id: ObjectId.createFromHexString(id),
   });
 };
 
+const getCommentsBySpotId = async (id) => {
+  id = validation.validateString(id, "Comment Id", true);
+  const commentsCollection = await comments();
+  let spotComments;
+  try {
+    spotComments = await commentsCollection
+      .find({
+        spotId: ObjectId.createFromHexString(id),
+      })
+      .toArray();
+  } catch (e) {
+    throw ["Comments fetch failed for spot: " + id.toString()];
+  }
+  logger.log("Comments fetched: " + id.toString());
+  logger.log(spotComments);
+  return spotComments;
+};
+
 const addComment = async (spotId, userId, message, image) => {
   const commentObject = {};
   spotId = validation.validateString(spotId, "Spot Id", true);
-  const spot = await getSpotById(spot_id);
+  const spot = await getSpotById(spotId);
   commentObject.spotId = ObjectId.createFromHexString(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
-  commentObject.posterId = ObjectId.createFromHexString(posterId);
+  commentObject.posterId = ObjectId.createFromHexString(
+    userInfo._id.toString()
+  );
 
-  message = validation.validateString(message);
+  message = validation.validateString(message, "Message");
   commentObject.message = message;
 
   if (image) {
@@ -420,33 +449,34 @@ const addComment = async (spotId, userId, message, image) => {
     commentObject.image = null;
   }
 
+  let commentResult;
   try {
-    const commentsCollectin = await comments();
-    await commentsCollectin.insertOne(commentObject);
+    const commentsCollection = await comments();
+    commentResult = await commentsCollection.insertOne(commentObject);
   } catch (e) {
     throw [`Comment submision failed!`];
   }
+
+  return getCommentById(commentResult.insertedId.toString());
 };
 
 const updateComment = async (commentId, userId, message, image) => {
   const commentObject = {};
   commentId = validation.validateString(commentId, "Comment Id", true);
-  const spot = await getCommentById(commentId);
+  const comment = await getCommentById(commentId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
 
-  if (userId.toString() !== userInfo._id.toString()) {
-    throw [
-      `Attempting to update a comment but user is the original commenter!`,
-    ];
+  if (comment.posterId.toString() !== userInfo._id.toString()) {
+    throw [`Attempting to update a comment that doesn't beling to the user.!`];
   }
 
-  message = validation.validateString(message);
+  message = validation.validateString(message, "Message");
   commentObject.message = message;
 
   if (image) {
-    validation.validateObject(image);
+    validation.validateObject(image, "Image");
     if (!image.public_id || !image.url) {
       throw [`Invalid image object.`];
     }
@@ -472,12 +502,14 @@ const updateComment = async (commentId, userId, message, image) => {
   } catch (e) {
     throw [`Comment update failed!`];
   }
+
+  return await getCommentById(commentId);
 };
 
 const deleteComment = async (commentId, userId) => {
   const commentObject = {};
   commentId = validation.validateString(commentId, "Comment Id", true);
-  const spot = await getCommentById(commentId);
+  const comment = await getCommentById(commentId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
@@ -497,6 +529,8 @@ const deleteComment = async (commentId, userId) => {
   } catch (e) {
     throw [`Delete comment failed`];
   }
+
+  return comment;
 };
 const putspotRatings = async (spotId, userId, rating, date) => {
   const ratingObject = {};
@@ -580,4 +614,8 @@ export default {
   getSpotsLastMonth,
   getSpotsLastYear,
   getSpotById,
+  addComment,
+  getCommentById,
+  getCommentsBySpotId,
+  updateComment,
 };
