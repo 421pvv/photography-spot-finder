@@ -1,6 +1,7 @@
 import cloudinary from "../cloudinary/cloudinary.js";
 import { spots } from "../config/mongoCollections.js";
 import { closeConnection } from "../config/mongoConnection.js";
+import logger from "../log.js";
 export const cleanUpCloudinary = async () => {
   let pubicIds = [];
   let next_cursor = null;
@@ -49,7 +50,11 @@ function batchGroupPublicIds(pubicIds) {
 
 const deleteImages = async (image_ids) => {
   for (const pubicIDSet of batchGroupPublicIds(image_ids)) {
-    await cloudinary.api.delete_resources(pubicIDSet);
+    try {
+      await cloudinary.api.delete_resources(pubicIDSet);
+    } catch (e) {
+      logger.log(e);
+    }
   }
 };
 

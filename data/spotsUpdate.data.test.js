@@ -2,7 +2,7 @@ import { userData, spotsData } from "./index.js";
 import { closeConnection } from "../config/mongoConnection.js";
 import { initDB, seedDB } from "../seed/seed.js";
 import { passwordPolicies } from "../validation.js";
-import { ObjectId } from "mongodb";
+import { ObjectId, deserialize } from "mongodb";
 import { json } from "express";
 
 describe("Testing users data functions", () => {
@@ -193,7 +193,7 @@ describe("Testing users data functions", () => {
       receivedUpdatedSpot.posterId = receivedUpdatedSpot.posterId.toString();
       expect(receivedUpdatedSpot).toEqual(expectedSpot);
     });
-    it("Updates the spot accessibility when user id is valid and original poster", async () => {
+    it("Updates the spot best times when user id is valid and original poster", async () => {
       const expectedSpot = JSON.parse(JSON.stringify(validSpotInfo));
       expectedSpot.bestTimes = [
         "Edited accessibility",
@@ -214,7 +214,7 @@ describe("Testing users data functions", () => {
       receivedUpdatedSpot.posterId = receivedUpdatedSpot.posterId.toString();
       expect(receivedUpdatedSpot).toEqual(expectedSpot);
     });
-    it("Updates the spot accessibility when user id is valid and original poster", async () => {
+    it("Updates the spot tags when user id is valid and original poster", async () => {
       const expectedSpot = JSON.parse(JSON.stringify(validSpotInfo));
       expectedSpot.tags = [
         "Edited tags",
@@ -235,7 +235,7 @@ describe("Testing users data functions", () => {
       receivedUpdatedSpot.posterId = receivedUpdatedSpot.posterId.toString();
       expect(receivedUpdatedSpot).toEqual(expectedSpot);
     });
-    it("Updates the spot accessibility when user id is valid and original poster", async () => {
+    it("Updates the spot location when user id is valid and original poster", async () => {
       const expectedSpot = JSON.parse(JSON.stringify(validSpotInfo));
       expectedSpot.location = {
         type: "Point",
@@ -255,7 +255,7 @@ describe("Testing users data functions", () => {
       receivedUpdatedSpot.posterId = receivedUpdatedSpot.posterId.toString();
       expect(receivedUpdatedSpot).toEqual(expectedSpot);
     });
-    it("Updates the spot accessibility when user id is valid and original poster", async () => {
+    it("Updates the spot address when user id is valid and original poster", async () => {
       const expectedSpot = JSON.parse(JSON.stringify(validSpotInfo));
       expectedSpot.address = "Fake Address 1234";
       const receivedUpdatedSpot = await spotsData.updateSpot(
@@ -272,7 +272,7 @@ describe("Testing users data functions", () => {
       receivedUpdatedSpot.posterId = receivedUpdatedSpot.posterId.toString();
       expect(receivedUpdatedSpot).toEqual(expectedSpot);
     });
-    it("Updates the spot accessibility when user id is valid and original poster", async () => {
+    it("Updates the spot images when user id is valid and original poster", async () => {
       const expectedSpot = JSON.parse(JSON.stringify(validSpotInfo));
       expectedSpot.images = [
         {
@@ -293,6 +293,118 @@ describe("Testing users data functions", () => {
         receivedUpdatedSpot.createdAt.toISOString();
       receivedUpdatedSpot.posterId = receivedUpdatedSpot.posterId.toString();
       expect(receivedUpdatedSpot).toEqual(expectedSpot);
+    });
+  });
+  describe("Testing userData.deleteSpot functionality", () => {
+    beforeEach(async () => {
+      await initDB();
+
+      await userData.createUser(
+        validUserInfo.firstName,
+        validUserInfo.lastName,
+        validUserInfo.username,
+        validUserInfo.password
+      );
+      await userData.createUser(
+        "Dhruvish",
+        "Parekh",
+        "dhruvish",
+        "Password@1234"
+      );
+      receivedUserInfo = await userData.getUserByUsername(
+        validUserInfo.username
+      );
+      invalidUserInfo = await userData.getUserByUsername("dhruvish");
+      console.log(invalidUserInfo);
+      validSpotInfo = {
+        name: "Grand Central Terminal",
+        location: {
+          type: "Point",
+          coordinates: [-73.977362, 40.752467],
+        },
+        address:
+          "Grand Central Terminal, 87 E 42nd St, New York City, New York 10017, United States",
+        description:
+          "Besides being a major transportation hub, the Grand Central Terminal is an iconic photography spot with great architecture and history. In addition to all the opportunity for photography it provides, there are also a lot of places to shop and to eat!",
+        accessibility:
+          "Due to being a transportation hub, the Grand Central Terminal is highly accessible. It has ramps, elevators, escalators, wheelchair access, and audiovisual passenger information systems. Moreover, the station is open and free to access.",
+        bestTimes: ["non-rush hours", "weekends"],
+        images: [
+          {
+            public_id: "fhaoqxqecfmwofjtfgqk",
+            url: "https://res.cloudinary.com/db7w46lyt/image/upload/v1731419325/fhaoqxqecfmwofjtfgqk.jpg",
+          },
+          {
+            public_id: "d0lwskdj0yzpzwdkza7d",
+            url: "https://res.cloudinary.com/db7w46lyt/image/upload/v1731419448/d0lwskdj0yzpzwdkza7d.jpg",
+          },
+        ],
+        tags: ["architecture", "transportation", "station", "nyc"],
+        posterId: receivedUserInfo._id.toString(),
+        createdAt: new Date("2024-11-12T13:50:57.450Z"),
+        reportCount: 0,
+        averageRating: 0,
+        totalRatings: 0,
+      };
+      originalSpot = await spotsData.createSpot(
+        validSpotInfo.name,
+        validSpotInfo.location,
+        validSpotInfo.address,
+        validSpotInfo.description,
+        validSpotInfo.accessibility,
+        validSpotInfo.bestTimes,
+        validSpotInfo.images,
+        validSpotInfo.tags,
+        validSpotInfo.posterId,
+        validSpotInfo.createdAt
+      );
+    });
+    describe("Testing spotsData.deleteSpot input validation", () => {
+      it("Throws when no spot id is provided", async () => {
+        await expect(
+          spotsData.deleteSpot(undefined, receivedUserInfo._id.toString())
+        ).rejects.toEqual([
+          "Expected Spot Id to be of type string, but it is not provided!",
+        ]);
+      });
+      it("Throws when no spot id is not valid", async () => {
+        await expect(
+          spotsData.deleteSpot("undefined", receivedUserInfo._id.toString())
+        ).rejects.toEqual(["String (undefined) is not a valid ObjectId!"]);
+      });
+      it("Throws when no spot id is not valid spot", async () => {
+        await expect(
+          spotsData.deleteSpot(
+            "67394e0136e6e000523eb55f",
+            receivedUserInfo._id.toString()
+          )
+        ).rejects.toEqual(["No spot with id of 67394e0136e6e000523eb55f"]);
+      });
+      it("Throws when no user id is provided", async () => {
+        await expect(
+          spotsData.deleteSpot(originalSpot._id.toString(), undefined)
+        ).rejects.toEqual([
+          "Expected User Id to be of type string, but it is not provided!",
+        ]);
+      });
+      it("Throws when user id is not valid mongo id", async () => {
+        await expect(
+          spotsData.deleteSpot(originalSpot._id.toString(), "undefined")
+        ).rejects.toEqual(["String (undefined) is not a valid ObjectId!"]);
+      });
+    });
+    describe("Testing spotsData.deleteSpot functionality validation", () => {
+      it("Throws when no spot id is provided", async () => {
+        const receivedRemovedSpot = await spotsData.deleteSpot(
+          originalSpot._id.toString(),
+          receivedUserInfo._id.toString()
+        );
+        await expect(
+          spotsData.getSpotById(originalSpot._id.toString())
+        ).rejects.toEqual([
+          `No spot with id of ${originalSpot._id.toString()}`,
+        ]);
+      });
     });
   });
 });

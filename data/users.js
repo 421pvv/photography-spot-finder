@@ -6,7 +6,6 @@ import logger from "../log.js";
 import { ObjectId } from "mongodb";
 
 export const createUser = async (firstName, lastName, username, password) => {
-  console.log(firstName, lastName, username, password);
   firstName = validation.validateString(firstName, "First Name");
   lastName = validation.validateString(lastName, "Last Name");
   username = validation.validateUsername(username, "Username");
