@@ -146,7 +146,7 @@ function validateUsername(str, varName) {
 }
 
 const validateEmail = (email) => {
-  email = validation.validateString(email);
+  email = validateString(email);
   // got email regex from https://regex101.com/library/SOgUIV
   const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
 
@@ -214,8 +214,10 @@ function validateBoolean(bool, varname) {
 function validateNumber(num, varName) {
   if (typeof num !== "number") {
     throw [`${varName || ""} is not a number`];
+    throw [`${varName || ""} is not a number`];
   }
   if (isNaN(num)) {
+    throw [`${varName || ""} is a not a valid number`];
     throw [`${varName || ""} is a not a valid number`];
   }
 }
@@ -227,8 +229,10 @@ function validateCoordinates(logitude, latitude) {
   validateNumber(latitude, "latitude");
   if (logitude < -90 || logitude > 90) {
     throw `Longitude must be between -90 and 90`;
+    throw `Longitude must be between -90 and 90`;
   }
   if (latitude < -180 || latitude > 180) {
+    throw `Latitude must be between -180 and 180`;
     throw `Latitude must be between -180 and 180`;
   }
 }
@@ -280,4 +284,5 @@ export default {
   validateObject,
   validateEmail,
   validateArray,
+  validateNumber,
 };

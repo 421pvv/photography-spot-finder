@@ -160,7 +160,9 @@ router.route("/logout").get(async (req, res) => {
 router.route("/profile").get(async (req, res) => {
   res.render("users/profile", {
     user: req.session.user,
+    authErrors: req.session.authorizationErrors, 
   });
+  delete req.session.authorizationErrors;
 });
 
 export default router;
