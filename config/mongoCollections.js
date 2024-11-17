@@ -19,4 +19,3 @@ export const comments = getCollectionFn("comments");
 export const spotRatings = getCollectionFn("spotRatings");
 export const contestSubmissions = getCollectionFn("contestSubmissions");
 export const contestRatings = getCollectionFn("contestRatings");
-

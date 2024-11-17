@@ -1,15 +1,23 @@
 <div class="search-and-filter">
-  <form action="/spots/search" method="get">
+  <form id="filterForm" action="/spots/search" method="GET">
     <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
+
+    <button type="button" id="filterButton" onclick="toggleFilter()">Filter Options</button>
+    <div id="filterOptions" hidden="true">
+      {{> filterOptions }}
+    </div>
     <button type="submit">Search</button>
   </form>
-
-  <button id="filterButton" onclick="toggleFilter()">Filter</button>
 </div>
 
-{{!-- Filter Options will appear when the filter button is clicked --}}
-<div id="filterOptions" style="display: none;">
-  {{> filterOptions }}
+
+
+<div>
+  {{#if errors}}
+  {{#each errors}}
+  <p class="formInputError">{{this}}</p>
+  {{/each}}
+  {{/if}}
 </div>
 
 <section id="spotsList">
@@ -18,14 +26,15 @@
     {{#each spots}}
     <li>
       <h2>{{this.name}}</h2>
-      <p>Rating: {{this.averageRating}}</p>
-      <p>Accessibility: {{this.accessibility}}</p>
-      <p>Best Times to Visit:
-        {{#each this.bestTimes}} {{this}} {{/each}}
+      <p>Images:
+        {{#each this.images}} <span>{{this}}</span> {{/each}}
       </p>
+
       <p>Tags:
         {{#each this.tags}} <span>{{this}}</span> {{/each}}
       </p>
+      <p>Ratings: {{this.avgRating}}</p>
+      <p> Date Posted: {{this.createdAt}}</p>
     </li>
     {{/each}}
   </ul>
@@ -37,6 +46,16 @@
 <script>
   function toggleFilter() {
     const filterOptions = document.getElementById('filterOptions');
-    filterOptions.style.display = filterOptions.style.display === 'none' ? 'block' : 'none';
+    const searchButton = document.getElementById('spotsSearchButton');
+
+    if (filterOptions.hasAttribute('hidden')) {
+      filterOptions.removeAttribute('hidden');
+      searchButton.value = "Apply Filters";
+    } else {
+      filterOptions.setAttribute('hidden', true);
+      searchButton.value = "Search";
+    }
   }
 </script>
+
+<script type="module" src="/public/js/spots/filters.js"></script>
