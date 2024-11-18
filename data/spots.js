@@ -359,7 +359,47 @@ const getCommentsBySpotId = async (id) => {
   return spotComments;
 };
 
-const addComment = async (spotId, userId, message, image) => {
+const getDisplayCommentsBySpotId = async (id) => {
+  id = validation.validateString(id, "Comment Id", true);
+  const commentsCollection = await comments();
+  let spotComments;
+  try {
+    spotComments = await commentsCollection
+      .aggregate([
+        {
+          $match: {
+            spotId: ObjectId.createFromHexString(id),
+          },
+        },
+        {
+          $lookup: {
+            from: "users",
+            localField: "posterId",
+            foreignField: "_id",
+            as: "poster",
+            pipeline: [
+              {
+                $project: {
+                  firstName: 1,
+                  lastName: 1,
+                  username: 1,
+                  _id: 1,
+                },
+              },
+            ],
+          },
+        },
+      ])
+      .toArray();
+  } catch (e) {
+    throw ["Comments fetch failed for spot: " + id.toString()];
+  }
+  logger.log("Comments fetched: " + id.toString());
+  logger.log(spotComments);
+  return spotComments;
+};
+
+const addComment = async (spotId, userId, message, createdAt, image) => {
   const commentObject = {};
   spotId = validation.validateString(spotId, "Spot Id", true);
   const spot = await getSpotById(spotId);
@@ -373,6 +413,11 @@ const addComment = async (spotId, userId, message, image) => {
 
   message = validation.validateString(message, "Message");
   commentObject.message = message;
+
+  if (typeof createdAt !== "object" && !(createdAt instanceof Date)) {
+    throw ["Comment createdAt timestamp is invalid"];
+  }
+  commentObject.createdAt = createdAt;
 
   if (image) {
     validation.validateObject(image);
@@ -529,6 +574,21 @@ const putSpotRating = async (spotId, userId, rating, date) => {
   }
 };
 
+const getSpotRatingByUserId = async (spotId, userId) => {
+  spotId = validation.validateString(spotId, "Spot Id", true);
+  userId = validation.validateString(userId, "User Id", true);
+
+  const ratingsCollection = await spotRatings();
+  const rating = await ratingsCollection.findOne({
+    spotId: ObjectId.createFromHexString(spotId),
+    posterId: ObjectId.createFromHexString(userId),
+  });
+  if (!rating) {
+    throw [`Used ${userId} has not rated spot ${spotId}`];
+  }
+  return rating;
+};
+
 const getRatingById = async (id) => {
   id = validation.validateString(id, "Rating Id", true);
   const ratingsCollection = await spotRatings();
@@ -667,4 +727,6 @@ export default {
   getRatingById,
   getRatingsBySpotId,
   deleteRating,
+  getSpotRatingByUserId,
+  getDisplayCommentsBySpotId,
 };

@@ -1,0 +1,134 @@
+#map {
+  border-radius: 1em;
+  width: 100%;
+  height: 40em;
+  margin: 0.5em 0;
+  display: block;
+  align-content: center;
+}
+
+main {
+  margin-top: 10%;
+}
+
+article {
+  align-self: center;
+  max-width: 80%;
+  min-width: 60%;
+  margin: 0 auto;
+  background-color: white;
+  padding: 3%;
+  border-radius: 1em;
+  box-shadow: 0.3 0.1;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+}
+#imageSection {
+  text-align: center;
+}
+article h2 {
+  font-size: 2em;
+}
+
+#spotImages {
+  display: flex;
+  overflow-x: auto;
+  gap: 5%;
+  overflow: auto;
+  white-space: nowrap;
+  scroll-snap-type: x mandatory;
+}
+
+#spotImages {
+  height: 50vh;
+  width: auto;
+  object-fit: cover;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
+
+#userInteractionsDiv {
+  margin: 2%;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  width: 100%;
+}
+
+#userInteractionsDiv section {
+  width: 40%;
+}
+#userInteractionsDiv label {
+  display: block;
+}
+
+#imageUploadPreviews {
+  margin-top: 5%;
+  display: flex;
+  justify-content: center;
+}
+.previewImageContainer {
+  width: 50%;
+  display: block;
+  position: relative;
+}
+
+.previewImageContainer img {
+  width: 100%;
+  max-height: 25em;
+  height: auto;
+}
+.removeImageIcon {
+  cursor: pointer;
+  position: absolute;
+  color: red;
+  font-weight: bold;
+  top: 0;
+  right: 0;
+}
+
+#comments-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#comments-list li {
+  display: block;
+  margin: 2% auto;
+  border-radius: 1em;
+  padding: 3%;
+  background-color: rgb(233, 233, 227);
+  box-shadow: 0.15 0.05;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+}
+
+.comemnt-item {
+  margin: 5% auto;
+  height: 20%;
+  place-items: center;
+}
+
+.comment-content {
+  text-align: left;
+  font-size: 1em;
+}
+.comment-content img {
+  display: block;
+  margin: 0 auto;
+  height: 25vh;
+  width: auto;
+}
+
+.comment-meta {
+  margin-left: auto;
+}
+.comment-meta p {
+  font-size: 0.9em;
+  color: rgb(105, 105, 105);
+}
+
+#summary-container {
+  padding: 0 10%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
