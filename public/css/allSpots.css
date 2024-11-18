@@ -1,179 +1,168 @@
 .search-and-filter {
-    width: 100%;  
-    max-width: 900px; 
-    min-width: 300px; 
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 20px auto; 
+  width: 100%;
+  max-width: 900px;
+  min-width: 300px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
 }
 
 .search-and-filter form {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .search-and-filter input[type="text"] {
-    width: 97%;
-    padding: 10px;
-    font-size: 16px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    transition: box-shadow 0.3s ease;
+  width: 97%;
+  padding: 10px;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: box-shadow 0.3s ease;
 }
 
 .search-and-filter input[type="text"]:focus {
-    border-color: #007bff;
-    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
 
 .search-and-filter button {
-    width: 97%;
-    padding: 10px 15px;
-    font-size: 14px;
-    border: none;
-    background-color: #007bff;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+  width: 97%;
+  padding: 10px 15px;
+  font-size: 14px;
+  border: none;
+  background-color: #007bff;
+  color: #fff;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 .search-and-filter button:hover {
-    background-color: #0056b3;
+  background-color: #0056b3;
 }
 
 #filterOptions {
-    width: 97%;
-    padding: 10px;
-    margin-top: 10px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+  width: 97%;
+  padding: 10px;
+  margin-top: 10px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
 }
 
 .filter-section {
-    margin-bottom: 15px;
+  margin-bottom: 15px;
 }
 
 .filter-section label {
-    display: block;
-    font-size: 14px;
-    font-weight: bold;
-    margin-bottom: 5px;
-    color: #333;
+  display: block;
+  font-size: 14px;
+  font-weight: bold;
+  margin-bottom: 5px;
+  color: #333;
 }
 
 .filter-section input[type="range"],
 .filter-section input[type="text"],
 .filter-section input[type="datetime-local"] {
-    width: 97%;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    transition: border-color 0.3s ease;
+  width: 97%;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  outline: none;
+  transition: border-color 0.3s ease;
 }
 
 .filter-section input[type="range"]:focus,
 .filter-section input[type="text"]:focus,
 .filter-section input[type="datetime-local"]:focus {
-    border-color: #007bff;
+  border-color: #007bff;
 }
 
 #clearFilterButton {
-    padding: 8px 10px;
-    font-size: 14px;
-    border: 1px solid #007bff;
-    background-color: #ffffff;
-    color: #007bff;
-    border-radius: 5px;
-    cursor: pointer;
+  padding: 8px 10px;
+  font-size: 14px;
+  border: 1px solid #007bff;
+  background-color: #ffffff;
+  color: #007bff;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
 #clearFilterButton:hover {
-    background-color: #007bff;
-    color: white;
+  background-color: #007bff;
+  color: white;
 }
 
 #spotsList {
-    width: 100%;
-    max-width: 900px;
-    background-color: #ffffff;
-    border: 1px solid #ddd;
-    border-radius: 10px;
-    padding: 20px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    margin: 20px auto;
+  width: 100%;
+  max-width: 900px;
+  background-color: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  margin: 20px auto;
 }
 
 #spotsList ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 #spotsList li {
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: 5px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+  padding: 15px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 #spotsList li h2 {
-    font-size: 2em;
-    font-weight: bold;
-    color: #333;
-    display: block;
-    margin: 0 auto;
-    text-align: center;
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  margin: 0 auto;
+  text-align: center;
 }
 
 #spotsList li p {
-    font-size: 14px;
-    margin: 5px 0;
-    color: #555;
+  font-size: 14px;
+  margin: 5px 0;
+  color: #555;
 }
 
 #spotsList li img {
-    width: auto; /* Ensure it fits within its container */
-    max-height: 60vh; /* Maintain aspect ratio */
-    border-radius: 8px; /* Slightly rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    margin-top: 8px;
-    display: block;
-    margin: 0 auto;
+  width: auto; /* Ensure it fits within its container */
+  height: 60vh; /* Maintain aspect ratio */
+  border-radius: 8px; /* Slightly rounded corners */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
+  margin-top: 8px;
+  display: block;
+  margin: 0 auto;
 }
 
-
-
-#spotsList li a {
-    text-decoration: none;
-    text-align: center;
-    font-size: 1em;
-    color: blue;
-    border-radius: 5px;
-}
-
-#spotsList li a:hover {
-    text-decoration: underline;
-    color: rgb(135, 19, 237);
-    text-align: center;
+li a {
+  display: block;
+  margin: 0 auto;
 }
 
 #spotsList li span {
-    display: inline-block;
-    margin-right: 5px;
-    padding: 5px 8px;
-    background-color: #007bff;
-    color: white;
-    font-size: 12px;
-    border-radius: 5px;
+  display: inline-block;
+  margin-right: 5px;
+  padding: 5px 8px;
+  background-color: #007bff;
+  color: white;
+  font-size: 12px;
+  border-radius: 5px;
 }
