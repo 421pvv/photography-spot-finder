@@ -110,6 +110,7 @@ describe("Testing comments data functions", () => {
             originalSpot._id.toString(),
             receivedUserInfo._id.toString(),
             expectedComment.message,
+            new Date(),
             expectedComment.image
           )
         ).rejects.toEqual(["Invalid image object."]);
@@ -124,7 +125,8 @@ describe("Testing comments data functions", () => {
         const receivedComment = await spotsData.addComment(
           originalSpot._id.toString(),
           receivedUserInfo._id.toString(),
-          "This spot is great. I'll visit soon!"
+          "This spot is great. I'll visit soon!",
+          new Date()
         );
         const receivedSpotComments = await spotsData.getCommentsBySpotId(
           originalSpot._id.toString()
@@ -150,6 +152,7 @@ describe("Testing comments data functions", () => {
           originalSpot._id.toString(),
           receivedUserInfo._id.toString(),
           expectedComment.message,
+          new Date(),
           expectedComment.image
         );
         const receivedSpotComments = await spotsData.getCommentsBySpotId(
@@ -181,6 +184,7 @@ describe("Testing comments data functions", () => {
           originalSpot._id.toString(),
           receivedUserInfo._id.toString(),
           expectedComment.message,
+          new Date(),
           expectedComment.image
         );
       });
@@ -260,6 +264,7 @@ describe("Testing comments data functions", () => {
           originalSpot._id.toString(),
           receivedUserInfo._id.toString(),
           expectedComment.message,
+          new Date(),
           expectedComment.image
         );
       });
@@ -269,8 +274,10 @@ describe("Testing comments data functions", () => {
         );
 
         expectedComment.message = "Changed my mind";
-        expectedComment.image.url = "test url";
-        expectedComment.image.public_id = "test publi id";
+        expectedComment.image = {
+          url: "test url",
+          public_id: "test publi id",
+        };
         const receivedComment = await spotsData.updateComment(
           expectedSpotComment._id.toString(),
           receivedUserInfo._id.toString(),
@@ -280,7 +287,7 @@ describe("Testing comments data functions", () => {
 
         expect(receivedComment).toEqual(expectedComment);
       });
-      it("Throws when invalid image is passed in ", async () => {
+      it("Added comment when no image is passed in", async () => {
         const expectedComment = await spotsData.getCommentById(
           expectedSpotComment._id.toString()
         );

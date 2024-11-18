@@ -42,6 +42,8 @@ app.use("*", (req, res, next) => {
     { url: "users/profile", error: "access profile!" },
     { url: "spots/new", error: "add a new spot!" },
     { url: "spots/edit", error: "modify a spot!" },
+    { url: "spots/addComment", error: "add comment to a spot!" },
+    { url: "spots/putRating", error: "rate a spot!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>
@@ -60,6 +62,12 @@ app.use("*", (req, res, next) => {
 });
 
 app.post("/spots/edit/:spotId", (req, res, next) => {
+  req.method = "PUT";
+  next();
+});
+
+app.use("/spots/putRating/:spotId", (req, res, next) => {
+  logger.log("Attempting add rating to spot", req.params.spotId);
   req.method = "PUT";
   next();
 });

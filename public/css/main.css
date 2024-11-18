@@ -143,6 +143,12 @@ input[type="file"] {
   font-weight: bold;
   font-size: 2em;
 }
+.invalidResourceError {
+  text-align: center;
+  color: blue;
+  font-weight: bold;
+  font-size: 1.5em;
+}
 #login-here-link {
   text-decoration: none;
 }
