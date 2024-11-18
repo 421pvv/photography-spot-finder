@@ -851,7 +851,7 @@ router
       minRating = parseFloat(minRating);
       validation.validateNumber(minRating);
       if (minRating > 10 || minRating < 0) {
-        errors.push("Min Rating must be between 1 and 10 (inclusive)");
+        errors.push("Min Rating must be between 0 and 10 (inclusive)");
       }
       filter.minRating = minRating;
     }
