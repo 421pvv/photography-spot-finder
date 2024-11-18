@@ -1,11 +1,238 @@
-import { spotsData } from "../data/index.js";
+import { spotsData, userData } from "../data/index.js";
 import express from "express";
 import validation from "../validation.js";
 import logger from "../log.js";
 import cloudinary from "../cloudinary/cloudinary.js";
 import { MongoCryptKMSRequestNetworkTimeoutError } from "mongodb";
-import { spots } from "../config/mongoCollections.js";
+import { contestRatings, spots } from "../config/mongoCollections.js";
+import log from "../log.js";
 const router = express.Router();
+
+router.route("/details/:spotId").get(async (req, res) => {
+  let errors = [];
+  let spotId;
+  let spotInfo;
+
+  try {
+    spotId = validation.validateString(req.params.spotId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${spotId} is not a valid id!`];
+    return res.status(400).redirect("/spots/search");
+  }
+
+  try {
+    spotInfo = await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(`No spot with id ${spotId} exists!`);
+    req.session.invalidResourceErrors = errors;
+    return res.status(404).redirect("/spots/search");
+  }
+
+  logger.log("Rendering spot details for :", spotId);
+  logger.log(spotInfo);
+
+  const publicSpot = {
+    _id: spotInfo._id.toString(),
+    spotName: spotInfo.name,
+    spotDescription: spotInfo.description,
+    spotAccessibility: spotInfo.accessibility,
+    spotDescription: spotInfo.description,
+    spotAccessibility: spotInfo.accessibility,
+    spotBestTimes: spotInfo.bestTimes.join(", "),
+    spotTags: spotInfo.tags.join(", "),
+    spotImages: spotInfo.images,
+    spotAddress: spotInfo.address,
+    spotLongitude: spotInfo.location.coordinates[0],
+    spotLatitude: spotInfo.location.coordinates[1],
+    totalRatings: spotInfo.totalRatings,
+    averageRating: spotInfo.averageRating,
+  };
+
+  const viewUser = {};
+  if (req.session.user) {
+    viewUser._id = req.session.user._id.toString();
+    try {
+      const viewingUserRating = await spotsData.getSpotRatingByUserId(
+        spotId,
+        viewUser._id
+      );
+      logger.log("viewing user has left rating before: ");
+      logger.log(viewingUserRating);
+      viewUser.rating = viewingUserRating.rating;
+    } catch (e) {
+      logger.log(e);
+    }
+  }
+
+  const renderProps = {
+    user: req.session.user,
+    styles: [
+      `<link rel="stylesheet" href="/public/css/spotDetail.css">`,
+      `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">`,
+      `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
+    ],
+    scripts: [
+      `<script defer src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+    ],
+    apikey: process.env.MAPBOX_API_TOKEN,
+    spot: publicSpot,
+    viewingUser: viewUser,
+  };
+  if (req.session.addRating) {
+    renderProps.addRating = JSON.parse(JSON.stringify(req.session.addRating));
+    logger.log("Add rating attempt present: ", renderProps.addRating);
+  }
+
+  if (req.session.addComment) {
+    renderProps.addComment = JSON.parse(JSON.stringify(req.session.addComment));
+    if (!renderProps.addComment.image) {
+      renderProps.addComment.image;
+    }
+    logger.log("Add comment attempt present: ", renderProps.addComment);
+  }
+
+  res.status(200).render("spots/spotDetail", renderProps);
+
+  //clean up any previous errors
+  delete req.session.addRating;
+  delete req.session.addComment;
+});
+
+router.route("/addComment/:spotId").post(async (req, res) => {
+  let spotId = req.params.spotId;
+  let discardImages = req.body.orphanImages;
+
+  const comment = {
+    message: req.body.message,
+    errors: [],
+  };
+
+  logger.log("Potential comment: ", comment);
+
+  try {
+    spotId = validation.validateString(spotId, "Spot Id", true);
+  } catch (e) {
+    logger.log(e);
+    comment.errors = comment.errors.concat("Invalid Spot Id");
+    req.session.addComment = comment;
+    return res.status(400).redirect("/spots/details/" + spotId);
+  }
+
+  let spotInfo;
+  try {
+    spotInfo = await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    comment.errors = comment.errors.concat(e);
+    req.session.addComment = comment;
+    return res.status(400).redirect("/spots/details/" + spotId);
+  }
+
+  if (req.body.image && req.body.image !== "[]") {
+    try {
+      comment.image = JSON.parse(req.body.image);
+      validation.validateObject(comment.image, "Image Object");
+
+      if (!comment.image.public_id || !comment.image.url) {
+        delete comment.image;
+        throw "Image Object is missing properties. Try to upload image again.";
+      }
+    } catch (e) {
+      logger.log(e);
+      comment.errors = comment.errors.concat(
+        "Image Object is missing properties. Try to upload image again."
+      );
+      req.session.addComment = comment;
+      return res.status(400).redirect("/spots/details/" + spotId);
+    }
+  }
+
+  try {
+    comment.message = validation.validateString(comment.message);
+  } catch (e) {
+    logger.log(e);
+    comment.errors = comment.errors.concat(
+      "Invalid comment message (message must be non-empty string)!"
+    );
+    req.session.addComment = comment;
+    return res.status(400).redirect("/spots/details/" + spotId);
+  }
+
+  try {
+    await spotsData.addComment(
+      spotId,
+      req.session.user._id.toString(),
+      comment.message,
+      comment.image
+    );
+    res.status(200).redirect("/spots/details/" + spotId);
+  } catch (e) {
+    logger.log(e);
+    comment.errors = ["Add rating failed. Please try again."];
+    req.session.addComment = comment;
+    res.status(400).redirect("/spots/details/" + spotId);
+  }
+
+  // delete orphan images from cloud
+  if (discardImages) {
+    const spotDiscardedImages = JSON.parse(discardImages);
+    for (const public_id of spotDiscardedImages) {
+      try {
+        cloudinary.uploader.destroy(public_id);
+      } catch (e) {
+        logger.log(e);
+      }
+    }
+  }
+});
+
+router.route("/putRating/:spotId").put(async (req, res) => {
+  let errors = [];
+  let rating = req.body.rating;
+  logger.log("Potential rating: ", rating);
+
+  let posterId = req.session.user._id.toString();
+  let spotId;
+  let spotInfo;
+  try {
+    spotId = validation.validateString(req.params.spotId, "Spot Id", true);
+    spotInfo = await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat("Invalid spot id!");
+  }
+
+  try {
+    rating = parseFloat(rating);
+    validation.validateNumber(rating, "Spot Rating");
+    if (rating < 1 || rating > 10) {
+      throw "Spot rating must be between one and 10!";
+    }
+  } catch (e) {
+    logger.log(e);
+    errors.concat("Spot rating must be between one and 10!");
+  }
+
+  if (errors.length > 0) {
+    logger.log("Rating put failed for user: ", posterId);
+    logger.log(rating, errors);
+    req.session.spotRatingErrors = errors;
+    return res.status(400).redirect(`/spots/details/${spotId}`);
+  }
+
+  try {
+    await spotsData.putSpotRating(spotId, posterId, rating, new Date());
+  } catch (e) {
+    logger.log("Rating put failed for user: ", posterId);
+    logger.log(errors);
+    errors.concat("Rating submission failed. Please try again.");
+    req.session.spotRatingErrors = errors;
+    return res.status(500).redirect(`/spots/details/${spotId}`);
+  }
+  return res.status(200).redirect(`/spots/details/${spotId}`);
+});
 
 router
   .route("/edit/:spotId")
@@ -631,7 +858,9 @@ router.route("/search").get(async (req, res) => {
       spots: spots,
       user: req.session.user,
       keyword: keyword,
+      invalidResourceErrors: req.session.invalidResourceErrors,
     });
+    delete req.session.invalidResourceErrors;
   } catch (err) {
     console.error("Error during search:", err.message || err);
     res.status(400).render("spots/allSpots", {

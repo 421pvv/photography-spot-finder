@@ -1,3 +1,9 @@
+<div class="invalidResourceError">
+  {{#each invalidResourceErrors}}
+  <p>{{this}}</p>
+  {{/each}}
+</div>
+
 <div class="search-and-filter">
   <form id="filterForm" action="/spots/search" method="GET">
     <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
@@ -35,6 +41,9 @@
       </p>
       <p>Ratings: {{this.avgRating}}</p>
       <p> Date Posted: {{this.createdAt}}</p>
+      <a href="/spots/details/{{this._id}}">
+        <p>See details</p>
+      </a>
     </li>
     {{/each}}
   </ul>

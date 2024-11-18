@@ -1,4 +1,157 @@
-<h1 class="page_title">{{spot.spotName}}</h1>
 <article>
+    <header>
+        <h1 class="page_title">{{spot.spotName}}</h1>
+    </header>
 
+    <section>
+        <h2>Overview</h2>
+
+        <p>Average Rating: <span>{{spot.averageRating}}</span></p>
+        <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
+        <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
+        <p>Tags: <span>{{spot.spotTags}}</span></p>
+    </section>
+
+    <section id="imageSection">
+        <h2>Images</h2>
+        <div id="spotImages">
+            {{#if spot.spotImages}}
+            {{#each spot.spotImages}}
+            <img class="spotImage" alt="{{spot.spotName}} spot image" src="{{this.url}}"
+                onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg'">
+            {{/each}}
+            {{/if}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Description</h2>
+        <p>{{spot.spotDescription}}</p>
+    </section>
+
+    <section>
+        <h2>Accessibility</h2>
+        <p>{{spot.spotAccessibility}}</p>
+    </section>
+
+    <section>
+        <h2>Location</h2>
+        <div id="map"></div>
+    </section>
+
+    {{#if viewingUser._id}}
+    <div id="userInteractionsDiv">
+        <section>
+            <h3>Add Comment</h3>
+
+            <form action="/spots/addComment/{{spot._id}}" id="addCommentForm" method="POST">
+                <label for="commentInput">
+                    Enter comment
+                    {{#if addComment}}
+                    <input name="message" type="text" value="{{addComment.message}}" id="commentInput">
+                    {{else}}
+                    <input name="message" type="text" value="" id="commentInput">
+                    {{/if}}
+                </label>
+                <label id="imageUploadLabel">
+                    Upload Image (optional)
+                    <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
+                </label>
+
+                <input type="hidden" name="image" id="commentImage" value="">
+                <input type="hidden" name="orphanImages" id="removeImages" value="">
+
+                <input type="submit" id="commentSubmit">
+
+            </form>
+            <div id="imageUploadPreviews">
+                {{#if addComment}}
+                {{#if addComment.image.public_id}}
+                <div id="{{addComment.image.public_id}}" class="previewImageContainer">
+                    <img src="{{addComment.image.url}}">
+                    <span class="removeImageIcon">❌</span>
+                </div>
+                {{/if}}
+                {{/if}}
+
+            </div>
+
+            <div id="spotCommentErrors">
+                {{#if addComment}}
+                {{#if addComment.errors}}
+                {{#each addComment.errors}}
+                <p class="formInputError">{{this}}</p>
+                {{/each}}
+                {{/if}}
+                {{/if}}
+            </div>
+        </section>
+
+        <section>
+            {{#if viewingUser.rating}}
+            <h3>Update Rating</h3>
+            {{else}}
+            <h3>Rate Spot</h3>
+            {{/if}}
+            <form action="/spots/putRating/{{spot._id}}" method="POST" id="putRatingForm">
+                <label for="ratingSlider">
+                    Rating Slider
+
+                    {{#if viewingUser.rating}}
+                    <input name="rating" type="range" min="1" max="10" value="{{viewingUser.rating}}" id="ratingSlider"
+                        step="0.1">
+                    <span id="ratingSliderValue">{{viewingUser.rating}}</span>
+
+                    {{else}}
+                    <input name="rating" type="range" min="1" max="10" value="5" id="ratingSlider" step="0.1">
+                    <span id="ratingSliderValue">5</span>
+                    {{/if}}
+
+                </label>
+                <input type="submit" id="ratingSubmit">
+            </form>
+
+            <div id="spotRatingErrors">
+            </div>
+        </section>
+    </div>
+    {{/if}}
 </article>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+<script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.min.js"></script>
+
+
+<script>
+    // set up map
+    const prev_lat = "{{spot.spotLatitude}}";
+    const prev_long = "{{spot.spotLongitude}}";
+    let setDefault = false;
+    let defaultLoc;
+    if (!isNaN(parseFloat(prev_lat)) && !isNaN(parseFloat(prev_long))) {
+        defaultLoc = [parseFloat(prev_long), parseFloat(prev_lat)];
+
+    }
+
+
+    mapboxgl.accessToken = "{{apikey}}"
+    let map;
+    let marker;
+
+    map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: defaultLoc,
+        zoom: 15
+    });
+    marker = new mapboxgl.Marker()
+        .setLngLat(defaultLoc)
+        .addTo(map);
+</script>
+
+<script type="module" src="/public/js/spots/addSpotComment.js"> </script>
+<script type="module" src="/public/js/spots/addSpotRating.js"> </script>
