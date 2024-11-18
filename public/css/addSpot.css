@@ -33,19 +33,19 @@ input[type="password"] {
   height: 10em;
 }
 .form_buttons {
-  display: flex;
   align-items: center;
+  width: 100%;
   justify-content: space-between;
   margin-top: 2em;
 }
 .addSpot button {
   cursor: pointer;
-  width: 40%;
+  width: 30%;
   padding: 0.75em;
-  box-sizing: border-box;
   border-radius: 1em;
   font-size: 1.5em;
 }
+
 .addSpot button[type="submit"] {
   background-color: #37d857;
   align-items: flex-start;
@@ -54,10 +54,17 @@ input[type="password"] {
   background-color: #00ff33;
 }
 .addSpot button[type="reset"] {
-  background-color: #ff311e;
+  background-color: #ffde21;
   align-items: flex-start;
 }
 .addSpot button[type="reset"]:hover {
+  background-color: #ffd900;
+}
+#formCancelButton {
+  background-color: #ff311e;
+  align-items: flex-start;
+}
+#formCancelButton:hover {
   background-color: rgb(255, 0, 0);
 }
 

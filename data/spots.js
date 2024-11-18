@@ -1,9 +1,10 @@
 import { spots, comments, spotRatings } from "../config/mongoCollections.js";
 import validation from "../validation.js";
-import { userData } from "./index.js";
 import { ObjectId } from "mongodb";
+import { userData, cloudinaryData } from "./index.js";
 import logger from "../log.js";
-import cloudinary from "../cloudinary/cloudinary.js";
+import log from "../log.js";
+
 const createSpot = async (
   name,
   location,
@@ -190,7 +191,7 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
   const updateObject = {};
 
   spotId = validation.validateString(spotId, "Spot Id", true);
-  const curSpot = await getSpotById(spot_id);
+  const curSpot = await getSpotById(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
@@ -262,10 +263,15 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
     if (images.length === 0 || images.length > 3) {
       throw [`Invalid number of images!`];
     }
+    updateObject.images = images;
+  }
+
+  if (Object.keys(updateObject).length === 0) {
+    throw [`Must provide at lead one update field for spot edit!`];
   }
   try {
     const spotsCollection = await spots();
-    spotsCollection.updateOne(
+    await spotsCollection.updateOne(
       {
         _id: ObjectId.createFromHexString(spotId),
       },
@@ -273,90 +279,99 @@ const updateSpot = async (spotId, userId, updateSpotObj) => {
         $set: updateObject,
       }
     );
-
-    if (images) {
-      curSpot.images.forEach((image) => {
-        cloudinary.uploader
-          .destroy(image.public_id)
-          .catch((error) => logger.log(error));
-      });
-    }
   } catch (e) {
     throw [`Spot update failed!`];
   }
+
+  const spot = await getSpotById(spotId);
+
+  const currentImages = spot.images.map((image) => image.public_id);
+  const orphanImages = [];
+  for (const orphanImage of curSpot.images) {
+    if (currentImages.indexOf(orphanImage.public_id) === -1) {
+      orphanImages.push(orphanImage.public_id);
+    }
+  }
+  await cloudinaryData.deleteImages(orphanImages);
+  return spot;
 };
 
 const deleteSpot = async (spotId, userId) => {
-  const updateObject = {};
-
   spotId = validation.validateString(spotId, "Spot Id", true);
-  const curSpot = await getSpotById(spot_id);
+  const curSpot = await getSpotById(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
 
   if (userId.toString() !== curSpot.posterId.toString()) {
-    throw [`Invalid spot delete attempt. User is not the original poster!`];
+    throw [`Invalid spot update attempt. User is not the original poster!`];
   }
 
   try {
     const spotsCollection = await spots();
-
-    curSpot.images.forEach((image) => {
-      cloudinary.uploader
-        .destroy(image.public_id)
-        .catch((error) => logger.log(error));
-    });
     await spotsCollection.deleteOne({
       _id: ObjectId.createFromHexString(spotId),
     });
-
-    const commentsCollection = await comments();
-    const comments = await commentsCollection
-      .find({
-        spotId: ObjectId.createFromHexString(spotId),
-      })
-      .toArray();
-    comments.forEach((comment) => {
-      if (comment.image) {
-        cloudinary.uploader
-          .destroy(comment.image.public_id)
-          .catch((error) => logger.log(error));
-      }
-    });
-    await commentsCollection.deleteMany({
+    await spotsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
-
-    const spotRatingsCollection = await spotRatings();
-    await spotRatingsCollection.deleteMany({
+    await spotsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
   } catch (e) {
-    logger.log(e);
-    throw [`Spot delete failed!`];
+    throw [`Spot deletion failed!`];
   }
+
+  // delete all images from cloud
+  const orphanImages = curSpot.images.map((image) => image.public_id);
+  await cloudinaryData.deleteImages(orphanImages);
+
+  return curSpot;
 };
 
 const getCommentById = async (id) => {
   id = validation.validateString(id, "Comment Id", true);
-  const commentsCollection = comments();
-  return await commentsCollection.findOne({
+  const commentsCollection = await comments();
+  const comment = await commentsCollection.findOne({
     _id: ObjectId.createFromHexString(id),
   });
+  if (!comment) {
+    throw [`No comment exists with id: ${id}`];
+  }
+  return comment;
+};
+
+const getCommentsBySpotId = async (id) => {
+  id = validation.validateString(id, "Comment Id", true);
+  const commentsCollection = await comments();
+  let spotComments;
+  try {
+    spotComments = await commentsCollection
+      .find({
+        spotId: ObjectId.createFromHexString(id),
+      })
+      .toArray();
+  } catch (e) {
+    throw ["Comments fetch failed for spot: " + id.toString()];
+  }
+  logger.log("Comments fetched: " + id.toString());
+  logger.log(spotComments);
+  return spotComments;
 };
 
 const addComment = async (spotId, userId, message, image) => {
   const commentObject = {};
   spotId = validation.validateString(spotId, "Spot Id", true);
-  const spot = await getSpotById(spot_id);
+  const spot = await getSpotById(spotId);
   commentObject.spotId = ObjectId.createFromHexString(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
-  commentObject.posterId = ObjectId.createFromHexString(posterId);
+  commentObject.posterId = ObjectId.createFromHexString(
+    userInfo._id.toString()
+  );
 
-  message = validation.validateString(message);
+  message = validation.validateString(message, "Message");
   commentObject.message = message;
 
   if (image) {
@@ -374,35 +389,34 @@ const addComment = async (spotId, userId, message, image) => {
     commentObject.image = null;
   }
 
-  commentObject.reportCount = 0;
-
+  let commentResult;
   try {
-    const commentsCollectin = await comments();
-    await commentsCollectin.insertOne(commentObject);
+    const commentsCollection = await comments();
+    commentResult = await commentsCollection.insertOne(commentObject);
   } catch (e) {
     throw [`Comment submision failed!`];
   }
+
+  return getCommentById(commentResult.insertedId.toString());
 };
 
 const updateComment = async (commentId, userId, message, image) => {
   const commentObject = {};
   commentId = validation.validateString(commentId, "Comment Id", true);
-  const spot = await getCommentById(commentId);
+  const comment = await getCommentById(commentId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
 
-  if (userId.toString() !== userInfo._id.toString()) {
-    throw [
-      `Attempting to update a comment but user is the original commenter!`,
-    ];
+  if (comment.posterId.toString() !== userInfo._id.toString()) {
+    throw [`Attempting to update a comment that doesn't beling to the user.!`];
   }
 
-  message = validation.validateString(message);
+  message = validation.validateString(message, "Message");
   commentObject.message = message;
 
   if (image) {
-    validation.validateObject(image);
+    validation.validateObject(image, "Image");
     if (!image.public_id || !image.url) {
       throw [`Invalid image object.`];
     }
@@ -425,61 +439,61 @@ const updateComment = async (commentId, userId, message, image) => {
         $set: commentObject,
       }
     );
-
-    if (image) {
-      cloudinary.uploader
-        .destroy(image.public_id)
-        .catch((error) => logger.log(error));
-    }
   } catch (e) {
     throw [`Comment update failed!`];
   }
+  const newComment = await getCommentById(commentId);
+  if (newComment.image.public_id !== comment.image.public_id) {
+    await cloudinaryData.deleteImages([comment.image.public_id]);
+  }
+  return newComment;
 };
 
 const deleteComment = async (commentId, userId) => {
-  const commentObject = {};
   commentId = validation.validateString(commentId, "Comment Id", true);
   const comment = await getCommentById(commentId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
 
-  if (userId.toString() !== userInfo._id.toString()) {
+  if (comment.posterId.toString() !== userInfo._id.toString()) {
     throw [
       `Attempting to delete a comment but user is the original commenter!`,
     ];
   }
 
   try {
-    if (comment.image) {
-      cloudinary.uploader
-        .destroy(comment.image.public_id)
-        .catch((error) => logger.log(error));
-    }
     const commentsCollection = await comments();
     await commentsCollection.deleteOne({
       _id: ObjectId.createFromHexString(commentId),
       posterId: ObjectId.createFromHexString(userId),
     });
   } catch (e) {
-    logger.log(e);
     throw [`Delete comment failed`];
   }
+
+  // delete image form cloud
+  if (comment.image) {
+    await cloudinaryData.deleteImages([comment.image.public_id]);
+  }
+  return comment;
 };
-const putspotRatings = async (spotId, userId, rating, date) => {
+
+const putSpotRating = async (spotId, userId, rating, date) => {
   const ratingObject = {};
   spotId = validation.validateString(spotId, "Spot Id", true);
-  const spot = await getSpotById(spot_id);
+  const spot = await getSpotById(spotId);
   ratingObject.spotId = ObjectId.createFromHexString(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   const userInfo = await userData.getUserProfileById(userId);
-  ratingObject.posterId = ObjectId.createFromHexString(posterId);
+  ratingObject.posterId = ObjectId.createFromHexString(userInfo._id.toString());
 
-  validation.validateNumber(rating);
+  validation.validateNumber(rating, "Rating");
   if (rating < 1 || rating > 10) {
     throw [`Rating must be between 1 and 10 (inclusive)!`];
   }
+  ratingObject.rating = rating;
 
   validation.validateObject(date);
   if (!(date instanceof Date) || isNaN(date) || date > new Date()) {
@@ -488,9 +502,11 @@ const putspotRatings = async (spotId, userId, rating, date) => {
   ratingObject.createdAt = date;
 
   ratingObject.reportCount = 0;
+
+  let insertedRating;
   try {
     const spotRatingsCollection = await spotRatings();
-    await spotRatingsCollection.updateOne(
+    insertedRating = await spotRatingsCollection.findOneAndUpdate(
       {
         $and: [
           { spotId: ratingObject.spotId },
@@ -498,112 +514,157 @@ const putspotRatings = async (spotId, userId, rating, date) => {
         ],
       },
       { $set: ratingObject },
-      { upsert: true }
+      {
+        returnDocument: "after",
+        upsert: true,
+      }
+    );
+
+    await updateSpotAggregateStatistics(spotId);
+
+    return insertedRating;
+  } catch (e) {
+    logger.log(e);
+    throw [`Rating submision failed!`];
+  }
+};
+
+const getRatingById = async (id) => {
+  id = validation.validateString(id, "Rating Id", true);
+  const ratingsCollection = await spotRatings();
+  const rating = await ratingsCollection.findOne({
+    _id: ObjectId.createFromHexString(id),
+  });
+  if (!rating) {
+    throw [`No rating exists with id: ${id}`];
+  }
+  return rating;
+};
+
+const getRatingsBySpotId = async (id) => {
+  id = validation.validateString(id, "Spot Id", true);
+  const ratingsCollection = await spotRatings();
+  let spotRatingsData;
+  try {
+    spotRatingsData = await ratingsCollection
+      .find({
+        spotId: ObjectId.createFromHexString(id),
+      })
+      .toArray();
+  } catch (e) {
+    throw ["Ratings fetch failed for spot: " + id.toString()];
+  }
+  logger.log("Ratings fetched: " + id.toString());
+  logger.log(spotRatingsData);
+  return spotRatingsData;
+};
+
+const deleteRating = async (ratingId, userId) => {
+  ratingId = validation.validateString(ratingId, "Rating Id", true);
+  const currentRating = await getRatingById(ratingId);
+
+  userId = validation.validateString(userId, "User Id", true);
+  const userInfo = await userData.getUserProfileById(userId);
+
+  if (currentRating.posterId.toString() !== userId) {
+    throw [`Attempting to delete another user's rating`];
+  }
+  let insertedRating;
+  try {
+    const spotRatingsCollection = await spotRatings();
+    insertedRating = await spotRatingsCollection.findOneAndDelete(
+      {
+        _id: ObjectId.createFromHexString(ratingId),
+      },
+      {
+        returnDocument: "after",
+        upsert: true,
+      }
     );
 
     // update spots ratings
-    const updatedRatings = (
-      await spotRatings
-        .aggregate([
-          {
-            $match: {
-              spotId: ratingObject.spotId,
-            },
-          },
-          {
-            $group: {
-              averageRating: { $sum: 1 },
-              totalRatings: { $avg: "$rating" },
-            },
-          },
-        ])
-        .toArray()
-    )[0];
-
-    const spotsCollection = await spots();
-    await spotsCollection.updateOne(
-      {
-        _id: ratingObject.spotId,
-      },
-      {
-        $set: {
-          averageRating: updatedRatings.averageRating,
-          totalRatings: updatedRatings.totalRatings,
-        },
-      }
-    );
+    logger.log("deleting rating", insertedRating);
+    await updateSpotAggregateStatistics(currentRating.spotId.toString());
+    return insertedRating;
   } catch (e) {
-    throw [`Comment submision failed!`];
+    logger.log(e);
+    throw [`Rating removal failed!`];
   }
 };
 
-const deleteSpotRatings = async (spotId, userId, rating, date) => {
-  spotId = validation.validateString(spotId, "Spot Id", true);
-  await getSpotById(spot_id);
+const updateSpotAggregateStatistics = async (spotId) => {
+  validation.validateString(spotId, "Spot Id", true);
+  await getSpotById(spotId);
 
-  userId = validation.validateString(userId, "User Id", true);
-  await userData.getUserProfileById(userId);
-
-  try {
-    const spotRatingsCollection = await spotRatings();
-    await spotRatingsCollection.deleteOne({
-      posterId: ObjectId.createFromHexString(userId),
-      spotId: ObjectId.createFromHexString(spotId),
-    });
-  } catch (e) {
-    throw [`Rating deletation failed!`];
-  }
-};
-
-const reportSpot = async (userId, spotId) => {
-  spotId = validation.validateString(spotId, "Spot Id", true);
-  await getSpotById(spot_id);
-
-  userId = validation.validateString(userId, "User Id", true);
-  await userData.getUserProfileById(userId);
-
-  try {
-    const spotsCollection = await spots();
-    spotsCollection.updateOne(
+  const spotRatingsCollection = await spotRatings();
+  let updatedRatings = await spotRatingsCollection
+    .aggregate([
       {
-        _id: ObjectId.createFromHexString(spotId),
+        $match: {
+          spotId: ObjectId.createFromHexString(spotId),
+        },
       },
       {
-        $inc: {
-          reportCount: 1,
+        $group: {
+          _id: "$spotId",
+          totalRatings: { $sum: 1 },
+          averageRating: { $avg: { $ifNull: ["$rating", 0] } },
         },
-      }
-    );
-  } catch (e) {
-    throw [`Spot report failed!`];
-  }
-};
-
-const reportComment = async (userId, commentId) => {
-  commentId = validation.validateString(commentId, "Comment Id", true);
-  await getCommentById(spot_id);
-
-  userId = validation.validateString(userId, "User Id", true);
-  await userData.getUserProfileById(userId);
-
-  try {
-    const commentsCollection = await spots();
-    commentsCollection.updateOne(
-      {
-        _id: ObjectId.createFromHexString(commentId),
       },
-      {
-        $inc: {
-          reportCount: 1,
-        },
-      }
-    );
-  } catch (e) {
-    throw [`Comment report failed!`];
+    ])
+    .toArray();
+
+  let totalRatings = 0;
+  let averageRating = 0;
+
+  if (updatedRatings.length > 0) {
+    updatedRatings = updatedRatings[0];
+
+    totalRatings = updatedRatings.totalRatings;
+    averageRating = updatedRatings.averageRating;
+
+    if (
+      !updatedRatings ||
+      updatedRatings.averageRating == null ||
+      updatedRatings.averageRating === undefined
+    ) {
+      averageRating = 0;
+    }
+    if (
+      !updatedRatings ||
+      updatedRatings.totalRatings == null ||
+      updatedRatings.totalRatings === undefined
+    ) {
+      totalRatings = 0;
+    }
   }
+  const spotsCollection = await spots();
+  await spotsCollection.updateOne(
+    {
+      _id: ObjectId.createFromHexString(spotId),
+    },
+    {
+      $set: {
+        averageRating: averageRating,
+        totalRatings: totalRatings,
+      },
+    }
+  );
 };
 
 export default {
   createSpot,
+  updateSpot,
+  deleteSpot,
   getAllSpots,
+  getSpotById,
+  addComment,
+  getCommentById,
+  getCommentsBySpotId,
+  updateComment,
+  deleteComment,
+  putSpotRating,
+  getRatingById,
+  getRatingsBySpotId,
+  deleteRating,
 };

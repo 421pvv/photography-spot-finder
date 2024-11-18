@@ -1,0 +1,328 @@
+<section>
+    <h1 class="page_title">Edit Spot</h1>
+    <form id="addSpotForm" action="/spots/edit/{{spot._id}}" method="POST" class="addSpot">
+        <div id="spotSubmissionErrors">
+            {{#if errors.server_errors}}
+            {{#each errors.server_errors}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+        <label>
+            Name
+            <input type="text" id="spotName" name="spotName" placeholder="Enter spot Name." value="{{spot.spotName}}">
+        </label>
+        <div id="spotNameErrors">
+            {{#if errors.error_spotName}}
+            {{#each errors.error_spotName}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+        <label for="spotDescription"> Description </label>
+        <textarea id="spotDescription" name="spotDescription"
+            placeholder="Describe the spot.">{{spot.spotDescription}}</textarea>
+        <div id="spotDescriptionErrors">
+            {{#if errors.error_spotDescription}}
+            {{#each errors.error_spotDescription}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+        <label for="spotAccessibility"> Accessibility </label>
+        <textarea id="spotAccessibility" name="spotAccessibility"
+            placeholder="Describe how accessible the spot is.">{{spot.spotAccessibility}}</textarea>
+        <div id="spotAccessibilityErrors">
+            {{#if errors.error_spotAccessibility}}
+            {{#each errors.error_spotAccessibility}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+        <label>
+            Best Times
+            <input type="text" id="spotBestTimes" name="spotBestTimes"
+                placeholder="Enter best time(s) to visit the spot, seperated by commas (,)."
+                value="{{spot.spotBestTimes}}">
+        </label>
+        <div id="spotBestTimesErrors">
+            {{#if errors.error_spotBestTimes}}
+            {{#each errors.error_spotBestTimes}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+        <label>
+            Tags
+            <input type="text" id="spotTags" name="spotTags"
+                placeholder="Enter any applicable tags, seperated by commas (,)." value="{{spot.spotTags}}">
+        </label>
+        <div id="spotTagsErrors">
+
+            {{#if errors.error_spotTags}}
+            {{#each errors.error_spotTags}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+        <label>
+            Location
+            <!-- Used mapbox guide to get started: https://docs.mapbox.com/help/tutorials/local-search-geocoding-api/ -->
+
+        </label>
+        <div id="map"></div>
+        <div id="spotLocationErrors">
+            {{#if errors.error_spotLocation}}
+            {{#each errors.error_spotLocation}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+
+        <label id="imageUploadLabel">
+            Upload Images (At most 3 allowed)
+            <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
+        </label>
+
+        <div id="imageUploadPreviews">
+            {{#if spot.spotImages}}
+            {{#each spot.spotImages}}
+            <div id="{{this.public_id}}" class="previewImageContainer">
+                <img src="{{this.url}}">
+                <span class="removeImageIcon">❌</span>
+            </div>
+            {{/each}}
+            {{/if}}
+        </div>
+        <div id="spotImagesErrors">
+            {{#if errors.error_spotImages}}
+            {{#each errors.error_spotImages}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+
+        <input type="hidden" id="spotLatitude" name="spotLatitude" value="{{spot.spotLatitude}}">
+        <input type="hidden" id="spotLongitude" name="spotLongitude" value="{{spot.spotLongitude}}">
+        <input type="hidden" id="spotAddress" name="spotAddress" value="{{spot.spotAddress}}">
+
+        <input type="hidden" id="spotImages" name="spotImages">
+        <input type="hidden" id="spotDiscardedImages" name="spotDiscardedImages">
+
+        <div class="form_buttons">
+            <button id="formSubmitButton" type="submit">Add</button>
+            <button type="reset">Clear</button>
+            <button id="formCancelButton" type="button">Cancel</button>
+        </div>
+    </form>
+
+</section>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+
+
+<script>
+    // set up map
+    const nycCoor = [-73.971321, 40.766676]; // set center to NYC
+    const prev_lat = "{{spot.spotLatitude}}";
+    const prev_long = "{{spot.spotLongitude}}";
+    let setDefault = false;
+    let defaultLoc;
+    if (!isNaN(parseFloat(prev_lat)) && !isNaN(parseFloat(prev_long))) {
+        setDefault = true;
+        defaultLoc = [parseFloat(prev_long), parseFloat(prev_lat)];
+        document.getElementById("spotLatitude").value = prev_lat;
+        document.getElementById("spotLongitude").value = prev_long;
+        console.log("Set current map loc");
+
+    }
+
+
+    mapboxgl.accessToken = "{{apikey}}"
+    let map;
+    let marker;
+    if (!setDefault) {
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: nycCoor,
+            zoom: 11
+        });
+    } else {
+        map = new mapboxgl.Map({
+            container: 'map',
+            style: 'mapbox://styles/mapbox/streets-v12',
+            center: defaultLoc,
+            zoom: 15
+        });
+        marker = new mapboxgl.Marker()
+            .setLngLat(defaultLoc)
+            .addTo(map);
+        $("#map input[type=text]").val($("#spotAddress").val());
+    }
+    // set up geo coder to allow users to search
+    const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        placeholder: 'Search for places',
+        mapboxgl: mapboxgl,
+        marker: false,
+    });
+    map.addControl(geocoder);
+    if (!isNaN(parseFloat(prev_lat)) && !isNaN(parseFloat(prev_long))) {
+        $("#map input").val($("#spotAddress").val());
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+        const latInput = document.getElementById("spotLatitude");
+        const lonInput = document.getElementById("spotLongitude");
+        const spotAddress = document.getElementById("spotAddress");
+        const spotContext = document.getElementById("spotContext");
+
+        geocoder.on("result", (loc) => {
+            console.log(loc)
+            lonInput.value = loc.result.geometry.coordinates[0];
+            latInput.value = loc.result.geometry.coordinates[1];
+            spotAddress.value = loc.result.place_name;
+
+
+            if (marker) {
+                marker.setLngLat(loc.result.geometry.coordinates)
+            } else {
+                marker = new mapboxgl.Marker()
+                    .setLngLat(loc.result.geometry.coordinates)
+                    .addTo(map);
+            }
+
+
+        });
+
+        $("#addSpotForm").on("reset", () => {
+            map.setZoom(11);
+            map.setCenter(nycCoor);
+            if (marker) {
+                marker.remove();
+            }
+        })
+
+
+    });
+
+</script>
+
+
+<script>
+    let urls = [];
+    const discardedImagesIds = [];
+    const discardedImages = $("#spotDiscardedImages");
+    const previewContainer = $("#imageUploadPreviews");
+    const imageFileUrls = document.getElementById("spotImages");
+
+    // set up current images
+    console.log("Setting up current images")
+    let images = document.getElementsByClassName("previewImageContainer");
+    for (const image of images) {
+        const id = image.getAttribute("id");
+        const url = $(`#${id} img`).attr("src");
+        urls.push({ public_id: id, url: url })
+        $("#spotImages").val(JSON.stringify(urls));
+
+        $(`#${id} span`).click((event) => {
+            console.log("Removing image: ", id);
+            discardedImagesIds.push(id);
+            urls = urls.filter(image => image.public_id !== id);
+
+            discardedImages.val(JSON.stringify(discardedImagesIds));
+            $("#spotImages").val(JSON.stringify(urls));
+
+            $(`#${id}`).remove();
+        });
+    }
+    if (images && Array.isArray(images)) {
+        images.forEach(image => {
+            if (image.public_id && image.secure_url) {
+                previewContainer.append(
+                    `<div id="${image.public_id}" class="previewImageContainer">
+                    <img src="${image.secure_url}">
+                    <span class="removeImageIcon">❌</span>
+                </div>`);
+
+                $(`#${image.public_id} span`).click((event) => {
+                    console.log("Removing image: ", result.info.public_id);
+                    discardedImagesIds.push(result.info.public_id);
+                    urls = urls.filter(image => image.public_id !== result.info.public_id);
+
+                    discardedImages.val(JSON.stringify(discardedImagesIds));
+                    $("#spotImages").val(JSON.stringify(urls));
+
+                    $(`#${result.info.public_id}`).remove();
+                });
+            }
+        })
+    }
+
+    var myWidget = cloudinary.createUploadWidget({
+        cloudName: 'db7w46lyt',
+        uploadPreset: 'Spot Images',
+        resourceType: "image",
+        multiple: false,
+    }, (error, result) => {
+        if (!error && result && result.event === "success") {
+            urls.push({
+                public_id: result.info.public_id,
+                url: result.info.secure_url
+            });
+            imageFileUrls.value = JSON.stringify(urls);
+
+
+
+            // set up image preview and handle images to be removed at server side
+            previewContainer.append(
+                `<div id="${result.info.public_id}" class="previewImageContainer">
+                    <img src="${result.info.secure_url}">
+                    <span class="removeImageIcon">❌</span>
+                </div>`);
+
+            $(`#${result.info.public_id} span`).click((event) => {
+                console.log("Removing image: ", result.info.public_id);
+                discardedImagesIds.push(result.info.public_id);
+                urls = urls.filter(image => image.public_id !== result.info.public_id);
+
+                discardedImages.val(JSON.stringify(discardedImagesIds));
+                $("#spotImages").val(JSON.stringify(urls));
+
+                $(`#${result.info.public_id}`).remove();
+            });
+
+        }
+    }
+    );
+
+    $("#addSpotForm").on("reset", () => {
+        urls.forEach(image => {
+            discardedImagesIds.push(image.public_id);
+        })
+        discardedImages.val(JSON.stringify(discardedImagesIds));
+        urls = []
+        $("#spotImages").val(JSON.stringify(urls));
+        previewContainer.empty()
+
+    })
+
+    document.getElementById("upload_widget").addEventListener("click", function () {
+        if (urls.length == 3) {
+            alert("You have reached the image upload limit.");
+        } else {
+            myWidget.open();
+        }
+    }, false);
+</script>
+
+
+
+<script type="module" src="/public/js/spots/addspotValidation.js"> </script>

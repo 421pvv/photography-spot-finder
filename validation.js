@@ -146,7 +146,7 @@ function validateUsername(str, varName) {
 }
 
 const validateEmail = (email) => {
-  email = validation.validateString(email);
+  email = validateString(email);
   // got email regex from https://regex101.com/library/SOgUIV
   const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
 

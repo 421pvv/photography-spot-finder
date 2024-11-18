@@ -3,7 +3,7 @@ function errorMessage(msg) {
   return `<p class="formInputError" > ${msg} </p>`;
 }
 
-$("#addSpotForm").submit((event) => {
+$("#formSubmitButton").click((event) => {
   console.log("Starting add spot client side validation");
   $(".formInputError").remove();
 
@@ -138,9 +138,26 @@ $("#addSpotForm").submit((event) => {
   if (hasError) {
     console.log("Errors present: submission stopped");
     event.preventDefault();
+  } else {
+    $("#addSpotForm").submit();
   }
 });
 
 $("#addSpotForm").on("reset", (event) => {
-  $(".formInputError").remove();
+  event.preventDefault();
+  $("#spotName").val("");
+  $("#spotDescription").val("");
+  $("#spotAccessibility").val("");
+  $("#spotBestTimes").val("");
+  $("#spotTags").val("");
+  $("#spotLatitude").val("");
+  $("#spotLongitude").val("");
+  $("#spotAddress").val("");
+  $("#spotImages").val("");
+  $("#map input").val("");
+});
+
+$("#formCancelButton").on("click", (event) => {
+  document.location.href = "/users/profile";
+  event.preventDefault();
 });

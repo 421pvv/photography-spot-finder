@@ -17,3 +17,5 @@ export const users = getCollectionFn("users");
 export const spots = getCollectionFn("spots");
 export const comments = getCollectionFn("comments");
 export const spotRatings = getCollectionFn("spotRatings");
+export const contestSubmissions = getCollectionFn("contestSubmissions");
+export const contestRatings = getCollectionFn("contestRatings");
