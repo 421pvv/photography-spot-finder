@@ -85,3 +85,50 @@ article h2 {
   top: 0;
   right: 0;
 }
+
+#comments-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#comments-list li {
+  display: block;
+  margin: 2% auto;
+  border-radius: 1em;
+  padding: 3%;
+  background-color: rgb(233, 233, 227);
+  box-shadow: 0.15 0.05;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+}
+
+.comemnt-item {
+  margin: 5% auto;
+  height: 20%;
+  place-items: center;
+}
+
+.comment-content {
+  text-align: left;
+  font-size: 1em;
+}
+.comment-content img {
+  display: block;
+  margin: 0 auto;
+  height: 25vh;
+  width: auto;
+}
+
+.comment-meta {
+  margin-left: auto;
+}
+.comment-meta p {
+  font-size: 0.9em;
+  color: rgb(105, 105, 105);
+}
+
+#summary-container {
+  padding: 0 10%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}

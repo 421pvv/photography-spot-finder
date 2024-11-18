@@ -3,15 +3,25 @@
         <h1 class="page_title">{{spot.spotName}}</h1>
     </header>
 
-    <section>
-        <h2>Overview</h2>
+    <div id="summary-container">
+        <section>
+            <h2>Overview</h2>
 
-        <p>Average Rating: <span>{{spot.averageRating}}</span></p>
-        <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
-        <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
-        <p>Tags: <span>{{spot.spotTags}}</span></p>
-    </section>
+            <p>Average Rating: <span>{{spot.averageRating}}</span></p>
+            <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
+            <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
+            <p>Tags: <span>{{spot.spotTags}}</span></p>
+        </section>
 
+        <section>
+            <h2>Poster</h2>
+
+            <p>First name: <span>{{poster.firstName}}</span></p>
+            <p>Last name: <span>{{poster.lastName}}</span></p>
+            <p>Username: <span>{{poster.username}}</span></p>
+            <p><a href="users/profile/{{poster._id}}">View Profile</a></p>
+        </section>
+    </div>
     <section id="imageSection">
         <h2>Images</h2>
         <div id="spotImages">
@@ -116,6 +126,30 @@
         </section>
     </div>
     {{/if}}
+
+    <section>
+        <h2>Comments</h2>
+
+        <ul id="comments-list">
+            {{#each comments}}
+            <li>
+                <div class="comment-item">
+                    <div class="comment-content">
+                        <p class="comment-main">{{this.message}}</p>
+                        {{#if this.image}}
+                        <img alt="{{this.poster.firstName}} {{this.poster.lastName}} comment image"
+                            src="{{this.image.url}}">
+                        {{/if}}
+                    </div>
+                    <div class="comment-meta ">
+                        <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
+                        <p>Posted at {{this.createdAt}}</p>
+                    </div>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+    </section>
 </article>
 
 <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="

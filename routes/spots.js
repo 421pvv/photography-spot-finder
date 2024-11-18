@@ -80,6 +80,35 @@ router.route("/details/:spotId").get(async (req, res) => {
     spot: publicSpot,
     viewingUser: viewUser,
   };
+
+  let comments;
+  try {
+    comments = await spotsData.getDisplayCommentsBySpotId(spotId);
+    comments = comments.map((comment) => {
+      logger.log(comment.createdAt instanceof Date);
+      comment.createdAt = new Date(comment.createdAt).toString();
+      if (!comment.image) {
+        delete comment.image;
+      }
+      comment.poster = comment.poster[0];
+      return comment;
+    });
+    logger.log("Comments", comments);
+    renderProps.comments = comments;
+  } catch (e) {
+    logger.log("Fetching comments failed for: " + spotId, e);
+  }
+
+  let poster;
+  try {
+    poster = await userData.getUserProfileById(spotInfo.posterId.toString());
+    poster._id = poster._id.toString();
+    logger.log("Poster info", poster);
+    renderProps.poster = poster;
+  } catch (e) {
+    logger.log("Fetching comments failed for: " + spotId, e);
+  }
+
   if (req.session.addRating) {
     renderProps.addRating = JSON.parse(JSON.stringify(req.session.addRating));
     logger.log("Add rating attempt present: ", renderProps.addRating);
@@ -165,6 +194,7 @@ router.route("/addComment/:spotId").post(async (req, res) => {
       spotId,
       req.session.user._id.toString(),
       comment.message,
+      new Date(),
       comment.image
     );
     res.status(200).redirect("/spots/details/" + spotId);

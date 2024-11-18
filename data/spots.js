@@ -399,7 +399,7 @@ const getDisplayCommentsBySpotId = async (id) => {
   return spotComments;
 };
 
-const addComment = async (spotId, userId, message, image) => {
+const addComment = async (spotId, userId, message, createdAt, image) => {
   const commentObject = {};
   spotId = validation.validateString(spotId, "Spot Id", true);
   const spot = await getSpotById(spotId);
@@ -413,6 +413,11 @@ const addComment = async (spotId, userId, message, image) => {
 
   message = validation.validateString(message, "Message");
   commentObject.message = message;
+
+  if (typeof createdAt !== "object" && !(createdAt instanceof Date)) {
+    throw ["Comment createdAt timestamp is invalid"];
+  }
+  commentObject.createdAt = createdAt;
 
   if (image) {
     validation.validateObject(image);

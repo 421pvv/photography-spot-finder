@@ -33,14 +33,15 @@ commentForm.submit((event) => {
     );
   }
 
-  if (urls.length > 0) {
-    if (urls.length != 1) {
-      hasErrors = true;
-      $("#spotCommentErrors").append(
-        errorMessage("Can only upload one image per comment!")
-      );
-    }
-    if (!urls.public_id || !urls.url) {
+  let imageObject;
+  try {
+    imageObject = JSON.parse(optionalImage);
+  } catch {
+    // no image selected
+  }
+
+  if (imageObject) {
+    if (!imageObject.public_id || !imageObject.url) {
       hasErrors = true;
       urls = [];
       $("#imageUploadPreviews .previewImageContainer").remove();
