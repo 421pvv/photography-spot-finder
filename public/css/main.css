@@ -160,3 +160,16 @@ input[type="file"] {
 #login-here-link:hover {
   color: red;
 }
+
+a {
+  text-decoration: none;
+  text-align: center;
+  font-size: 1em;
+  color: blue;
+  border-radius: 5px;
+}
+a:hover {
+  text-decoration: underline;
+  color: rgb(135, 19, 237);
+  text-align: center;
+}
