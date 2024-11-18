@@ -143,11 +143,10 @@
 }
 
 #spotsList li img {
-    width: auto; /* Ensure it fits within its container */
-    max-height: 60vh; /* Maintain aspect ratio */
-    border-radius: 8px; /* Slightly rounded corners */
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-    margin-top: 8px;
+    width: auto; 
+    max-height: 60vh; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     display: block;
     margin: 0 auto;
 }

@@ -10,7 +10,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const fromDateInput = document.getElementById("fromDate");
   const toDateInput = document.getElementById("toDate");
 
-  // Toggle filter options visibility
   filterButton.addEventListener("click", toggleFilter);
 
   function toggleFilter() {
@@ -26,7 +25,6 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  // Apply filters
   applyFilterButton.addEventListener("click", function (event) {
     event.preventDefault();
 
@@ -35,13 +33,11 @@ document.addEventListener("DOMContentLoaded", function () {
     const fromDate = fromDateInput.value;
     const toDate = toDateInput.value;
 
-    // Validation: Ensure at least one filter is applied
     if (!tags && !minRating && !fromDate && !toDate) {
       alert("Please apply at least one filter.");
       return;
     }
 
-    // Validation: Ensure "From Date" is not later than "To Date"
     if (fromDate && toDate && new Date(fromDate) > new Date(toDate)) {
       alert("The 'From Date' cannot be later than the 'To Date'.");
       return;
@@ -54,24 +50,19 @@ document.addEventListener("DOMContentLoaded", function () {
     if (fromDate) searchParams.append("fromDate", fromDate);
     if (toDate) searchParams.append("toDate");
 
-    // Submit the form with filters
     filterForm.action = `/spots/search?${searchParams.toString()}`;
     filterForm.submit();
   });
 
-  // Clear filters
   clearFilterButton.addEventListener("click", function () {
-    // Reset all form fields
     tagsInput.value = "";
     minRatingInput.value = 0;
     minRatingValue.textContent = 0; // Update the displayed rating value
     fromDateInput.value = "";
     toDateInput.value = "";
 
-    // Optionally, reset any backend filters or query parameters
     filterForm.action = "/spots/search";
   });
 
-  // Initialize the filter options UI to be hidden
   filterOptions.style.display = "none";
 });
