@@ -254,11 +254,11 @@ function validateRating(rating) {
     throw ["rating is not finite"];
   }
 
-  if (!Number.isInteger(rating)) {
-    throw ["Rating is not an integer"];
-  }
+  // if (!Number.isInteger(rating)) {
+  //   throw ["Rating is not an integer"];
+  // }
 
-  if (rating < 1 || rating > 10) {
+  if (rating < 0 || rating > 10) {
     throw ["Rating must be between 1 to 10 (inclusive)"];
   }
 }
