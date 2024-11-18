@@ -2,7 +2,7 @@
   <form id="filterForm" action="/spots/search" method="GET">
     <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
 
-    <button type="button" id="filterButton" onclick="toggleFilter()">Filter Options</button>
+    <button type="button" id="filterButton">Filter Options</button>
     <div id="filterOptions" hidden="true">
       {{> filterOptions }}
     </div>
@@ -42,20 +42,3 @@
   <p>No spots available.</p>
   {{/if}}
 </section>
-
-<script>
-  function toggleFilter() {
-    const filterOptions = document.getElementById('filterOptions');
-    const searchButton = document.getElementById('spotsSearchButton');
-
-    if (filterOptions.hasAttribute('hidden')) {
-      filterOptions.removeAttribute('hidden');
-      searchButton.value = "Apply Filters";
-    } else {
-      filterOptions.setAttribute('hidden', true);
-      searchButton.value = "Search";
-    }
-  }
-</script>
-
-<script type="module" src="/public/js/spots/filters.js"></script>
