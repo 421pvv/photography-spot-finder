@@ -1,46 +1,45 @@
 .search-and-filter {
   width: 100%;
-  max-width: 900px;
-  min-width: 300px;
+  max-width: 90vw;
+  min-width: 30vw;
   background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
+  border: 0.1em solid #ddd;
+  border-radius: 0.625em; 
+  padding: 2em;
+  box-shadow: 0 0.4em 0.6em rgba(0, 0, 0, 0.1);
+  margin: 2em auto;
 }
 
 .search-and-filter form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1em;
 }
 
 .search-and-filter input[type="text"] {
   width: 97%;
-  padding: 10px;
-  font-size: 16px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.625em; 
+  font-size: 1em; 
+  border: 0.1em solid #ccc;
+  border-radius: 0.3125em; 
   outline: none;
   transition: box-shadow 0.3s ease;
 }
 
 .search-and-filter input[type="text"]:focus {
   border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+  box-shadow: 0 0 0.3125em rgba(0, 123, 255, 0.3);
 }
 
 .search-and-filter button {
   width: 97%;
-  padding: 10px 15px;
-  font-size: 14px;
+  padding: 0.625em 0.9375em; 
+  font-size: 0.875em; 
   border: none;
   background-color: #007bff;
   color: #fff;
-  border-radius: 5px;
+  border-radius: 0.3125em;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
 .search-and-filter button:hover {
@@ -49,22 +48,22 @@
 
 #filterOptions {
   width: 97%;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 0.625em; 
+  margin-top: 1em; 
   background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 0.1em solid #ddd;
+  border-radius: 0.3125em;
 }
 
 .filter-section {
-  margin-bottom: 15px;
+  margin-bottom: 1.5em;
 }
 
 .filter-section label {
   display: block;
-  font-size: 14px;
+  font-size: 0.875em;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 0.5em; 
   color: #333;
 }
 
@@ -72,10 +71,10 @@
 .filter-section input[type="text"],
 .filter-section input[type="datetime-local"] {
   width: 97%;
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.5em;
+  font-size: 0.875em; 
+  border: 0.1em solid #ccc;
+  border-radius: 0.3125em; 
   outline: none;
   transition: border-color 0.3s ease;
 }
@@ -87,12 +86,12 @@
 }
 
 #clearFilterButton {
-  padding: 8px 10px;
-  font-size: 14px;
-  border: 1px solid #007bff;
+  padding: 0.5em 0.625em; 
+  font-size: 0.875em; 
+  border: 0.1em solid #007bff;
   background-color: #ffffff;
   color: #007bff;
-  border-radius: 5px;
+  border-radius: 0.3125em;
   cursor: pointer;
 }
 
@@ -103,13 +102,13 @@
 
 #spotsList {
   width: 100%;
-  max-width: 900px;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
+  max-width: 90vw;
+  background-color: #b0a8a8;
+  border: 0.1em solid #ddd;
+  border-radius: 0.625em; 
+  padding: 2em;
+  box-shadow: 0 0.4em 0.6em rgba(0, 0, 0, 0.1);
+  margin: 2em auto;
 }
 
 #spotsList ul {
@@ -119,12 +118,12 @@
 }
 
 #spotsList li {
-  margin-bottom: 20px;
-  padding: 15px;
+  margin-bottom: 2em; 
+  padding: 1.5em; 
   background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 0.1em solid #ddd;
+  border-radius: 0.3125em; 
+  box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
 }
 
 #spotsList li h2 {
@@ -137,17 +136,17 @@
 }
 
 #spotsList li p {
-  font-size: 14px;
-  margin: 5px 0;
-  color: #555;
+  font-size: 0.875em; 
+  margin: 0.5em 0; 
+  /* color: #f2dbdb; */
 }
 
 #spotsList li img {
-  width: auto; /* Ensure it fits within its container */
-  height: 60vh; /* Maintain aspect ratio */
-  border-radius: 8px; /* Slightly rounded corners */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Add a subtle shadow */
-  margin-top: 8px;
+  width: auto;
+  height: 60vh;
+  border-radius: 0.5em; 
+  box-shadow: 0 0.2em 0.4em rgba(0, 0, 0, 0.1);
+  margin-top: 0.5em; 
   display: block;
   margin: 0 auto;
 }
@@ -159,10 +158,10 @@ li a {
 
 #spotsList li span {
   display: inline-block;
-  margin-right: 5px;
-  padding: 5px 8px;
+  margin-right: 0.3125em;
+  padding: 0.3125em 0.5em; 
   background-color: #007bff;
   color: white;
-  font-size: 12px;
-  border-radius: 5px;
+  font-size: 0.75em; 
+  border-radius: 0.3125em;
 }
