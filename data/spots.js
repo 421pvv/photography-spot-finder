@@ -572,6 +572,9 @@ const putSpotRating = async (spotId, userId, rating, date) => {
     logger.log(e);
     throw [`Rating submision failed!`];
   }
+
+  //TODO add trigger for conest spots resubmisison
+ 
 };
 
 const getSpotRatingByUserId = async (spotId, userId) => {

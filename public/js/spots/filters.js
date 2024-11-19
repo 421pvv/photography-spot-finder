@@ -1,18 +1,25 @@
 document.addEventListener("DOMContentLoaded", function () {
   const filterButton = document.getElementById("filterButton");
   const filterOptions = document.getElementById("filterOptions");
-  const applyFilterButton = document.getElementById("applyFilterButton");
+  const searchButton = document.getElementById("spotsSearchButton");
+  const clearFilterButton = document.getElementById("clearFilterButton");
   const filterForm = document.getElementById("filterForm");
 
-  filterButton.addEventListener("click", function () {
-    const isHidden = filterOptions.style.display === "none";
-    filterOptions.style.display = isHidden ? "block" : "none";
-    filterButton.textContent = isHidden
-      ? "Hide Filter Options"
-      : "Filter Options";
-  });
+  filterButton.addEventListener("click", toggleFilter);
 
-  applyFilterButton.addEventListener("click", function (event) {
+  function toggleFilter() {
+    const filterOptions = document.getElementById("filterOptions");
+
+    if (filterOptions.hasAttribute("hidden")) {
+      filterOptions.removeAttribute("hidden");
+      searchButton.value = "Apply Filters";
+    } else {
+      filterOptions.setAttribute("hidden", true);
+      searchButton.value = "Search";
+    }
+  }
+
+  searchButton.addEventListener("click", function (event) {
     event.preventDefault();
 
     const tags = document.getElementById("tags").value.trim();

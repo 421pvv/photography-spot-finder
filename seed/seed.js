@@ -8,6 +8,10 @@ export async function initDB() {
   await usersCollection.deleteMany({});
   const spotsCollection = await mongoCollections.spots();
   await spotsCollection.deleteMany({});
+  const spotRatings = await mongoCollections.spotRatings();
+  await spotRatings.deleteMany({});
+  const comments = await mongoCollections.comments();
+  await comments.deleteMany({});
 }
 
 function convertUserObject(element) {

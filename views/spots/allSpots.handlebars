@@ -31,19 +31,16 @@
   <ul>
     {{#each spots}}
     <li>
-      <h2>{{this.name}}</h2>
-      <p>Images:
-        {{#each this.images}} <span>{{this}}</span> {{/each}}
-      </p>
+      <h2><a href="/spots/details/{{this._id}}">{{this.name}}</a></h2>
+      <img onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg'" src="{{this.images.0.url}}"
+        alt="{{this.name}} top image">
 
       <p>Tags:
         {{#each this.tags}} <span>{{this}}</span> {{/each}}
       </p>
-      <p>Ratings: {{this.avgRating}}</p>
-      <p> Date Posted: {{this.createdAt}}</p>
-      <a href="/spots/details/{{this._id}}">
-        <p>See details</p>
-      </a>
+      <p>Average Rating: {{this.averageRating}} out of 10</p>
+      <p> Posted on {{this.createdAt}}</p>
+
     </li>
     {{/each}}
   </ul>
