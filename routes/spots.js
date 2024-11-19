@@ -805,7 +805,9 @@ router
     }
   });
 
-router.route("/search").get(async (req, res) => {
+router
+  .route("/search")
+  .get(async (req, res) => {
   try {
     let keyword = req.query.keyword;
     let { tags, minRating, fromDate, toDate } = req.query;
@@ -820,6 +822,12 @@ router.route("/search").get(async (req, res) => {
         return res.status(400).render("spots/allSpots", {
           spots: [],
           user: req.session.user,
+          styles: [
+          `<link rel="stylesheet" href="/public/css/allSpots.css">`,
+        ],
+        scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
           keyword: keyword,
           errors: ["Invalid filter keyword"],
         });
@@ -844,7 +852,7 @@ router.route("/search").get(async (req, res) => {
       minRating = parseFloat(minRating);
       validation.validateNumber(minRating);
       if (minRating > 10 || minRating < 0) {
-        errors.push("Min Rating must be between 1 and 10 (inclusive)");
+        errors.push("Min Rating must be between 0 and 10 (inclusive)");
       }
       filter.minRating = minRating;
     }
@@ -887,6 +895,12 @@ router.route("/search").get(async (req, res) => {
     const spots = await spotsData.getAllSpots(keyword, filter);
     res.render("spots/allSpots", {
       spots: spots,
+      styles: [
+        `<link rel="stylesheet" href="/public/css/allSpots.css">`,
+      ],
+      scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
       user: req.session.user,
       keyword: keyword,
       invalidResourceErrors: req.session.invalidResourceErrors,
@@ -898,6 +912,12 @@ router.route("/search").get(async (req, res) => {
       spots: [],
       user: req.session.user,
       // keyword: keyword,
+      styles: [
+        `<link rel="stylesheet" href="/public/css/allSpots.css">`,
+      ],
+      scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
       errors: [err.message || "An unknown error occurred."],
     });
   }

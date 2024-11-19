@@ -1,14 +1,20 @@
 document.addEventListener("DOMContentLoaded", function () {
   const filterButton = document.getElementById("filterButton");
   const filterOptions = document.getElementById("filterOptions");
-  const searchButton = document.getElementById("spotsSearchButton");
+  const applyFilterButton = document.getElementById("applyFilterButton");
   const clearFilterButton = document.getElementById("clearFilterButton");
   const filterForm = document.getElementById("filterForm");
+  const tagsInput = document.getElementById("tags");
+  const minRatingInput = document.getElementById("minRating");
+  const minRatingValue = document.getElementById("minRatingValue");
+  const fromDateInput = document.getElementById("fromDate");
+  const toDateInput = document.getElementById("toDate");
 
   filterButton.addEventListener("click", toggleFilter);
 
   function toggleFilter() {
     const filterOptions = document.getElementById("filterOptions");
+    const searchButton = document.getElementById("spotsSearchButton");
 
     if (filterOptions.hasAttribute("hidden")) {
       filterOptions.removeAttribute("hidden");
@@ -19,13 +25,13 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   }
 
-  searchButton.addEventListener("click", function (event) {
+  applyFilterButton.addEventListener("click", function (event) {
     event.preventDefault();
 
-    const tags = document.getElementById("tags").value.trim();
-    const minRating = document.getElementById("minRating").value;
-    const fromDate = document.getElementById("fromDate").value;
-    const toDate = document.getElementById("toDate").value;
+    const tags = tagsInput.value.trim();
+    const minRating = minRatingInput.value;
+    const fromDate = fromDateInput.value;
+    const toDate = toDateInput.value;
 
     if (!tags && !minRating && !fromDate && !toDate) {
       alert("Please apply at least one filter.");
@@ -42,11 +48,20 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tags) searchParams.append("tags", tags);
     if (minRating) searchParams.append("minRating", minRating);
     if (fromDate) searchParams.append("fromDate", fromDate);
-    if (toDate) searchParams.append("toDate", toDate);
+    if (toDate) searchParams.append("toDate");
 
-    //filterForm.action = `/spots/search?${searchParams.toString()}`;
-    console.log("Generated URL:", `/spots/search?${searchParams.toString()}`);
+    filterForm.action = `/spots/search?${searchParams.toString()}`;
     filterForm.submit();
+  });
+
+  clearFilterButton.addEventListener("click", function () {
+    tagsInput.value = "";
+    minRatingInput.value = 0;
+    minRatingValue.textContent = 0; // Update the displayed rating value
+    fromDateInput.value = "";
+    toDateInput.value = "";
+
+    filterForm.action = "/spots/search";
   });
 
   filterOptions.style.display = "none";

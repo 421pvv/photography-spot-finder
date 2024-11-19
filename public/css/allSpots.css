@@ -1,69 +1,72 @@
 .search-and-filter {
-  width: 70%;
+  width: 80vw;
+
   background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
+  border: 0.1em solid #ddd;
+  border-radius: 1em;
+  padding: 2em;
+  box-shadow: 0 0.4em 0.6em rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
+  margin-top: 2em;
 }
 
 .search-and-filter form {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 1em;
 }
 
 .search-and-filter input[type="text"] {
-  width: 97%;
-  padding: 10px;
+  width: 100%;
+  padding: 1em 0;
   font-size: 1em;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  border: 0.1em solid #ccc;
+  border-radius: 0.5em;
   outline: none;
-  transition: box-shadow 0.3s ease;
-}
-
-.search-and-filter input[type="text"]:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
-}
-
-.search-and-filter button {
-  width: 97%;
-  padding: 10px 15px;
-  font-size: 14px;
-  border: none;
-  background-color: #007bff;
-  color: #fff;
-  border-radius: 5px;
-  cursor: pointer;
   display: block;
   margin: 0 auto;
 }
 
+.search-and-filter input[type="text"]:focus {
+  border-color: #37d857;
+  box-shadow: 0 0 0.5em rgba(0, 123, 255, 0.3);
+}
+
+.search-and-filter button {
+  width: 100%;
+  padding: 1em;
+  font-size: 0.875em;
+  border: none;
+  display: block;
+  margin: 0 auto;
+  background-color: #37d857;
+  color: #fff;
+  border-radius: 0.5em;
+  cursor: pointer;
+}
+
 .search-and-filter button:hover {
-  background-color: #0056b3;
+  background-color: #37d857;
 }
 
 #filterOptions {
   width: 97%;
-  padding: 10px;
-  margin-top: 10px;
+  padding: 1em;
+  margin-top: 1em;
   background-color: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 5px;
+  border: 0.1em solid #ddd;
+  border-radius: 0.5em;
 }
 
 .filter-section {
-  margin-bottom: 15px;
+  margin-bottom: 1.5em;
 }
 
 .filter-section label {
   display: block;
-  font-size: 14px;
+  font-size: 0.875em;
   font-weight: bold;
-  margin-bottom: 5px;
+  margin-bottom: 0.5em;
   color: #333;
 }
 
@@ -71,10 +74,10 @@
 .filter-section input[type="text"],
 .filter-section input[type="datetime-local"] {
   width: 97%;
-  padding: 8px;
-  font-size: 14px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
+  padding: 0.5em;
+  font-size: 0.875em;
+  border: 0.1em solid #ccc;
+  border-radius: 0.5em;
   outline: none;
   transition: border-color 0.3s ease;
 }
@@ -86,82 +89,88 @@
 }
 
 #clearFilterButton {
-  padding: 8px 10px;
-  font-size: 14px;
-  border: 1px solid #007bff;
+  padding: 0.5em 1em;
+  font-size: 0.875em;
+  border: 0.1em solid #007bff;
   background-color: #ffffff;
   color: #007bff;
-  border-radius: 5px;
+  border-radius: 0.5em;
   cursor: pointer;
 }
 
 #clearFilterButton:hover {
   background-color: #007bff;
   color: white;
+  margin: auto;
 }
 
 #spotsList {
-  width: 70%;
-  background-color: #ffffff;
-  border: 1px solid #ddd;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  margin: 20px auto;
+  width: 100vw;
+  border-radius: 1em;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
 }
 
 #spotsList ul {
+  width: 100vw;
   list-style: none;
-  padding: 0;
   margin: 0;
+  padding: 0;
 }
 
 #spotsList li {
-  margin: 5%;
-  padding: 15px;
-  background-color: rgb(233, 233, 227);
-  border: 1px solid #ddd;
-  border-radius: 5px;
-  box-shadow: #d2d3d7 0em 0.5em 2em;
+  margin: 2em auto;
+  width: 80vw;
+  padding: 2em;
+  margin-bottom: 5%;
+  background-color: #f5f7f8;
+  border: 0.1em solid #ddd;
+  border-radius: 1em;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
 }
 
 #spotsList li h2 {
   font-size: 2em;
   font-weight: bold;
   color: #333;
-  display: block;
-  margin: 2% auto;
   text-align: center;
 }
 
 #spotsList li p {
-  font-size: 14px;
-  margin: 5px 0;
-  color: #555;
+  font-size: 0.875em;
+  margin: 0.5em 0;
+}
+
+.spot-info {
+  display: block;
+  margin: 0 auto;
 }
 
 #spotsList li img {
-  max-width: 80%;
+  width: auto;
   height: 60vh;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  margin-top: 8px;
   display: block;
-  margin: 0 auto;
   object-fit: contain;
+  max-width: 100%;
+  margin: 2em auto;
+  padding: 0;
 }
-
-li a {
-  display: block;
-  margin: 0 auto;
+#spotsList a {
+  text-decoration: none;
+  color: blue;
+}
+#spotsList a:hover {
+  text-decoration: underline;
+  color: rgb(135, 19, 237);
 }
 
 #spotsList li span {
   display: inline-block;
-  margin-right: 5px;
-  padding: 5px 8px;
+  margin-right: 0.5em;
+  padding: 0.5em 0.5em;
   background-color: #007bff;
   color: white;
-  font-size: 12px;
-  border-radius: 5px;
+  font-size: 0.75em;
+  border-radius: 0.5em;
 }

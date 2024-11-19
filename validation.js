@@ -214,10 +214,8 @@ function validateBoolean(bool, varname) {
 function validateNumber(num, varName) {
   if (typeof num !== "number") {
     throw [`${varName || ""} is not a number`];
-    throw [`${varName || ""} is not a number`];
   }
   if (isNaN(num)) {
-    throw [`${varName || ""} is a not a valid number`];
     throw [`${varName || ""} is a not a valid number`];
   }
 }
@@ -254,12 +252,12 @@ function validateRating(rating) {
     throw ["rating is not finite"];
   }
 
-  if (!Number.isInteger(rating)) {
-    throw ["Rating is not an integer"];
-  }
+  // if (!Number.isInteger(rating)) {
+  //   throw ["Rating is not an integer"];
+  // }
 
-  if (rating < 1 || rating > 10) {
-    throw ["Rating must be between 1 to 10 (inclusive)"];
+  if (rating < 0 || rating > 10) {
+    throw ["Rating must be between 0 to 10 (inclusive)"];
   }
 }
 
