@@ -25,4 +25,4 @@ async function importDB(fileName) {
   await closeConnection();
 }
 
-await importDB();
+export default importDB;
