@@ -20,6 +20,8 @@
       Password
       <input type="password" name="password" placeholder="Password" value="{{data.password}}" id="password" required>
     </label>
+    <span> At least one lower case letter, one upper case letter, one number, and one non-alphanumeric character.
+    </span>
     <div class="formInputError" id="form-errors-div">
       {{#if hasErrors}}
       {{#each errors}}
