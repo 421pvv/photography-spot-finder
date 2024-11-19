@@ -36,10 +36,8 @@ router.route("/details/:spotId").get(async (req, res) => {
   const publicSpot = {
     _id: spotInfo._id.toString(),
     spotName: spotInfo.name,
-    spotDescription: spotInfo.description,
-    spotAccessibility: spotInfo.accessibility,
-    spotDescription: spotInfo.description,
-    spotAccessibility: spotInfo.accessibility,
+    spotDescription: spotInfo.description.split("\n"),
+    spotAccessibility: spotInfo.accessibility.split("\n"),
     spotBestTimes: spotInfo.bestTimes.join(", "),
     spotTags: spotInfo.tags.join(", "),
     spotImages: spotInfo.images,
@@ -53,6 +51,8 @@ router.route("/details/:spotId").get(async (req, res) => {
   const viewUser = {};
   if (req.session.user) {
     viewUser._id = req.session.user._id.toString();
+    viewUser.originalPoster =
+      req.session.user._id.toString() === spotInfo.posterId.toString();
     try {
       const viewingUserRating = await spotsData.getSpotRatingByUserId(
         spotId,
@@ -65,6 +65,7 @@ router.route("/details/:spotId").get(async (req, res) => {
       logger.log(e);
     }
   }
+  logger.log("viewing user info", viewUser);
 
   const renderProps = {
     user: req.session.user,
@@ -541,8 +542,7 @@ router
     logger.log(spot);
     try {
       await spotsData.updateSpot(spotId, req.session.user._id.toString(), spot);
-      //TODO reroute to spot details
-      return res.status(200);
+      return res.status(200).redirect(`/spots/details/${spotId}`);
     } catch (e) {
       logger.log(e);
       return res.status(500).render("spots/editSpot", {
@@ -765,7 +765,7 @@ router
     logger.log("Attempting to insert spot");
     logger.log(spot);
     try {
-      await spotsData.createSpot(
+      const newSpot = await spotsData.createSpot(
         spot.name,
         spot.location,
         spot.address,
@@ -777,8 +777,9 @@ router
         spot.posterId,
         spot.createdAt
       );
-      //TODO re-route to spot details
-      return res.status(200);
+      return res
+        .status(200)
+        .redirect(`/spots/details/${newSpot._id.toString()}`);
     } catch (e) {
       logger.log(e);
       return res.status(500).render("spots/addSpot", {
