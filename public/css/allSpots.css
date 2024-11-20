@@ -79,7 +79,6 @@
   border: 0.1em solid #ccc;
   border-radius: 0.5em;
   outline: none;
-  transition: border-color 0.3s ease;
 }
 
 .filter-section input[type="range"]:focus,
@@ -89,19 +88,19 @@
 }
 
 #clearFilterButton {
-  padding: 0.5em 1em;
+  padding: 0.5em;
   font-size: 0.875em;
   border: 0.1em solid #007bff;
   background-color: #ffffff;
   color: #007bff;
   border-radius: 0.5em;
-  cursor: pointer;
+  margin: 1em;
+  width: 97%;
 }
 
 #clearFilterButton:hover {
   background-color: #007bff;
   color: white;
-  margin: auto;
 }
 
 #spotsList {

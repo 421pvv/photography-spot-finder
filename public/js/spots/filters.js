@@ -55,14 +55,15 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   clearFilterButton.addEventListener("click", function () {
+    console.log("here")
+
     tagsInput.value = "";
     minRatingInput.value = 0;
-    minRatingValue.textContent = 0; // Update the displayed rating value
+    minRatingValue.textContent = "0";
     fromDateInput.value = "";
     toDateInput.value = "";
 
     filterForm.action = "/spots/search";
   });
 
-  filterOptions.style.display = "none";
 });

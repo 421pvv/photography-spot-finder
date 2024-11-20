@@ -4,22 +4,10 @@
   <label for="minRating">Min Rating:</label>
   <input type="range" id="minRating" name="minRating" min="0" step="0.1" max="10" value="0">
   <span id="minRatingValue">1</span>
-</div>
 
-<script>
-  const minRatingInput = document.getElementById('minRating');
-  const minRatingValue = document.getElementById('minRatingValue');
-  minRatingInput.addEventListener('input', function () {
-    minRatingValue.textContent = minRatingInput.value;
-  });
-</script>
-
-<div class="filter-section">
   <label for="tags">Tags (comma separated):</label>
   <input type="text" id="tags" name="tags" placeholder="e.g. nature, sunset" value="{{tags}}">
-</div>
 
-<div class="filter-section">
   <label for="timeFilter">Time:</label>
   <div>
     <label for="fromDate">From Date:</label>
@@ -31,4 +19,14 @@
 </div>
 
 <button type="button" id="clearFilterButton">Clear Filters</button>
-{{!-- <button type="submit" id="applyFilterButton">Apply Filter</button> --}}
+
+<script>
+  const minRatingInput = document.getElementById('minRating');
+  const minRatingValue = document.getElementById('minRatingValue');
+  minRatingInput.addEventListener('input', function () {
+    minRatingValue.textContent = minRatingInput.value;
+  });
+</script>
+
+
+
