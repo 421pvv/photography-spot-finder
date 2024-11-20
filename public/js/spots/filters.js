@@ -48,14 +48,14 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tags) searchParams.append("tags", tags);
     if (minRating) searchParams.append("minRating", minRating);
     if (fromDate) searchParams.append("fromDate", fromDate);
-    if (toDate) searchParams.append("toDate");
+    if (toDate) searchParams.append("toDate" , toDate);
 
     filterForm.action = `/spots/search?${searchParams.toString()}`;
     filterForm.submit();
   });
 
-  clearFilterButton.addEventListener("click", function () {
-    console.log("here")
+  clearFilterButton.addEventListener("click", function (event) {
+    event.preventDefault();
 
     tagsInput.value = "";
     minRatingInput.value = 0;
