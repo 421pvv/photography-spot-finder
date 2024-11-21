@@ -80,6 +80,15 @@ main {
 .spot-image-user-profile {
   width: 35em;
   height: 20em;
+  border-radius: 0.5em;
+  display: block;
+  margin: auto;
+}
+
+.comment-image-user-profile {
+  width: 25em;
+  height: 14em;
+  border-radius: 0.5em;
   display: block;
   margin: auto;
 }

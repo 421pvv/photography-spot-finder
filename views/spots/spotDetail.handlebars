@@ -18,7 +18,7 @@
             <p>First name: <span>{{poster.firstName}}</span></p>
             <p>Last name: <span>{{poster.lastName}}</span></p>
             <p>Username: <span>{{poster.username}}</span></p>
-            <p><a href="/users/profile/{{poster._id}}">View Profile</a></p>
+            <p><a href="/users/profile/{{poster.username}}">View Profile</a></p>
 
             {{#if viewingUser.originalPoster}}
             <p><a href="/spots/edit/{{spot.username}}">Edit Spot</a></p>
