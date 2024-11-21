@@ -13,14 +13,14 @@ document.addEventListener("DOMContentLoaded", function () {
   filterButton.addEventListener("click", toggleFilter);
 
   function toggleFilter() {
-    const filterOptions = document.getElementById('filterOptions');
-    const searchButton = document.getElementById('spotsSearchButton');
+    const filterOptions = document.getElementById("filterOptions");
+    const searchButton = document.getElementById("spotsSearchButton");
 
-    if (filterOptions.hasAttribute('hidden')) {
-      filterOptions.removeAttribute('hidden');
+    if (filterOptions.hasAttribute("hidden")) {
+      filterOptions.removeAttribute("hidden");
       searchButton.value = "Apply Filters";
     } else {
-      filterOptions.setAttribute('hidden', true);
+      filterOptions.setAttribute("hidden", true);
       searchButton.value = "Search";
     }
   }

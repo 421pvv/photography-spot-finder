@@ -4,7 +4,7 @@ const sliderValue = $("#ratingSliderValue");
 function errorMessage(msg) {
   return `<p class="formInputError" > ${msg} </p>`;
 }
-slider.on("change", () => {
+slider.on("input", () => {
   console.log(slider.val());
   sliderValue.text(slider.val());
 });

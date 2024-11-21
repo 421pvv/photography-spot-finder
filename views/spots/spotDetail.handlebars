@@ -15,11 +15,14 @@
 
         <section>
             <h2>Poster</h2>
-
             <p>First name: <span>{{poster.firstName}}</span></p>
             <p>Last name: <span>{{poster.lastName}}</span></p>
             <p>Username: <span>{{poster.username}}</span></p>
-            <p><a href="users/profile/{{poster._id}}">View Profile</a></p>
+            <p><a href="/users/profile/{{poster._id}}">View Profile</a></p>
+
+            {{#if viewingUser.originalPoster}}
+            <p><a href="/spots/edit/{{spot.username}}">Edit Spot</a></p>
+            {{/if}}
         </section>
     </div>
     <section id="imageSection">
@@ -36,12 +39,17 @@
 
     <section>
         <h2>Description</h2>
-        <p>{{spot.spotDescription}}</p>
+
+        {{#each spot.spotDescription}}
+        <p>{{this}}</p>
+        {{/each}}
     </section>
 
     <section>
         <h2>Accessibility</h2>
-        <p>{{spot.spotAccessibility}}</p>
+        {{#each spot.spotAccessibility}}
+        <p>{{this}}</p>
+        {{/each}}
     </section>
 
     <section>
@@ -54,7 +62,7 @@
         <section>
             <h3>Add Comment</h3>
 
-            <form action="/spots/addComment/{{spot._id}}" id="addCommentForm" method="POST">
+            <form action="/spots/addComment/{{spot._id}}" id="addCommentForm" method="POST" class="detailForms">
                 <label for="commentInput">
                     Enter comment
                     {{#if addComment}}
@@ -98,23 +106,25 @@
         </section>
 
         <section>
-            {{#if viewingUser.rating}}
             <h3>Update Rating</h3>
-            {{else}}
-            <h3>Rate Spot</h3>
-            {{/if}}
-            <form action="/spots/putRating/{{spot._id}}" method="POST" id="putRatingForm">
+
+            <form action="/spots/putRating/{{spot._id}}" method="POST" id="putRatingForm" class="detailForms">
+                {{#if viewingUser.rating}}
+                {{else}}
+                <h3>Rate Spot</h3>
+                {{/if}}
                 <label for="ratingSlider">
                     Rating Slider
 
                     {{#if viewingUser.rating}}
                     <input name="rating" type="range" min="1" max="10" value="{{viewingUser.rating}}" id="ratingSlider"
                         step="0.1">
-                    <span id="ratingSliderValue">{{viewingUser.rating}}</span>
+                    <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">{{viewingUser.rating}}</span></p>
+
 
                     {{else}}
                     <input name="rating" type="range" min="1" max="10" value="5" id="ratingSlider" step="0.1">
-                    <span id="ratingSliderValue">5</span>
+                    <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">5</span></p>
                     {{/if}}
 
                 </label>
