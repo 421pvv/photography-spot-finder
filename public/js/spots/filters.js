@@ -48,21 +48,22 @@ document.addEventListener("DOMContentLoaded", function () {
     if (tags) searchParams.append("tags", tags);
     if (minRating) searchParams.append("minRating", minRating);
     if (fromDate) searchParams.append("fromDate", fromDate);
-    if (toDate) searchParams.append("toDate");
+    if (toDate) searchParams.append("toDate" , toDate);
 
     filterForm.action = `/spots/search?${searchParams.toString()}`;
     filterForm.submit();
   });
 
-  clearFilterButton.addEventListener("click", function () {
+  clearFilterButton.addEventListener("click", function (event) {
+    event.preventDefault();
+
     tagsInput.value = "";
     minRatingInput.value = 0;
-    minRatingValue.textContent = 0; // Update the displayed rating value
+    minRatingValue.textContent = "0";
     fromDateInput.value = "";
     toDateInput.value = "";
 
     filterForm.action = "/spots/search";
   });
 
-  filterOptions.style.display = "none";
 });

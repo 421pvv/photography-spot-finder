@@ -51,7 +51,6 @@ app.use("*", (req, res, next) => {
 
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
-    { url: "users/profile", error: "access profile!" },
     { url: "spots/new", error: "add a new spot!" },
     { url: "spots/edit", error: "modify a spot!" },
     { url: "spots/addComment", error: "add comment to a spot!" },

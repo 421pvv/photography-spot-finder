@@ -2,6 +2,7 @@ import express from "express";
 import validation from "../validation.js";
 import { userData } from "../data/index.js";
 import logging from "../log.js";
+import { contestSubmissions } from "../config/mongoCollections.js";
 const router = express.Router();
 
 router
@@ -84,7 +85,7 @@ router
       lastName: userFromDb.lastName,
       username: userFromDb.username,
     };
-    res.redirect("/users/profile");
+    res.redirect(`/users/profile/${req.session.user.username}`);
   });
 
 router
@@ -149,7 +150,7 @@ router
       username: userFromDb.username,
     };
     logging.log(req.session.user);
-    res.redirect("/users/profile");
+    res.redirect(`/users/profile/${req.session.user.username}`);
   });
 
 router.route("/logout").get(async (req, res) => {
@@ -157,10 +158,46 @@ router.route("/logout").get(async (req, res) => {
   res.redirect("/");
 });
 
-router.route("/profile").get(async (req, res) => {
+router.route("/profile/:username").get(async (req, res) => {
+  const username = req.params.username.toLowerCase();
+  let userProfile;
+  try {
+    userProfile = await userData.getUserProfileByUsername(username);
+  } catch (e) {
+    return res.status(404).render("users/profile", {
+      notfound: true,
+      user: req.session.user,
+      username: username,
+    });
+  }
+  const userFavoriteSpots = await userData.getAndUpdateUserFavoriteSpots(
+    userProfile._id
+  );
+  const userSubmittedSpots = await userData.getUserSubmittedSpots(
+    userProfile._id
+  );
+  const userComments = await userData.getUserComments(userProfile._id);
+  const userContestSubmissions = await userData.getUserContestSubmissions(
+    userProfile._id
+  );
+  const userRatings = await userData.getUserRatings(userProfile._id);
+  let sameUser = false;
+  if (req.session.user) {
+    if (userProfile._id === req.session.user._id) {
+      sameUser = true;
+    }
+  }
   res.render("users/profile", {
+    profile: userProfile,
     user: req.session.user,
-    authErrors: req.session.authorizationErrors, 
+    authErrors: req.session.authorizationErrors,
+    sameUser: sameUser,
+    styles: [`<link rel="stylesheet" href="/public/css/userProfile.css">`],
+    favoriteSpots: userFavoriteSpots,
+    submittedSpots: userSubmittedSpots,
+    comments: userComments,
+    ratings: userRatings,
+    contestSubmissions: userContestSubmissions,
   });
   delete req.session.authorizationErrors;
 });

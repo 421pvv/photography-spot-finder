@@ -1,35 +1,152 @@
-<div id="authErrors">
-  {{#each authErrors}}
-  <p class="authError">
-    {{this}}
-  </p>
-  {{/each}}
+{{#if notfound}}
+<div id="NotFound">
+  <p>Oops! There is no user with a username of {{username}}</p>
+</div>
+{{else}}
+<section class="user_profile_details_section">
+  {{#if sameUser}}
+  <a href="/users/editprofile">
+    Edit Profile</a>
+  {{/if}}
+  <h1 id="userFirstLastNames">{{profile.firstName}} {{profile.lastName}}</h1>
+  <p class="username">@{{profile.username}}</p>
+  {{!-- {{#if sameUser}}
+  <p>Email: {{#if profile.email}}{{profile.email}}{{else}}Edit your profile to add an email!{{/if}}</p>
+  {{/if}} --}}
+  <p class="bio">{{#if profile.bio}}{{profile.bio}}{{else}}-{{/if}}</p>
+</section>
+
+<div class="activity-sections">
+  <section class="user-activity">
+    <h2>{{#if sameUser}}Your Favorite Spots{{else}}{{profile.firstName}}'s Favorite Spots{{/if}}</h2>
+    <div class="scrolltype">
+      {{#if favoriteSpots}}
+      {{#if sameUser}}
+      {{#each favoriteSpots}}
+      <section>
+        <h5>{{this.name}}</h5>
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <p>Rating: {{this.averageRating}}</p>
+        <a href="/spots/details/{{this._id}}">View spot details</a>
+        <a href="/users/profile/removeFav/{{this._id}}">Remove from favorites</a>
+      </section>
+      {{/each}}
+      {{else}}
+      {{#each favoriteSpots}}
+      <section>
+        <h5>{{this.name}}</h5>
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <p>Rating: {{this.averageRating}}</p>
+        <a href="/spots/details/{{this._id}}">View spot details</a>
+        <a href="/users/profile/removeFav/{{this._id}}">Remove from favorites</a>
+      </section>
+      {{/each}}
+      {{/if}}
+      {{else}}
+      <p>No spots here!</p>
+      {{/if}}
+    </div>
+  </section>
+
+  <section class="user-activity">
+    <h2>{{#if sameUser}}Your Submitted Spots{{else}}{{profile.firstName}}'s Submitted Spots{{/if}}</h2>
+    <div class="scrolltype">
+      {{#if submittedSpots}}
+      {{#if sameUser}}
+      {{#each submittedSpots}}
+      <section>
+        <h5>{{this.name}}</h5>
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <p>Rating: {{this.averageRating}}</p>
+        <a href="/spots/details/{{this._id}}">View spot details</a>
+        <a href="/spots/edit/{{this._id}}">Edit spot details</a>
+        <a href="/spots/delete/{{this._id}}">Delete spot</a>
+      </section>
+      {{/each}}
+      {{else}}
+      {{#each submittedSpots}}
+      <section>
+        <h5>{{this.name}}</h5>
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <p>Rating: {{this.averageRating}}</p>
+        <a href="/spots/details/{{this._id}}">View spot details</a>
+      </section>
+      {{/each}}
+      {{/if}}
+      {{else}}
+      <p>No spots here!</p>
+      {{/if}}
+    </div>
+  </section>
+
+  <section class="user-activity">
+    <h2>{{#if sameUser}}Your Comments{{else}}{{profile.firstName}}'s Comments{{/if}}</h2>
+    <div class="scrolltype">
+      {{#if comments}}
+      {{#if sameUser}}
+      {{#each comments}}
+      <section>
+        <h5>{{this.message}}</h5>
+        {{#if this.image}}
+        <img class="comment-image-user-profile" src="{{this.image.url}}"
+          alt="{{profile.firstName}} {{profile.lastName}} comment image">
+        {{/if}}
+        <a href="/spots/details/{{this.spotId}}">View this comment's spot details</a>
+        <a href="/spots/comments/edit/">Edit comment</a>
+        <a href="/spots/comments/delete/">Delete comment</a>
+      </section>
+      {{/each}}
+      {{else}}
+      {{#each comments}}
+      <section>
+        <h5>{{this.message}}</h5>
+        {{#if this.image}}
+        <img class="comment-image-user-profile" src="{{this.image.url}}"
+          alt="{{profile.firstName}} {{profile.lastName}} comment image">
+        {{/if}}
+        <a href="/spots/details/{{this.spotId}}">View this comment's spot details</a>
+      </section>
+      {{/each}}
+      {{/if}}
+      {{else}}
+      <p>No comments here!</p>
+      {{/if}}
+    </div>
+  </section>
+
+  {{#if sameUser}}
+  <section class="user-activity">
+    <h2>Your Ratings</h2>
+    <div class="scrolltype">
+      {{#if ratings}}
+      {{#each ratings}}
+      {{#if this.spot}}
+      <section>
+        <h5>{{this.spot.name}}</h5>
+        <p>Your rating: {{this.rating}}</p>
+        <a href="/spots/details/{{this.spot._id}}">Modify your rating in the spot's page</a>
+      </section>
+      {{/if}}
+      {{/each}}
+      {{else}}
+      <p>No ratings here!</p>
+      {{/if}}
+    </div>
+  </section>
+  {{/if}}
+
+  <section class="user-activity">
+    <h2>{{#if sameUser}}Your Contest Submissions{{else}}{{profile.firstName}}'s Contest Submissions{{/if}}</h2>
+    <div class="scrolltype">
+      {{#if contestSubmissions}}
+      {{#each contestSubmissions}}
+      <p>{{this}}</p>
+      {{/each}}
+      {{else}}
+      <p>No contest submissions here!</p>
+      {{/if}}
+    </div>
+  </section>
 </div>
 
-<section>
-
-  <label>
-    First Name:
-    <text>
-      {{user.firstName}}
-    </text>
-  </label>
-
-</section>
-<section>
-  <label>
-    Last Name:
-    <text>
-      {{user.lastName}}
-    </text>
-  </label>
-</section>
-
-<section>
-  <label>
-    Username:
-    <text>
-      {{user.username}}
-    </text>
-  </label>
-</section>
+{{/if}}
