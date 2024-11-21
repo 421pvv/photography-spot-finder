@@ -834,7 +834,6 @@ router.route("/search").get(async (req, res) => {
 
     try {
       if (tags) {
-        //spots = await spotsData.getSpotsByTags(tags.split(','));
         tags = tags.split(",");
         for (const tagI in tags) {
           let tag = tags[tagI];
@@ -924,6 +923,18 @@ router.route("/search").get(async (req, res) => {
     logger.log(filter);
     try {
       const spots = await spotsData.getAllSpots(keyword, filter);
+      res.render("spots/allSpots", {
+        spots: spots,
+        styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+        scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
+        user: req.session.user,
+        keyword: keyword,
+        invalidResourceErrors: req.session.invalidResourceErrors,
+      });
+      delete req.session.invalidResourceErrors;
+      return;
     } catch (e) {
       logger.log(e);
       res.status(500).render("spots/allSpots", {
@@ -937,17 +948,6 @@ router.route("/search").get(async (req, res) => {
         errors: ["There was a server error. Please try again."],
       });
     }
-    res.render("spots/allSpots", {
-      spots: spots,
-      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
-      scripts: [
-        `<script type="module" src="/public/js/spots/filters.js"></script>`,
-      ],
-      user: req.session.user,
-      keyword: keyword,
-      invalidResourceErrors: req.session.invalidResourceErrors,
-    });
-    delete req.session.invalidResourceErrors;
   } catch (err) {
     console.error("Error during search:", err.message || err);
     res.status(400).render("spots/allSpots", {
