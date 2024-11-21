@@ -805,9 +805,7 @@ router
     }
   });
 
-router
-  .route("/search")
-  .get(async (req, res) => {
+router.route("/search").get(async (req, res) => {
   try {
     let keyword = req.query.keyword;
     let { tags, minRating, fromDate, toDate } = req.query;
@@ -822,12 +820,10 @@ router
         return res.status(400).render("spots/allSpots", {
           spots: [],
           user: req.session.user,
-          styles: [
-          `<link rel="stylesheet" href="/public/css/allSpots.css">`,
-        ],
-        scripts: [
-          `<script type="module" src="/public/js/spots/filters.js"></script>`,
-        ],
+          styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+          scripts: [
+            `<script type="module" src="/public/js/spots/filters.js"></script>`,
+          ],
           keyword: keyword,
           errors: ["Invalid filter keyword"],
         });
@@ -895,12 +891,10 @@ router
     const spots = await spotsData.getAllSpots(keyword, filter);
     res.render("spots/allSpots", {
       spots: spots,
-      styles: [
-        `<link rel="stylesheet" href="/public/css/allSpots.css">`,
-      ],
+      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
       scripts: [
-          `<script type="module" src="/public/js/spots/filters.js"></script>`,
-        ],
+        `<script type="module" src="/public/js/spots/filters.js"></script>`,
+      ],
       user: req.session.user,
       keyword: keyword,
       invalidResourceErrors: req.session.invalidResourceErrors,
@@ -912,12 +906,10 @@ router
       spots: [],
       user: req.session.user,
       // keyword: keyword,
-      styles: [
-        `<link rel="stylesheet" href="/public/css/allSpots.css">`,
-      ],
+      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
       scripts: [
-          `<script type="module" src="/public/js/spots/filters.js"></script>`,
-        ],
+        `<script type="module" src="/public/js/spots/filters.js"></script>`,
+      ],
       errors: [err.message || "An unknown error occurred."],
     });
   }

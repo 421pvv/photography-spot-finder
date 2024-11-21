@@ -1,21 +1,19 @@
 import usersRouter from "./users.js";
 import spotsRouter from "./spots.js";
-import {spotsData} from "../data/index.js";
-
+import { spotsData } from "../data/index.js";
+import contestRouter from "./contest.js";
 const constructorMethod = (app) => {
   app.use("/users", usersRouter);
   app.use("/spots", spotsRouter);
-
+  app.use("/contest", contestRouter);
   app.use("*", async (req, res) => {
     const allSpots = await spotsData.getAllSpots(undefined, {});
     res.render("spots/allSpots", {
       spots: allSpots,
-      styles: [
-        `<link rel="stylesheet" href="/public/css/allSpots.css">`,
-      ],
+      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
       scripts: [
-          `<script type="module" src="/public/js/spots/filters.js"></script>`,
-        ],
+        `<script type="module" src="/public/js/spots/filters.js"></script>`,
+      ],
       user: req.session.user,
     });
   });

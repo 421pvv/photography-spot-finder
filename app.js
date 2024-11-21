@@ -4,11 +4,9 @@ import configRoutes from "./routes/index.js";
 import secrets from "./config/secrets.js";
 import session from "express-session";
 import exphbs from "express-handlebars";
-import logging from "./log.js";
 import logger from "./log.js";
-import log from "./log.js";
 import dotenv from "dotenv";
-
+import xss from "xss";
 dotenv.config();
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -36,6 +34,20 @@ app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
 app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
 app.set("view engine", "handlebars");
+
+// sanatize all inputs
+app.use("*", (req, res, next) => {
+  for (const [key, val] of Object.entries(req.query)) {
+    req.query[key] = xss(val);
+  }
+  for (const [key, val] of Object.entries(req.params)) {
+    req.params[key] = xss(val);
+  }
+  for (const [key, val] of Object.entries(req.body)) {
+    req.body[key] = xss(val);
+  }
+  next();
+});
 
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
