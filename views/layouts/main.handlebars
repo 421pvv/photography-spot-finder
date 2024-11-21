@@ -16,8 +16,8 @@
   {{{this}}}
   {{/each}}
   {{/if}}
-  <script defer src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
-  crossorigin="anonymous"></script>
+  <script defer src="https://code.jquery.com/jquery-3.5.1.js"
+    integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
 </head>
 
 <body>
@@ -29,7 +29,7 @@
 
         {{#if user}}
         <li><a href="/spots/new">Add Spot</a></li>
-        <li><a href="/users/profile">Profile</a></li>
+        <li><a href="/users/profile/{{user.username}}">Profile</a></li>
         <li><a href="/users/logout">Logout</a></li>
         {{else}}
         <li><a href="/users/login">Login</a></li>
@@ -41,7 +41,7 @@
 
   <main>
     {{{body}}}
-    
+
   </main>
 
   <footer>

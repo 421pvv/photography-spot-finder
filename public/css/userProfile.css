@@ -1,0 +1,91 @@
+main {
+  max-width: 95%;
+  margin: 1.25em auto;
+  padding: 1.25em;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25em;
+}
+
+.user_profile_details_section {
+  text-align: center;
+  padding: 1.25em;
+  background-color: #ffffff;
+  border-radius: 0.625em;
+  box-shadow: 0 0.125em 0.3125em rgba(0, 0, 0, 0.1);
+  margin-bottom: 1.25em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.activity-sections {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(40em, 1fr));
+  gap: 1.25em;
+}
+
+.user-activity {
+  background-color: #ffffff;
+  border-radius: 0.5em;
+  box-shadow: 0 0.0625em 0.25em rgba(0, 0, 0, 0.1);
+  padding: 0.9375em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.user-activity h2 {
+  font-size: 1.5em;
+  color: #444444;
+  margin-bottom: 0.625em;
+  border-bottom: 0.125em solid #dddddd;
+  padding-bottom: 0.3125em;
+}
+
+.scrolltype {
+  max-height: 75em;
+  overflow-y: auto;
+  border: 0.0625em solid #dddddd;
+  padding: 0.625em;
+  border-radius: 0.3125em;
+  background-color: #ffffff;
+}
+
+.scrolltype section {
+  margin: 0.3125em 0;
+}
+
+#NotFound {
+  color: #444444;
+  background-color: #ffeeee;
+  padding: 0.9375em;
+  border-radius: 0.3125em;
+  text-align: center;
+}
+
+.user-activity .scrolltype section {
+  margin: 0.625em 0;
+  padding: 0.625em;
+  border: 0.0625em solid #dddddd;
+  border-radius: 0.5em;
+  background-color: #ffffff;
+  box-shadow: 0 0.125em 0.25em rgba(0, 0, 0, 0.1);
+  font-size: 0.9em;
+  color: #333333;
+  word-wrap: break-word;
+}
+
+.user-activity .scrolltype section:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 0.1875em 0.375em rgba(0, 0, 0, 0.2);
+}
+
+.spot-image-user-profile {
+  width: 35em;
+  height: 20em;
+  display: block;
+  margin: auto;
+}
+
+@media (max-width: 48em) {
+  .activity-sections {
+    grid-template-columns: 1fr;
+  }
+}

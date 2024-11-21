@@ -1,9 +1,16 @@
-import { users } from "../config/mongoCollections.js";
+import {
+  users,
+  spots,
+  comments,
+  spotRatings,
+  contestSubmissions,
+} from "../config/mongoCollections.js";
 import { SALT_ROUNDS } from "../config/secrets.js";
 import validation from "../validation.js";
 import bcrypt from "bcrypt";
 import logger from "../log.js";
 import { ObjectId } from "mongodb";
+import { spotsData } from "./index.js";
 
 export const createUser = async (firstName, lastName, username, password) => {
   firstName = validation.validateString(firstName, "First Name");
@@ -218,6 +225,133 @@ const verifyNewUsername = async (username) => {
     throw [`Another user is already using username (${username})`];
 };
 
+const getUserProfileByUsername = async (username) => {
+  username = validation
+    .validateString(username, "username", false)
+    .toLowerCase();
+
+  const filter = {
+    username: username,
+  };
+
+  let options = {};
+  options.projection = {
+    _id: 1,
+    password: 0,
+  };
+
+  const usersCollection = await users();
+  const userInfo = await usersCollection.findOne(filter, options);
+  if (!userInfo) throw [`Could not find user with username (${username})`];
+  userInfo._id = userInfo._id.toString();
+  return userInfo;
+};
+
+const getUserComments = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const commentsCollection = await comments();
+  const commentsOfUser = await commentsCollection
+    .find({
+      posterId: ObjectId.createFromHexString(userId),
+    })
+    .toArray();
+  if (!commentsOfUser) {
+    throw [`Could not get comments of the user with id ${userId}`];
+  }
+  commentsOfUser.forEach(
+    (userComment) => (userComment.spotId = userComment.spotId.toString())
+  );
+  return commentsOfUser;
+};
+
+const getAndUpdateUserFavoriteSpots = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const usersCollection = await users();
+  let options = {};
+  options.projection = {
+    _id: 1,
+    password: 0,
+  };
+  const user = await usersCollection.findOne(
+    {
+      _id: ObjectId.createFromHexString(userId),
+    },
+    options
+  );
+  if (!user) {
+    throw [`Could not find user with id ${userId}`];
+  }
+  const favSpots = user.favoriteSpots;
+  let userSpots = [];
+  let notDeletedFavSpots = [];
+  let deletedSpots = [];
+  for (let favSpot of favSpots) {
+    try {
+      let spot = await spotsData.getSpotById(favSpot.toString());
+      if (spot.reportCount < 20) {
+        spot._id = spot._id.toString();
+        userSpots.push(spot);
+      }
+      notDeletedFavSpots.push(favSpot);
+    } catch (e) {
+      deletedSpots.push(favSpot);
+    }
+  }
+  const updateObj = { favoriteSpots: notDeletedFavSpots };
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(userId) },
+    { $set: updateObj },
+    { returnDocument: "after" }
+  );
+  if (!updatedUser) {
+    throw ["Could not update the user successfully"];
+  }
+  return userSpots;
+};
+
+const getUserSubmittedSpots = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const spotsCollection = await spots();
+  const userSpots = await spotsCollection
+    .find({ posterId: ObjectId.createFromHexString(userId) })
+    .toArray();
+  if (!userSpots) {
+    throw [`Could not get spots of the user with id of ${userId}`];
+  }
+  return userSpots;
+};
+
+const getUserRatings = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const ratingsCollection = await spotRatings();
+  const userRatings = await ratingsCollection
+    .find({ posterId: ObjectId.createFromHexString(userId) })
+    .toArray();
+  if (!userRatings) {
+    throw [`Could not get ratings of the user with id of ${userId}`];
+  }
+  userRatings.forEach(async (rating) => {
+    try {
+      rating.spot = await spotsData.getSpotById(rating.spotId.toString());
+    } catch (e) {
+      logger.log(`Spot with id ${rating.spotId} has been deleted.`);
+    }
+  });
+  return userRatings;
+};
+
+const getUserContestSubmissions = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const constestSubmissionsCollection = await contestSubmissions();
+  let userContestSubmissions = await constestSubmissionsCollection
+    .find({ posterId: ObjectId.createFromHexString(userId) })
+    .toArray();
+  if (!userContestSubmissions) {
+    throw [`Could not get ratings of user with id of ${userId}`];
+  }
+  return userContestSubmissions;
+};
+
 export default {
   createUser,
   getUserByUsername,
@@ -225,4 +359,10 @@ export default {
   verifyNewUsername,
   getUserProfileById,
   updateUserProfile,
+  getUserProfileByUsername,
+  getUserComments,
+  getAndUpdateUserFavoriteSpots,
+  getUserSubmittedSpots,
+  getUserRatings,
+  getUserContestSubmissions,
 };

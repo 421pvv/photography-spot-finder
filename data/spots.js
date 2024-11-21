@@ -166,12 +166,9 @@ const getAllSpots = async (keyword, filter) => {
 const getSpotById = async (id) => {
   id = validation.validateString(id, "id", true);
   const spotsCollection = await spots();
-  const spot = await spotsCollection.findOne(
-    {
-      _id: ObjectId.createFromHexString(id),
-    },
-    {}
-  );
+  const spot = await spotsCollection.findOne({
+    _id: ObjectId.createFromHexString(id),
+  });
   if (spot === null) {
     throw [`No spot with id of ${id}`];
   }
@@ -325,6 +322,17 @@ const deleteSpot = async (spotId, userId) => {
   // delete all images from cloud
   const orphanImages = curSpot.images.map((image) => image.public_id);
   await cloudinaryData.deleteImages(orphanImages);
+
+  // deleting spot's ratings and comments
+  // const commentsCollection = await comments();
+  // await commentsCollection.deleteMany({
+  //   spotId: ObjectId.createFromHexString(spotId),
+  // });
+
+  // const ratingsCollection = await spotRatings();
+  // await ratingsCollection.deleteMany({
+  //   spotId: ObjectId.createFromHexString(spotId),
+  // });
 
   return curSpot;
 };
