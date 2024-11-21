@@ -10,7 +10,7 @@
   <ul>
     {{#each spots}}
     <li>
-      <h2><a href="/contest/submissions/{{this._id}}">
+      <h2><a href="/contest/{{this._id}}">
           {{this.name}}
         </a></h2>
       <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
@@ -26,7 +26,5 @@
     </li>
     {{/each}}
   </ul>
-  {{else}}
-  <p>No spots available.</p>
   {{/if}}
 </section>

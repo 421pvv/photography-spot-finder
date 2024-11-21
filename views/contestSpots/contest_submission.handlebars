@@ -55,75 +55,63 @@
     <section>
         <h2>Location</h2>
         <div id="map"></div>
+        <button id="mapRecenter">Recenter map</button>
     </section>
 
     {{#if viewingUser._id}}
     <div id="userInteractionsDiv">
-        <section>
-            <h3>Add Comment</h3>
 
-            <form action="/spots/addComment/{{spot._id}}" id="addCommentForm" method="POST" class="detailForms">
-                <label for="commentInput">
-                    Enter comment (optinal)
-                    {{#if addComment}}
-                    <input name="message" type="text" value="{{addComment.message}}" id="commentInput">
-                    {{else}}
-                    <input name="message" type="text" value="" id="commentInput">
-                    {{/if}}
-                </label>
-                <label id="imageUploadLabel">
-                    Upload Image
-                    <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
-                </label>
+        <form id="addSubmissionForm" class="detailForms">
+            <h2>Join the contest!</h2>
 
-                <input type="hidden" name="image" id="commentImage" value="">
-                <input type="hidden" name="orphanImages" id="removeImages" value="">
+            <label id="imageUploadLabel" for="upload_widget">
+                Upload Image
+            </label>
 
-                <input type="submit" id="commentSubmit">
+            <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
 
-            </form>
+            <input type="hidden" name="image" id="submissionImage" value="">
+            <input type="hidden" name="orphanImages" id="removeImages" value="">
+            <input type="hidden" name="spotId" id="spotId" value="{{spot._id}}">
 
+            <p id="contestDisclaimer">*Only one image submission per contest spot allowed! Cannot edit submission for a
+                contest spot!*</p>
+            <input type="submit" id="commentSubmit">
 
-            <div id="imageUploadPreviews">
-                {{#if addComment}}
-                {{#if addComment.image.public_id}}
-                <div id="{{addComment.image.public_id}}" class="previewImageContainer">
-                    <img src="{{addComment.image.url}}">
-                    <span class="removeImageIcon">❌</span>
-                </div>
-                {{/if}}
-                {{/if}}
-
+            <div id="contestSubmissionErrors">
             </div>
 
-            <div id="spotCommentErrors">
-                {{#if addComment}}
-                {{#if addComment.errors}}
-                {{#each addComment.errors}}
-                <p class="formInputError">{{this}}</p>
-                {{/each}}
-                {{/if}}
-                {{/if}}
+        </form>
+
+        <div id="imageUploadPreviews">
+            {{#if addComment}}
+            {{#if addComment.image.public_id}}
+            <div id="{{addComment.image.public_id}}" class="previewImageContainer">
+                <img src="{{addComment.image.url}}">
+                <span class="removeImageIcon">❌</span>
             </div>
-        </section>
+            {{/if}}
+            {{/if}}
+        </div>
+
+
     </div>
     {{/if}}
 
     <section>
-        <h2>Comments</h2>
+        <h2>Submissions</h2>
 
-        <ul id="comments-list">
-            {{#each comments}}
+        <ul id="submission-list">
+            {{#each submissions}}
             <li>
-                <div class="comment-item">
-                    <div class="comment-content">
-                        <p class="comment-main">{{this.message}}</p>
+                <div class="submitted-item">
+                    <div class="submitted-content">
                         {{#if this.image}}
-                        <img alt="{{this.poster.firstName}} {{this.poster.lastName}} comment image"
+                        <img alt="{{this.poster.firstName}} {{this.poster.lastName}}'s contest submission image"
                             src="{{this.image.url}}">
                         {{/if}}
                     </div>
-                    <div class="comment-meta ">
+                    <div class="submitted-meta ">
                         <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
                         <p>Posted at {{this.createdAt}}</p>
                     </div>
@@ -132,6 +120,7 @@
             {{/each}}
         </ul>
     </section>
+
 </article>
 
 <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
@@ -172,7 +161,11 @@
     map.on('style.load', () => {
         map.setFog({});
     });
-</script>
 
-<script type="module" src="/public/js/spots/addSpotComment.js"> </script>
-<script type="module" src="/public/js/spots/addSpotRating.js"> </script>
+    $("#mapRecenter").click(() => {
+        map.flyTo({
+            center: defaultLoc,
+            zoom: 15
+        })
+    })
+</script>
