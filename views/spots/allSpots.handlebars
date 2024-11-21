@@ -8,11 +8,11 @@
   <form id="filterForm" action="/spots/search" method="GET">
     <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
 
-    <button type="button" id="filterButton" onclick="toggleFilter()">Filter Options</button>
+    <button type="button" id="filterButton">Filter Options</button>
     <div id="filterOptions" hidden="true">
       {{> filterOptions }}
     </div>
-    <button type="submit">Search</button>
+    <button type="submit" id="applyFilterButton">Search</button>
   </form>
 </div>
 
@@ -31,19 +31,19 @@
   <ul>
     {{#each spots}}
     <li>
-      <h2>{{this.name}}</h2>
-      <p>Images:
-        {{#each this.images}} <span>{{this}}</span> {{/each}}
-      </p>
+      <h2><a href="/spots/details/{{this._id}}">
+          {{this.name}}
+        </a></h2>
+      <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
+        onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg" />
 
-      <p>Tags:
-        {{#each this.tags}} <span>{{this}}</span> {{/each}}
-      </p>
-      <p>Ratings: {{this.avgRating}}</p>
-      <p> Date Posted: {{this.createdAt}}</p>
-      <a href="/spots/details/{{this._id}}">
-        <p>See details</p>
-      </a>
+      <div class="spot-info">
+        <p>Tags:
+          {{#each this.tags}} <span>{{this}}</span> {{/each}}
+        </p>
+        <p>Average Rating: {{this.averageRating}} out of 10</p>
+        <p> Posted on {{this.createdAt}}</p>
+      </div>
     </li>
     {{/each}}
   </ul>
@@ -51,20 +51,3 @@
   <p>No spots available.</p>
   {{/if}}
 </section>
-
-<script>
-  function toggleFilter() {
-    const filterOptions = document.getElementById('filterOptions');
-    const searchButton = document.getElementById('spotsSearchButton');
-
-    if (filterOptions.hasAttribute('hidden')) {
-      filterOptions.removeAttribute('hidden');
-      searchButton.value = "Apply Filters";
-    } else {
-      filterOptions.setAttribute('hidden', true);
-      searchButton.value = "Search";
-    }
-  }
-</script>
-
-<script type="module" src="/public/js/spots/filters.js"></script>

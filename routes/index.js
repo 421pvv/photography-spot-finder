@@ -10,6 +10,12 @@ const constructorMethod = (app) => {
     const allSpots = await spotsData.getAllSpots(undefined, {});
     res.render("spots/allSpots", {
       spots: allSpots,
+      styles: [
+        `<link rel="stylesheet" href="/public/css/allSpots.css">`,
+      ],
+      scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
       user: req.session.user,
     });
   });

@@ -819,6 +819,10 @@ router.route("/search").get(async (req, res) => {
         return res.status(400).render("spots/allSpots", {
           spots: [],
           user: req.session.user,
+          styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+          scripts: [
+            `<script type="module" src="/public/js/spots/filters.js"></script>`,
+          ],
           keyword: keyword,
           errors: ["Invalid filter keyword"],
         });
@@ -828,84 +832,134 @@ router.route("/search").get(async (req, res) => {
       keyword = undefined;
     }
 
-    if (tags) {
-      //spots = await spotsData.getSpotsByTags(tags.split(','));
-      tags = tags.split(",");
-      for (const tagI in tags) {
-        let tag = tags[tagI];
-        tags[tagI] = validation.validateString(tag, "tag");
-      }
+    try {
+      if (tags) {
+        tags = tags.split(",");
+        for (const tagI in tags) {
+          let tag = tags[tagI];
+          tags[tagI] = validation.validateString(tag, "tag");
+        }
 
-      filter.tag = tags;
+        filter.tag = tags;
+      }
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
     }
 
-    if (minRating) {
-      minRating = parseFloat(minRating);
-      validation.validateNumber(minRating);
-      if (minRating > 10 || minRating < 0) {
-        errors.push("Min Rating must be between 1 and 10 (inclusive)");
+    try {
+      if (minRating) {
+        minRating = parseFloat(minRating);
+        validation.validateNumber(minRating);
+        if (minRating > 10 || minRating < 0) {
+          errors.push("Min Rating must be between 0 and 10 (inclusive)");
+        }
+        filter.minRating = minRating;
       }
-      filter.minRating = minRating;
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
     }
 
-    if (fromDate) {
-      validation.validateString(fromDate);
-      try {
-        fromDate = new Date(fromDate);
-      } catch (e) {
-        errors.push("From date is invalid");
-      }
+    try {
+      if (fromDate) {
+        validation.validateString(fromDate);
+        try {
+          fromDate = new Date(fromDate);
+        } catch (e) {
+          errors.push("From date is invalid");
+        }
 
-      if (isNaN(fromDate)) {
-        errors.push("From date is invalid");
-      } else if (fromDate < new Date(2024, 10, 1)) {
-        errors.push("From date must be after or on November 1, 2024");
-      }
+        if (isNaN(fromDate)) {
+          errors.push("From date is invalid");
+        } else if (fromDate < new Date(2024, 10, 1)) {
+          errors.push("From date must be after or on November 1, 2024");
+        }
 
-      filter.fromDate = fromDate;
+        filter.fromDate = fromDate;
+      }
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
     }
 
-    if (toDate) {
-      validation.validateString(toDate);
-      try {
-        toDate = new Date(toDate);
-      } catch (e) {
-        errors.push("To date is invalid");
-      }
+    try {
+      if (toDate) {
+        validation.validateString(toDate);
+        try {
+          toDate = new Date(toDate);
+        } catch (e) {
+          errors.push("To date is invalid");
+        }
 
-      if (isNaN(toDate)) {
-        errors.push("To date is invalid");
-      } else if (toDate > new Date()) {
-        errors.push("To date cannot be after current time");
-      }
+        if (isNaN(toDate)) {
+          errors.push("To date is invalid");
+        } else if (toDate > new Date()) {
+          errors.push("To date cannot be after current time");
+        }
 
-      filter.toDate = toDate;
+        filter.toDate = toDate;
+      }
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
     }
+
+    if (errors.length > 0) {
+      console.error("User input error:", errors);
+      return res.status(400).render("spots/allSpots", {
+        spots: [],
+        user: req.session.user,
+        keyword: keyword,
+        styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+        scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
+        errors,
+      });
+    }
+
     logger.log("Fetching all spots with keyword: ", keyword);
     logger.log(filter);
-    const spots = await spotsData.getAllSpots(keyword, filter);
-    res.render("spots/allSpots", {
-      spots: spots,
-      user: req.session.user,
-      keyword: keyword,
-      invalidResourceErrors: req.session.invalidResourceErrors,
-    });
-    delete req.session.invalidResourceErrors;
+    try {
+      const spots = await spotsData.getAllSpots(keyword, filter);
+      res.render("spots/allSpots", {
+        spots: spots,
+        styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+        scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
+        user: req.session.user,
+        keyword: keyword,
+        invalidResourceErrors: req.session.invalidResourceErrors,
+      });
+      delete req.session.invalidResourceErrors;
+      return;
+    } catch (e) {
+      logger.log(e);
+      res.status(500).render("spots/allSpots", {
+        spots: [],
+        user: req.session.user,
+        keyword: keyword,
+        styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+        scripts: [
+          `<script type="module" src="/public/js/spots/filters.js"></script>`,
+        ],
+        errors: ["There was a server error. Please try again."],
+      });
+    }
   } catch (err) {
     console.error("Error during search:", err.message || err);
     res.status(400).render("spots/allSpots", {
       spots: [],
       user: req.session.user,
       // keyword: keyword,
-      errors: [err.message || "An unknown error occurred."],
+      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+      scripts: [
+        `<script type="module" src="/public/js/spots/filters.js"></script>`,
+      ],
+      errors: ["An unknown error occurred."],
     });
   }
-
-  // const spots = await spotsData.getAllSpots(keyword, filter);
-  // res.render("spots/allSpots", {
-  //   spots: spots,
-  //   user: req.session.user,
-  //   keyword: keyword,
-  // });
 });
 export default router;
