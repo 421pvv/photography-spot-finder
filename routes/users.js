@@ -99,14 +99,6 @@ router
   .post(async (req, res) => {
     const loginData = req.body;
     let errors = [];
-    try {
-      loginData.username = validation.validateUsername(
-        loginData.username,
-        "Username"
-      );
-    } catch (e) {
-      errors = errors.concat(e);
-    }
 
     try {
       validation.validateLoginPassword(loginData.password, "Password");
@@ -129,7 +121,7 @@ router
         loginData.password
       );
     } catch (e) {
-      errors = errors.concat(e);
+      errors = errors.concat("Username or Password is invalid!");
     }
     logging.log(errors);
 
@@ -160,7 +152,7 @@ router.route("/logout").get(async (req, res) => {
 router.route("/profile").get(async (req, res) => {
   res.render("users/profile", {
     user: req.session.user,
-    authErrors: req.session.authorizationErrors, 
+    authErrors: req.session.authorizationErrors,
   });
   delete req.session.authorizationErrors;
 });
