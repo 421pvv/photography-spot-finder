@@ -14,10 +14,10 @@ const getContestSpotsById = async (spotId) => {
         spotId = validation.validateString(spotId, "id", true);
         const contestSpotsList = await contestSpots();
         const contenstSpotId = await contestSpotsList.findOne({
-            _id: ObjectId.createFromHexString(id),
+            _id: ObjectId.createFromHexString(spotId),
         })
           if (contenstSpotId === null) {
-            throw [`No spot with id of ${id}`];
+            throw [`No spot with id of ${spotId}`];
           }
           return spot;
 }
@@ -48,6 +48,7 @@ const getSubmissionsForContestSpot = async (spotId) => {
               _id: 1,
               url: "$image.url",
               createdAt: 1,
+              posterId: "$poster._id",
               firstName: "$poster.firstName",
               lastName: "$poster.lastName",
               username: "$poster.username",
