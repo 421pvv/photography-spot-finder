@@ -1,4 +1,4 @@
-import { spotsData, userData } from "../data/index.js";
+import { contestData, spotsData, userData } from "../data/index.js";
 import express from "express";
 import validation from "../validation.js";
 import logger from "../log.js";
@@ -12,16 +12,14 @@ import {
 import log from "../log.js";
 const router = express.Router();
 
-//TODO remove imports
-import { contestSpots } from "../config/mongoCollections.js";
+
 
 router.route("/").get(async (req, res) => {
   let errors = [];
 
-  // TODO replace with data func
   let contestSpotsData;
   try {
-    contestSpotsData = await (await contestSpots()).find({}).toArray();
+    contestSpotsData = await contestData.getContestSpotsList()
   } catch (e) {
     errors.push("Failed to fetch contest spots. Please try again later.");
   }
@@ -52,13 +50,8 @@ router
     }
 
     try {
-      spotInfo = await spotsData.getSpotById(spotId);
-      //
-      spotInfo = await (
-        await contestSpots()
-      ).findOne({
-        _id: ObjectId.createFromHexString(spotId),
-      });
+      const spotInfo = await contestData.getContestSpotsById(spotId);
+      const submissions = await contestData.getSubmissionsForContestSpot(spotId);
     } catch (e) {
       logger.log(e);
       errors = errors.concat(`No contest spot with id ${spotId} exists!`);
@@ -121,46 +114,47 @@ router
 
     let submissions;
     try {
+        submissions = await contestData.getSubmissionsForContestSpot()
       //TODO replace with data func
-      submissions = await (
-        await contestSubmissions()
-      )
-        .aggregate([
-          {
-            $match: {
-              contestSpotId: ObjectId.createFromHexString(spotId),
-            },
-          },
-          {
-            $lookup: {
-              from: "users",
-              localField: "posterId",
-              foreignField: "_id",
-              as: "poster",
-            },
-          },
-          {
-            $unwind: "$poster",
-          },
-          {
-            $project: {
-              _id: 1,
-              url: "$image.url",
-              createdAt: 1,
-              firstName: "$poster.firstName",
-              lastName: "$poster.lastName",
-              username: "$poster.username",
-            },
-          },
-        ])
-        .toArray();
+      // submissions = await (
+      //   await contestSubmissions()
+      // )
+      //   .aggregate([
+      //     {
+      //       $match: {
+      //         contestSpotId: ObjectId.createFromHexString(spotId),
+      //       },
+      //     },
+      //     {
+      //       $lookup: {
+      //         from: "users",
+      //         localField: "posterId",
+      //         foreignField: "_id",
+      //         as: "poster",
+      //       },
+      //     },
+      //     {
+      //       $unwind: "$poster",
+      //     },
+      //     {
+      //       $project: {
+      //         _id: 1,
+      //         url: "$image.url",
+      //         createdAt: 1,
+      //         firstName: "$poster.firstName",
+      //         lastName: "$poster.lastName",
+      //         username: "$poster.username",
+      //       },
+      //     },
+      //   ])
+      //   .toArray();
 
-      submissions = submissions.map((submision) => {
-        // convert date displayble
-        submision.createdAt = new Date(submision.createdAt).toString();
-        submision._id = submision._id.toString();
-        return submision;
-      });
+      // submissions = submissions.map((submision) => {
+      //   // convert date displayble
+      //   submision.createdAt = new Date(submision.createdAt).toString();
+      //   submision._id = submision._id.toString();
+      //   return submision;
+      // });
       logger.log("Submissions", submissions);
       renderProps.submissions = submissions;
     } catch (e) {
