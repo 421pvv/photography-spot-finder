@@ -1,0 +1,1 @@
+[{"_id":{"$oid":"67409441369091c53465c41d"},"contestSpotId":{"$oid":"67335979451909293ded1c65"},"image":{"url":"https://res.cloudinary.com/db7w46lyt/image/upload/v1732285501/rgi1vcvaafotoklucs9d.jpg","public_id":"rgi1vcvaafotoklucs9d"},"posterId":{"$oid":"507f191e810c19729de860ea"},"createdAt":{"$date":"2024-11-22T14:25:05.851Z"},"reportCount":0}]
