@@ -169,3 +169,14 @@ a:hover {
   text-decoration: underline;
   color: rgb(135, 19, 237);
 }
+
+#mapRecenter {
+  cursor: pointer;
+  display: block;
+  margin-left: auto;
+  padding: 0.8em 1.25em;
+  box-sizing: border-box;
+  background-color: #00ff33;
+  border-radius: 1em;
+  font-size: 1em;
+}

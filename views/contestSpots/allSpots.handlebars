@@ -1,0 +1,31 @@
+<div class="invalidResourceError">
+  {{#each invalidResourceErrors}}
+  <p>{{this}}</p>
+  {{/each}}
+</div>
+
+
+<section id="spotsList">
+  <h1 class="page_title">Contest Spots</h1>
+  {{#if spots.length}}
+  <ul>
+    {{#each spots}}
+    <li>
+      <h2><a href="/contest/{{this._id}}">
+          {{this.name}}
+        </a></h2>
+      <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
+        onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg" />
+
+      <div class="spot-info">
+        <p>Tags:
+          {{#each this.tags}} <span>{{this}}</span> {{/each}}
+        </p>
+        <p>Average Rating: {{this.averageRating}} out of 10</p>
+        <p> Posted on {{this.createdAt}}</p>
+      </div>
+    </li>
+    {{/each}}
+  </ul>
+  {{/if}}
+</section>

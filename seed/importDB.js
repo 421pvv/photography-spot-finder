@@ -13,7 +13,15 @@ import { initDB } from "./seed.js";
 async function importDB(fileName) {
   await initDB();
   const db = await dbConnection();
-  const collections = ["users", "spotRatings", "comments", "spots"];
+  const collections = [
+    "users",
+    "spotRatings",
+    "comments",
+    "spots",
+    "contestSpots",
+    "contestSubmissions",
+    "contestRatings",
+  ];
   for (const collection of collections) {
     const command = `mongoimport --uri="${mongoConfig.serverUrl}" --db=${
       mongoConfig.database

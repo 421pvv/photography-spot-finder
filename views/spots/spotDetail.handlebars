@@ -21,7 +21,7 @@
             <p><a href="/users/profile/{{poster.username}}">View Profile</a></p>
 
             {{#if viewingUser.originalPoster}}
-            <p><a href="/spots/edit/{{spot.username}}">Edit Spot</a></p>
+            <p><a href="/spots/edit/{{spot._id}}">Edit Spot</a></p>
             {{/if}}
         </section>
     </div>
@@ -55,6 +55,8 @@
     <section>
         <h2>Location</h2>
         <div id="map"></div>
+        <button id="mapRecenter">Recenter map</button>
+
     </section>
 
     {{#if viewingUser._id}}
@@ -188,13 +190,26 @@
 
     map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
         center: defaultLoc,
+        style: 'mapbox://styles/mapbox/satellite-v9',
+        projection: "globe",
         zoom: 15
     });
     marker = new mapboxgl.Marker()
         .setLngLat(defaultLoc)
         .addTo(map);
+
+    map.on('style.load', () => {
+        map.setFog({});
+    });
+
+
+    $("#mapRecenter").click(() => {
+        map.flyTo({
+            center: defaultLoc,
+            zoom: 15
+        })
+    })
 </script>
 
 <script type="module" src="/public/js/spots/addSpotComment.js"> </script>

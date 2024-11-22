@@ -55,20 +55,36 @@ article h2 {
 }
 
 #userInteractionsDiv {
-  margin: 2%;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  margin: 5% auto;
+  display: block;
   width: 100%;
 }
-
-#userInteractionsDiv section {
-  width: 40%;
+#userInteractionsDiv h2 {
+  display: block;
+  text-align: center;
+  margin: 2% auto;
 }
+
 #userInteractionsDiv label {
   display: block;
+  text-align: center;
+  margin: 2% auto;
+  margin-top: 5%;
 }
 
+#upload_widget {
+  display: block;
+  background-color: black;
+  margin: 2% auto;
+}
+
+#userInteractionsDiv input[type="submit"] {
+  margin-top: 4%;
+}
+
+#contestDisclaimer {
+  font-size: 0.8em;
+}
 #imageUploadPreviews {
   margin-top: 5%;
   display: flex;
@@ -154,7 +170,7 @@ article h2 {
   font-size: 1em;
 }
 
-section h3 {
+section h2 {
   text-align: center;
 }
 .detailForms {
@@ -190,7 +206,8 @@ input[type="file"] {
   display: block;
   text-align: center;
 }
-.detailForms input[type="submit"] {
+.detailForms input[type="submit"],
+button {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -212,4 +229,44 @@ input[type="file"] {
 }
 .detailForms input[type="submit"]:hover {
   background-color: #00ff33;
+}
+
+#submission-list {
+  list-style-type: none;
+  padding: 0;
+}
+
+#submission-list li {
+  display: block;
+  margin: 2% auto;
+  border-radius: 1em;
+  padding: 3%;
+  background-color: #fbf8ef;
+  box-shadow: 0.15 0.05;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+}
+
+.submitted-item {
+  margin: 5% auto;
+  height: 20%;
+  place-items: center;
+}
+
+.submitted-item img {
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+  max-height: 25vh;
+  min-height: none;
+  width: auto;
+  border-radius: 1em;
+  max-width: 100%;
+}
+
+.submitted-meta {
+  margin-left: auto;
+}
+.submitted-meta p {
+  font-size: 0.9em;
+  color: rgb(105, 105, 105);
 }
