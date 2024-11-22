@@ -27,6 +27,7 @@ router.route("/").get(async (req, res) => {
 
   const props = {
     spots: contestSpotsData,
+    user: req.session.user,
     errors,
     styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
   };
