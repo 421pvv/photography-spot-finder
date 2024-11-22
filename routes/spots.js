@@ -844,22 +844,30 @@ router.route("/search").get(async (req, res) => {
       filter.tag = tags;
     }
 
-    if (minRating) {
-      minRating = parseFloat(minRating);
-      validation.validateNumber(minRating);
-      if (minRating > 10 || minRating < 0) {
-        errors.push("Min Rating must be between 0 and 10 (inclusive)");
+    filter.tag = tags;
+
+    try {
+      if (minRating) {
+        minRating = parseFloat(minRating);
+        validation.validateNumber(minRating);
+        if (minRating > 10 || minRating < 0) {
+          errors.push("Min Rating must be between 0 and 10 (inclusive)");
+        }
+        filter.minRating = minRating;
       }
-      filter.minRating = minRating;
+    } catch (e) {
+      logger(e);
+      errors = errors.concat(e);
     }
 
-    if (fromDate) {
-      validation.validateString(fromDate);
-      try {
-        fromDate = new Date(fromDate);
-      } catch (e) {
-        errors.push("From date is invalid");
-      }
+    try {
+      if (fromDate) {
+        validation.validateString(fromDate);
+        try {
+          fromDate = new Date(fromDate);
+        } catch (e) {
+          throw "From date is invalid";
+        }
 
       if (isNaN(fromDate)) {
         errors.push("From date is invalid");
@@ -878,13 +886,17 @@ router.route("/search").get(async (req, res) => {
         errors.push("To date is invalid");
       }
 
-      if (isNaN(toDate)) {
-        errors.push("To date is invalid");
-      } else if (toDate > new Date()) {
-        errors.push("To date cannot be after current time");
-      }
+        if (isNaN(toDate)) {
+          throw "To date is invalid";
+        } else if (toDate > new Date()) {
+          throw "To date cannot be after current time";
+        }
 
-      filter.toDate = toDate;
+        filter.toDate = toDate;
+      }
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
     }
     logger.log("Fetching all spots with keyword: ", keyword);
     logger.log(filter);

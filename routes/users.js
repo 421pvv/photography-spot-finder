@@ -100,14 +100,6 @@ router
   .post(async (req, res) => {
     const loginData = req.body;
     let errors = [];
-    try {
-      loginData.username = validation.validateUsername(
-        loginData.username,
-        "Username"
-      );
-    } catch (e) {
-      errors = errors.concat(e);
-    }
 
     try {
       validation.validateLoginPassword(loginData.password, "Password");
@@ -130,7 +122,7 @@ router
         loginData.password
       );
     } catch (e) {
-      errors = errors.concat(e);
+      errors = errors.concat("Username or Password is invalid!");
     }
     logging.log(errors);
 
@@ -191,13 +183,6 @@ router.route("/profile/:username").get(async (req, res) => {
     profile: userProfile,
     user: req.session.user,
     authErrors: req.session.authorizationErrors,
-    sameUser: sameUser,
-    styles: [`<link rel="stylesheet" href="/public/css/userProfile.css">`],
-    favoriteSpots: userFavoriteSpots,
-    submittedSpots: userSubmittedSpots,
-    comments: userComments,
-    ratings: userRatings,
-    contestSubmissions: userContestSubmissions,
   });
   delete req.session.authorizationErrors;
 });
