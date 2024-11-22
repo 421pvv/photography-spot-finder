@@ -12,14 +12,12 @@ import {
 import log from "../log.js";
 const router = express.Router();
 
-
-
 router.route("/").get(async (req, res) => {
   let errors = [];
 
   let contestSpotsData;
   try {
-    contestSpotsData = await contestData.getContestSpotsList()
+    contestSpotsData = await contestData.getContestSpotsList();
   } catch (e) {
     errors.push("Failed to fetch contest spots. Please try again later.");
   }
@@ -28,10 +26,12 @@ router.route("/").get(async (req, res) => {
   const props = {
     spots: contestSpotsData,
     user: req.session.user,
+    invalidResourceErrors: req.session.invalidResourceErrors,
     errors,
     styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
   };
 
+  delete req.session.invalidResourceErrors;
   res.render("contestSpots/allSpots", props);
 });
 
@@ -41,23 +41,22 @@ router
     let errors = [];
     let spotId;
     let spotInfo;
-
+    let submissions;
     try {
       spotId = validation.validateString(req.params.spotId);
     } catch (e) {
       logger.log(e);
       req.session.invalidResourceErrors = [`${spotId} is not a valid id!`];
-      return res.status(400).redirect("/spots/search");
+      return res.status(400).redirect("/contest");
     }
 
     try {
-      const spotInfo = await contestData.getContestSpotsById(spotId);
-      const submissions = await contestData.getSubmissionsForContestSpot(spotId);
+      spotInfo = await contestData.getContestSpotsById(spotId);
     } catch (e) {
       logger.log(e);
       errors = errors.concat(`No contest spot with id ${spotId} exists!`);
       req.session.invalidResourceErrors = errors;
-      return res.status(404).redirect("/spots/search");
+      return res.status(404).redirect("/contest");
     }
 
     logger.log("Rendering spot details for :", spotId);
@@ -113,49 +112,8 @@ router
       viewingUser: viewUser,
     };
 
-    let submissions;
     try {
-        submissions = await contestData.getSubmissionsForContestSpot()
-      //TODO replace with data func
-      // submissions = await (
-      //   await contestSubmissions()
-      // )
-      //   .aggregate([
-      //     {
-      //       $match: {
-      //         contestSpotId: ObjectId.createFromHexString(spotId),
-      //       },
-      //     },
-      //     {
-      //       $lookup: {
-      //         from: "users",
-      //         localField: "posterId",
-      //         foreignField: "_id",
-      //         as: "poster",
-      //       },
-      //     },
-      //     {
-      //       $unwind: "$poster",
-      //     },
-      //     {
-      //       $project: {
-      //         _id: 1,
-      //         url: "$image.url",
-      //         createdAt: 1,
-      //         firstName: "$poster.firstName",
-      //         lastName: "$poster.lastName",
-      //         username: "$poster.username",
-      //       },
-      //     },
-      //   ])
-      //   .toArray();
-
-      // submissions = submissions.map((submision) => {
-      //   // convert date displayble
-      //   submision.createdAt = new Date(submision.createdAt).toString();
-      //   submision._id = submision._id.toString();
-      //   return submision;
-      // });
+      submissions = await contestData.getSubmissionsForContestSpot();
       logger.log("Submissions", submissions);
       renderProps.submissions = submissions;
     } catch (e) {
