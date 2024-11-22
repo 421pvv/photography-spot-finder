@@ -1,7 +1,7 @@
 #map {
   border-radius: 1em;
   width: 100%;
-  height: 40em;
+  height: 50vh;
   margin: 0.5em 0;
   display: block;
   align-content: center;
@@ -252,7 +252,7 @@ button {
   place-items: center;
 }
 
-.comment-submitted img {
+.submitted-item img {
   display: block;
   margin: 0 auto;
   object-fit: contain;

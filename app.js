@@ -38,13 +38,19 @@ app.set("view engine", "handlebars");
 // sanatize all inputs
 app.use("*", (req, res, next) => {
   for (const [key, val] of Object.entries(req.query)) {
-    req.query[key] = xss(val);
+    if (typeof val === "string") {
+      req.query[key] = xss(val);
+    }
   }
   for (const [key, val] of Object.entries(req.params)) {
-    req.params[key] = xss(val);
+    if (typeof val === "string") {
+      req.params[key] = xss(val);
+    }
   }
   for (const [key, val] of Object.entries(req.body)) {
-    req.body[key] = xss(val);
+    if (typeof val === "string") {
+      req.body[key] = xss(val);
+    }
   }
   next();
 });

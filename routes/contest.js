@@ -125,14 +125,40 @@ router
       submissions = await (
         await contestSubmissions()
       )
-        .find({
-          contestSpotId: ObjectId.createFromHexString(spotId),
-        })
+        .aggregate([
+          {
+            $match: {
+              contestSpotId: ObjectId.createFromHexString(spotId),
+            },
+          },
+          {
+            $lookup: {
+              from: "users",
+              localField: "posterId",
+              foreignField: "_id",
+              as: "poster",
+            },
+          },
+          {
+            $unwind: "$poster",
+          },
+          {
+            $project: {
+              _id: 1,
+              url: "$image.url",
+              createdAt: 1,
+              firstName: "$poster.firstName",
+              lastName: "$poster.lastName",
+              username: "$poster.username",
+            },
+          },
+        ])
         .toArray();
 
       submissions = submissions.map((submision) => {
-        // sanatize date
+        // convert date displayble
         submision.createdAt = new Date(submision.createdAt).toString();
+        submision._id = submision._id.toString();
         return submision;
       });
       logger.log("Submissions", submissions);
@@ -215,9 +241,12 @@ router
         _id: ObjectId.createFromHexString(result.insertedId.toString()),
       });
 
+      const posterInfo = await userData.getUserProfileById(
+        submision.posterId.toString()
+      );
       const props = {
-        firstName: req.session.user.firstName,
-        lastName: req.session.user.lastName,
+        firstName: posterInfo.firstName,
+        lastName: posterInfo.lastName,
         url: submision.image.url,
         createdAt: new Date(submision.createdAt).toString(),
       };

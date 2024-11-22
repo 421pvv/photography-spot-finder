@@ -121,13 +121,17 @@ console.log("contest submisson");
         contentType: "application/json",
         data: data,
       };
-      $.ajax(requestConfig).then(function (responseMessage) {
-        console.log(responseMessage);
-        let newElement = $(responseMessage);
-        $("#userInteractionsDiv").remove();
-        $("#imageUploadPreviews").remove();
-        submissionSection.append(newElement);
-      });
+      $.ajax(requestConfig)
+        .then(function (responseMessage) {
+          console.log(responseMessage);
+          let newElement = $(responseMessage);
+          $("#userInteractionsDiv").remove();
+          $("#imageUploadPreviews").remove();
+          submissionSection.append(newElement);
+        })
+        .catch((e) => {
+          contestSubmissionErrors.append(errorMessage(e.message));
+        });
     }
   });
 })(window.jQuery);

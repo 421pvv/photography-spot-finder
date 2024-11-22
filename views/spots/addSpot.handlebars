@@ -75,6 +75,8 @@
 
     </label>
     <div id="map"></div>
+    <button id="mapRecenter">Recenter map</button>
+
     <div id="spotLocationErrors">
       {{#if errors.error_spotLocation}}
       {{#each errors.error_spotLocation}}
@@ -206,6 +208,15 @@
 
 
   });
+
+
+  $("#mapRecenter").click((e) => {
+    e.preventDefault()
+    map.flyTo({
+      center: nycCoor,
+      zoom: 11
+    })
+  })
 
 </script>
 

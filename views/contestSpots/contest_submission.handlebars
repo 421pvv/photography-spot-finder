@@ -103,16 +103,13 @@
 
         <ul id="submission-list">
             {{#each submissions}}
-            <li>
+            <li data-id="{{this._id}}">
                 <div class="submitted-item">
                     <div class="submitted-content">
-                        {{#if this.image}}
-                        <img alt="{{this.poster.firstName}} {{this.poster.lastName}}'s contest submission image"
-                            src="{{this.image.url}}">
-                        {{/if}}
+                        <img alt="{{this.firstName}} {{this.lastName}}'s contest submission image" src="{{this.url}}">
                     </div>
                     <div class="submitted-meta ">
-                        <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
+                        <p>Posted by {{this.firstName}} {{this.lastName}}</p>
                         <p>Posted at {{this.createdAt}}</p>
                     </div>
                 </div>

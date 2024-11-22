@@ -55,6 +55,8 @@
     <section>
         <h2>Location</h2>
         <div id="map"></div>
+        <button id="mapRecenter">Recenter map</button>
+
     </section>
 
     {{#if viewingUser._id}}
@@ -200,6 +202,14 @@
     map.on('style.load', () => {
         map.setFog({});
     });
+
+
+    $("#mapRecenter").click(() => {
+        map.flyTo({
+            center: defaultLoc,
+            zoom: 15
+        })
+    })
 </script>
 
 <script type="module" src="/public/js/spots/addSpotComment.js"> </script>
