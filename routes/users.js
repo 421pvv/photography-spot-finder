@@ -100,14 +100,6 @@ router
   .post(async (req, res) => {
     const loginData = req.body;
     let errors = [];
-    try {
-      loginData.username = validation.validateUsername(
-        loginData.username,
-        "Username"
-      );
-    } catch (e) {
-      errors = errors.concat(e);
-    }
 
     try {
       validation.validateLoginPassword(loginData.password, "Password");
@@ -130,7 +122,7 @@ router
         loginData.password
       );
     } catch (e) {
-      errors = errors.concat(e);
+      errors = errors.concat("Username or Password is invalid!");
     }
     logging.log(errors);
 

@@ -848,6 +848,8 @@ router.route("/search").get(async (req, res) => {
       errors = errors.concat(e);
     }
 
+    filter.tag = tags;
+
     try {
       if (minRating) {
         minRating = parseFloat(minRating);
@@ -858,7 +860,7 @@ router.route("/search").get(async (req, res) => {
         filter.minRating = minRating;
       }
     } catch (e) {
-      logger.log(e);
+      logger(e);
       errors = errors.concat(e);
     }
 
@@ -868,7 +870,7 @@ router.route("/search").get(async (req, res) => {
         try {
           fromDate = new Date(fromDate);
         } catch (e) {
-          errors.push("From date is invalid");
+          throw "From date is invalid";
         }
 
         if (isNaN(fromDate)) {
@@ -894,9 +896,9 @@ router.route("/search").get(async (req, res) => {
         }
 
         if (isNaN(toDate)) {
-          errors.push("To date is invalid");
+          throw "To date is invalid";
         } else if (toDate > new Date()) {
-          errors.push("To date cannot be after current time");
+          throw "To date cannot be after current time";
         }
 
         filter.toDate = toDate;
@@ -905,21 +907,6 @@ router.route("/search").get(async (req, res) => {
       logger.log(e);
       errors = errors.concat(e);
     }
-
-    if (errors.length > 0) {
-      console.error("User input error:", errors);
-      return res.status(400).render("spots/allSpots", {
-        spots: [],
-        user: req.session.user,
-        keyword: keyword,
-        styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
-        scripts: [
-          `<script type="module" src="/public/js/spots/filters.js"></script>`,
-        ],
-        errors,
-      });
-    }
-
     logger.log("Fetching all spots with keyword: ", keyword);
     logger.log(filter);
     try {
@@ -959,8 +946,15 @@ router.route("/search").get(async (req, res) => {
       scripts: [
         `<script type="module" src="/public/js/spots/filters.js"></script>`,
       ],
-      errors: ["An unknown error occurred."],
+      errors: [err.message || "An unknown error occurred."],
     });
   }
+
+  // const spots = await spotsData.getAllSpots(keyword, filter);
+  // res.render("spots/allSpots", {
+  //   spots: spots,
+  //   user: req.session.user,
+  //   keyword: keyword,
+  // });
 });
 export default router;
