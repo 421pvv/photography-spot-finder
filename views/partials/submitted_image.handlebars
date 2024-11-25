@@ -7,5 +7,13 @@
             <p>Posted by {{firstName}} {{lastName}}</p>
             <p>Posted at {{createdAt}}</p>
         </div>
+        {{#if user}}
+        <div class="vote-bar">
+            <i class="fa fa-thumbs-up"></i>
+            <i class="fa fa-thumbs-down"></i>
+            <span id="vote"></span>
+        </div>
+        {{/if}}
     </div>
+
 </li>

@@ -270,3 +270,13 @@ button {
   font-size: 0.9em;
   color: rgb(105, 105, 105);
 }
+
+.fa {
+  font-size: 5vh;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fa:hover {
+  color: red;
+}

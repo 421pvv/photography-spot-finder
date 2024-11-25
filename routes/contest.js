@@ -90,6 +90,15 @@ router
         logger.log("viewing user has left rating before: ");
         logger.log(viewingUserRating);
         viewUser.rating = viewingUserRating.rating;
+
+        try {
+          await contestData.getContestSubmissionByUser(spotId, viewUser._id);
+          viewUser.hasNotSubmitted = false;
+        } catch (e) {
+          logger.log("User has submitted before for contest spot: ", spotId);
+          logger.log(e);
+          viewUser.hasNotSubmitted = true;
+        }
       } catch (e) {
         logger.log(e);
       }
@@ -101,6 +110,7 @@ router
       styles: [
         `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">`,
         `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
+        `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">`,
         `<link rel="stylesheet" href="/public/css/contestSubmission.css">`,
       ],
       scripts: [
@@ -113,11 +123,15 @@ router
     };
 
     try {
-      submissions = await contestData.getSubmissionsForContestSpot();
+      submissions = await contestData.getSubmissionsForContestSpot(spotId);
+      submissions = submissions.map((submission) => {
+        submission.user = req.session.user;
+        return submission;
+      });
       logger.log("Submissions", submissions);
       renderProps.submissions = submissions;
     } catch (e) {
-      logger.log("Fetching comments failed for: " + spotId, e);
+      logger.log("Fetching submissions failed for: " + spotId, e);
     }
 
     let poster;
@@ -127,7 +141,7 @@ router
       logger.log("Poster info", poster);
       renderProps.poster = poster;
     } catch (e) {
-      logger.log("Fetching comments failed for: " + spotId, e);
+      logger.log("Fetching submission failed for: " + spotId, e);
     }
 
     if (req.session.addSubmission) {
@@ -155,11 +169,13 @@ router
     try {
       spotId = validation.validateString(spotId, "Spot id");
       logger.log("contest spot: ", spotId);
-      // TODO check if spot id esists in contest spots
+      await contestData.getContestSpotsById(spotId);
     } catch (e) {
       logger.log(e);
       errors = errors.concat("Invalid contest Spot!");
     }
+
+    //TODO: check if it's valid to still submit for this contest spot
 
     const submissionImage = {};
     try {
@@ -181,7 +197,6 @@ router
     }
 
     try {
-      //TODO replace with data func
       const contestSubmissionsCollection = await contestSubmissions();
       const result = await contestSubmissionsCollection.insertOne({
         contestSpotId: ObjectId.createFromHexString(spotId.toString()),
@@ -212,6 +227,109 @@ router
       return res.status(500).render("partials/errors", {
         layout: null,
         errors: ["Contest submission failed!"],
+      });
+    }
+  });
+
+router
+  .route("/myContestRatings")
+  .get(async (req, res) => {
+    let { contestSpotId } = req.body;
+    try {
+      contestSpotId = validation.validateString(
+        contestSpotId,
+        "Contest Spot Id",
+        true
+      );
+    } catch (e) {
+      return res.status(400).json({
+        error: "Invalid contest spot id!",
+      });
+    }
+
+    try {
+      const ratings = await contestData.getContestSpotVotesByUser(
+        req.session.user._id.toString(),
+        contestSpotId
+      );
+      return res.status(200).json(ratings);
+    } catch (e) {
+      return res.status(500).json({
+        error: "Could not fetch ratings",
+      });
+    }
+  })
+  .put(async (req, res) => {
+    let { contestSubmissionId, vote } = req.body;
+    let errors = [];
+    try {
+      validation.validateNumber(vote, "Contest Vote");
+      if (vote !== 1 || vote !== -1) {
+        throw `Contest vote can only be like (1) or dislike (-1)!`;
+      }
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
+    }
+
+    try {
+      contestSubmissionId = validation.validateString(
+        contestSubmissionId,
+        "Contest Submission Id"
+      );
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        errors,
+      });
+    }
+
+    try {
+      const contestSubmissionVote = await contestData.putContestSubmissionVote(
+        contestSubmissionId,
+        vote,
+        req.session.user._id.toString(),
+        new Date()
+      );
+      return res.status(200).json(contestSubmissionVote);
+    } catch (e) {
+      return res.status(500).json({
+        error: "Contest vote submission failed! Please try again.",
+      });
+    }
+  })
+  .delete(async (req, res) => {
+    let { contestSubmissionId } = req.body;
+    let errors = [];
+    try {
+      contestSubmissionId = validation.validateString(
+        contestSubmissionId,
+        "Contest Submission Id"
+      );
+      await contestData.getContestSubmissionById(contestSubmissionId);
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).json({
+        errors,
+      });
+    }
+
+    try {
+      await contestData.deleteContestSubmissionVote(
+        contestSubmissionId,
+        req.session.user._id.toString()
+      );
+    } catch (e) {
+      return res.status(500).json({
+        error: "Contest vote submission failed! Please try again.",
       });
     }
   });

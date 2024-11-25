@@ -58,7 +58,8 @@
         <button id="mapRecenter">Recenter map</button>
     </section>
 
-    {{#if viewingUser._id}}
+    {{#if viewingUser.hasNotSubmitted}}
+
     <div id="userInteractionsDiv">
 
         <form id="addSubmissionForm" class="detailForms">
@@ -98,22 +99,13 @@
     </div>
     {{/if}}
 
+
     <section>
         <h2>Submissions</h2>
 
         <ul id="submission-list">
             {{#each submissions}}
-            <li data-id="{{this._id}}">
-                <div class="submitted-item">
-                    <div class="submitted-content">
-                        <img alt="{{this.firstName}} {{this.lastName}}'s contest submission image" src="{{this.url}}">
-                    </div>
-                    <div class="submitted-meta ">
-                        <p>Posted by {{this.firstName}} {{this.lastName}}</p>
-                        <p>Posted at {{this.createdAt}}</p>
-                    </div>
-                </div>
-            </li>
+            {{> submitted_image }}
             {{/each}}
         </ul>
     </section>
