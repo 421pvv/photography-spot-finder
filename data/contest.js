@@ -75,7 +75,7 @@ const getSubmissionsForContestSpot = async (spotId) => {
 };
 
 const getContestSubmissionById = async (submissionId) => {
-  submissionId = validation.submissionId(spotId, "id", true);
+  submissionId = validation.validateString(submissionId, "id", true);
   const contestSubmissionsCollection = await contestSubmissions();
   const submission = await contestSubmissionsCollection.findOne({
     _id: ObjectId.createFromHexString(submissionId),
@@ -117,19 +117,46 @@ const getContestSpotVotesByUser = async (userId, contenstSpotId) => {
     "Contest Spot Id",
     true
   );
-
+  logger.log("user id: ", userId, "contest spot id: ", contenstSpotId);
   const contestRatingsCollection = await contestRatings();
   const votes = await contestRatingsCollection
-    .find({
-      posterId: ObjectId.createFromHexString(userId),
-      _id: ObjectId.createFromHexString(contenstSpotId),
-    })
+    .aggregate([
+      {
+        $lookup: {
+          from: "contestSubmissions",
+          localField: "contestSubmissionId",
+          foreignField: "_id",
+          as: "contestSubmission",
+        },
+      },
+      {
+        $unwind: {
+          path: "$contestSubmission",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          contestSubmissionId: 1,
+          posterId: 1,
+          createdAt: 1,
+          vote: 1,
+          contestSpotId: "$contestSubmission.contestSpotId",
+        },
+      },
+      {
+        $match: {
+          posterId: ObjectId.createFromHexString(userId),
+          contestSpotId: ObjectId.createFromHexString(contenstSpotId),
+        },
+      },
+    ])
     .toArray();
 
   if (!votes.length) {
     return [];
   }
-
+  logger.log(votes);
   return votes;
 };
 
@@ -150,7 +177,7 @@ const putContestSubmissionVote = async (
     ObjectId.createFromHexString(contestSubmissionId);
 
   validation.validateNumber(vote, "Vote");
-  if (vote !== -1 || vote !== 1) {
+  if (vote !== -1 && vote !== 1) {
     throw [`Vote must be -1 or 1`];
   }
   ratingObject.vote = vote;
@@ -165,11 +192,9 @@ const putContestSubmissionVote = async (
   }
   ratingObject.createdAt = date;
 
-  ratingObject.reportCount = 0;
-
   let insertedSubmission;
   try {
-    const contestSubmissionsCollection = await contestSubmissions();
+    const contestSubmissionsCollection = await contestRatings();
     insertedSubmission = await contestSubmissionsCollection.findOneAndUpdate(
       {
         $and: [
@@ -209,6 +234,41 @@ const deleteContestSubmissionVote = async (contestSubmissionId, posterId) => {
   });
 };
 
+const submitContestImage = async (url, public_id, userId, spotId, date) => {
+  //TODO: check if it's valid to still submit for this contest spot
+
+  validation.validateObject(date);
+  if (!(date instanceof Date) || isNaN(date) || date > new Date()) {
+    throw ["Invalid date for rating."];
+  }
+
+  spotId = validation.validateString(spotId, "Spot id", true);
+  let spotInfo = await getContestSpotsById(spotId);
+
+  userId = validation.validateString(userId, "User Id", true);
+  let userInfo = await userData.getUserProfileById(userId);
+
+  const submissionImage = {};
+  submissionImage.url = validation.validateString(url, "Image Url");
+  submissionImage.public_id = validation.validateString(
+    public_id,
+    "Image Public Id"
+  );
+
+  const contestSubmissionsCollection = await contestSubmissions();
+  const result = await contestSubmissionsCollection.insertOne({
+    contestSpotId: ObjectId.createFromHexString(spotId),
+    image: submissionImage,
+    posterId: ObjectId.createFromHexString(userId),
+    createdAt: date,
+    reportCount: 0,
+  });
+  const submision = await contestSubmissionsCollection.findOne({
+    _id: ObjectId.createFromHexString(result.insertedId.toString()),
+  });
+  return submision;
+};
+
 export default {
   getContestSpotsList,
   getContestSpotsById,
@@ -218,4 +278,5 @@ export default {
   getContestSubmissionById,
   putContestSubmissionVote,
   deleteContestSubmissionVote,
+  submitContestImage,
 };

@@ -1,4 +1,4 @@
-<li data-id="{{_id}}">
+<li data-id="{{_id}}" id="{{_id}}">
     <div class="submitted-item">
         <div class="submitted-content">
             <img alt="{{firstName}} {{lastName}}'s contest submission image" src="{{url}}">
@@ -8,10 +8,12 @@
             <p>Posted at {{createdAt}}</p>
         </div>
         {{#if user}}
-        <div class="vote-bar">
+        <div class="vote-bar" data-id="{{_id}}">
+            <h4>Cast your Vote!</h4>
             <i class="fa fa-thumbs-up"></i>
+            <span class="user-vote">-</span>
             <i class="fa fa-thumbs-down"></i>
-            <span id="vote"></span>
+            <i class="fa fa-trash"></i>
         </div>
         {{/if}}
     </div>

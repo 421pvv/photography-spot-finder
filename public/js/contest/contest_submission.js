@@ -1,7 +1,7 @@
 import validation from "../validation/validation.js";
 
 function errorMessage(msg) {
-  return `<p class="formInputError" > ${msg} </p>`;
+  return `<p class="fohttp://localhost:3000/users/signuprmInputError" > ${msg} </p>`;
 }
 let urls = [];
 const discardedImagesIds = [];
@@ -69,25 +69,128 @@ var myWidget = cloudinary.createUploadWidget(
   }
 );
 
-document.getElementById("upload_widget").addEventListener(
-  "click",
-  function () {
-    if (urls.length == 1) {
-      alert("Only one image upload allowed per submission!");
-    } else {
-      myWidget.open();
-    }
-  },
-  false
-);
-
+try {
+  document.getElementById("upload_widget").addEventListener(
+    "click",
+    function () {
+      if (urls.length == 1) {
+        alert("Only one image upload allowed per submission!");
+      } else {
+        myWidget.open();
+      }
+    },
+    false
+  );
+} catch (e) {
+  console.log("Submission already submitted");
+}
 console.log("contest submisson");
 
 (function ($) {
   let contestSubmissionForm = $("#addSubmissionForm"),
     image = $("#submissionImage"),
     contestSubmissionErrors = $("#contestSubmissionErrors"),
-    spot = $("#spotId");
+    spot = $("#spotId"),
+    contestSpot = $("article");
+  updateSubmissionVotesUI();
+
+  function bindVoteEvents(submissionImage) {
+    const likeButton = submissionImage.find(`.fa-thumbs-up`);
+    const dislikeButton = submissionImage.find(`.fa-thumbs-down`);
+    const deleteVoteButton = submissionImage.find(` .fa-trash`);
+    const voteDisplay = submissionImage.find(`.user-vote`);
+
+    function putRating(contestSubmissionId, vote) {
+      let requestConfig = {
+        method: "PUT",
+        url: `/contest/${contestSpot.data("id")}/userVotes`,
+        contentType: "application/json",
+        data: JSON.stringify({
+          contestSubmissionId,
+          vote,
+        }),
+      };
+      console.log("Sending vote request", requestConfig.data);
+      $.ajax(requestConfig)
+        .done((vote) => {
+          // updateSubmissionVotesUI();
+          if (vote.vote == 1) {
+            likeButton.addClass("selected");
+            dislikeButton.removeClass("selected");
+            voteDisplay.text(vote.vote);
+          } else if (vote.vote == -1) {
+            likeButton.removeClass("selected");
+            dislikeButton.addClass("selected");
+            voteDisplay.text(vote.vote);
+          }
+        })
+        .fail((xhr, status, e) => {
+          console.log(xhr.responseJSON);
+        });
+    }
+    function deleteRating(contestSubmissionId) {
+      let requestConfig = {
+        method: "DELETE",
+        url: `/contest/${contestSpot.data("id")}/userVotes`,
+        contentType: "application/json",
+        data: JSON.stringify({
+          contestSubmissionId,
+        }),
+      };
+      console.log("Sending vote delete request", requestConfig.data);
+      $.ajax(requestConfig)
+        .then(() => {
+          likeButton.removeClass("selected");
+          dislikeButton.removeClass("selected");
+          voteDisplay.text("-");
+        })
+        .fail((xhr, status, e) => {
+          console.log(xhr.responseJSON);
+        });
+    }
+    likeButton.on("click", (e) => {
+      console.log("click on like");
+      putRating(submissionImage.data("id"), 1);
+    });
+    dislikeButton.on("click", (e) => {
+      putRating(submissionImage.data("id"), -1);
+    });
+    deleteVoteButton.on("click", (e) => {
+      deleteRating(submissionImage.data("id"));
+    });
+  }
+
+  async function updateSubmissionVotesUI() {
+    console.log("Binding vote button events");
+    $("#submission-list")
+      .children()
+      .each(function (index, element) {
+        bindVoteEvents($(element));
+      });
+
+    // update ui with current votes
+    try {
+      const votes = await $.get(`/contest/${contestSpot.data("id")}/userVotes`);
+      console.log(votes);
+      for (const vote of votes) {
+        const likeButton = $(`#${vote.contestSubmissionId} .fa-thumbs-up`);
+        const dislikeButton = $(`#${vote.contestSubmissionId} .fa-thumbs-down`);
+        const deleteVoteButton = $(`#${vote.contestSubmissionId} .fa-trash`);
+        const voteDisplay = $(`#${vote.contestSubmissionId} .user-vote`);
+        if (vote.vote == -1) {
+          likeButton.removeClass("selected");
+          dislikeButton.addClass("selected");
+          voteDisplay.text("-1");
+        } else if (vote.vote == 1) {
+          dislikeButton.removeClass("selected");
+          likeButton.addClass("selected");
+          voteDisplay.text("1");
+        }
+      }
+    } catch (e) {
+      console.log(`Can't fetch user votes: ` + e);
+    }
+  }
 
   contestSubmissionForm.submit(function (event) {
     event.preventDefault();
@@ -128,6 +231,7 @@ console.log("contest submisson");
           $("#userInteractionsDiv").remove();
           $("#imageUploadPreviews").remove();
           submissionSection.append(newElement);
+          bindVoteEvents(newElement);
         })
         .catch((e) => {
           contestSubmissionErrors.append(errorMessage(e.message));
