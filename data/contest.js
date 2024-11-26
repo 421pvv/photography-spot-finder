@@ -2,6 +2,7 @@ import {
   contestRatings,
   contestSpots,
   contestSubmissions,
+  spotRatings,
 } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import logger from "../log.js";
@@ -209,6 +210,8 @@ const putContestSubmissionVote = async (
       }
     );
 
+    await updateTopContestSpots();
+
     return insertedSubmission;
   } catch (e) {
     logger.log(e);
@@ -267,6 +270,57 @@ const submitContestImage = async (url, public_id, userId, spotId, date) => {
     _id: ObjectId.createFromHexString(result.insertedId.toString()),
   });
   return submision;
+};
+
+const updateTopContestSpots = async () => {
+  const current = new Date();
+  const currentMonth = new Date(current.getFullYear(), current.getMonth(), 1);
+
+  const spotsRatingsList = await spotRatings();
+  const contestSpotsList = new contestSpots();
+
+  const topSpots = await spotsRatingsList
+    .aggregate([
+      {
+        $match: {
+          createdAt: { $gte: currentMonth },
+        },
+      },
+      {
+        $group: {
+          _id: "$spotId",
+          totalVotes: { $sum: "$rating" },
+        },
+      },
+      {
+        $sort: { totalVotes: -1 },
+      },
+      {
+        $limit: 3,
+      },
+      {
+        $lookup: {
+          from: "contestSpots",
+          localField: "_id",
+          foreignField: "_id",
+          as: "spotsDetails",
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          totalVotes: 1,
+          spotDetails: { $arrayElemAt: ["$spotDetails", 0] },
+        },
+      },
+    ])
+    .toArray();
+
+  await contestSpotsList.updateOne(
+    { month: currentMonth },
+    { $set: { topSpots } },
+    { upsert: true }
+  );
 };
 
 export default {
