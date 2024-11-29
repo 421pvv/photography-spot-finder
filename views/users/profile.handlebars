@@ -17,8 +17,11 @@
 {{/if}}
 <section class="user_profile_details_section">
   {{#if sameUser}}
-  <a href="/users/editprofile">
-    Edit Profile</a>
+  <div class="link-buttons">
+    <a href="/users/editprofile">
+      Edit Profile</a>
+    <a href="/users/updatepassword">Update Password</a>
+  </div>
   {{/if}}
   <h1 id="userFirstLastNames">{{profile.firstName}} {{profile.lastName}}</h1>
   <p class="username">@{{profile.username}}</p>
