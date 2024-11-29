@@ -272,13 +272,14 @@ const submitContestImage = async (url, public_id, userId, spotId, date) => {
   return submision;
 };
 
-const updateTopContestSpots = async () => {
+const updateTopContestSpots = async (contestInfo) => {
   const current = new Date();
   const currentMonth = new Date(current.getFullYear(), current.getMonth(), 1);
 
   const spotsRatingsList = await spotRatings();
-  const contestSpotsList = new contestSpots();
+  const contestSpotsList = await contestSpots();
 
+  // Aggregate to find the top 3 spots by average rating
   const topSpots = await spotsRatingsList
     .aggregate([
       {
@@ -289,39 +290,53 @@ const updateTopContestSpots = async () => {
       {
         $group: {
           _id: "$spotId",
-          totalVotes: { $sum: "$rating" },
+          totalRatings: { $sum: 1 },
+          averageRating: { $avg: { $ifNull: ["$rating", 0] } },
         },
       },
       {
-        $sort: { totalVotes: -1 },
+        $sort: { averageRating: -1 },
       },
       {
         $limit: 3,
       },
       {
         $lookup: {
-          from: "contestSpots",
-          localField: "_id",
+          from: "spots",
+          localField: "spotId",
           foreignField: "_id",
-          as: "spotsDetails",
+          as: "spotDetails",
         },
       },
       {
-        $project: {
-          _id: 1,
-          totalVotes: 1,
-          spotDetails: { $arrayElemAt: ["$spotDetails", 0] },
-        },
+        $unwind: "$spotDetails",
       },
     ])
     .toArray();
 
-  await contestSpotsList.updateOne(
-    { month: currentMonth },
-    { $set: { topSpots } },
-    { upsert: true }
-  );
+  await contestSpotsList.deleteMany({ month: currentMonth });
+
+  const newTopSpots = topSpots.map((spot) => ({
+    name: spot.spotDetails.name,
+    location: spot.spotDetails.location,
+    address: spot.spotDetails.address,
+    description: spot.spotDetails.description,
+    accessibility: spot.spotDetails.accessibility,
+    bestTimes: spot.spotDetails.bestTimes,
+    images: spot.spotDetails.images,
+    tags: spot.spotDetails.tags,
+    posterId: spot.spotDetails.posterId,
+    createdAt: spot.spotDetails.createdAt,
+    reportCount: spot.spotDetails.reportCount || 0,
+    averageRating: spot.averageRating,
+    totalRatings: spot.totalRatings,
+  }));
+
+  if (newTopSpots.length > 0) {
+    await contestSpotsList.insertMany(newTopSpots);
+  }
 };
+
 
 // const canSubmit = async (contestId, submisson) => {
 //   const current = new Date()
