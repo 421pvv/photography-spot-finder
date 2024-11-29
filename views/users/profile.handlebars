@@ -99,7 +99,10 @@
         {{/if}}
         <a href="/spots/details/{{this.spotId}}">View this comment's spot details</a>
         <a href="/spots/comments/edit/">Edit comment</a>
-        <a href="/spots/comments/delete/">Delete comment</a>
+        <form method="POST" action="/spots/deleteComment/{{this._id}}">
+          <input type="hidden" name="_method" value="DELETE">
+          <button type="submit">Delete Comment</button>
+        </form>
       </section>
       {{/each}}
       {{else}}
@@ -131,6 +134,10 @@
         <h3>{{this.spot.name}}</h3>
         <p>Your rating: {{this.rating}}</p>
         <a href="/spots/details/{{this.spot._id}}">Modify your rating in the spot's page</a>
+        <form method="POST" action="/spots/deleteRating/{{this._id}}">
+          <input type="hidden" name="_method" value="DELETE">
+          <button type="submit">Delete Rating</button>
+        </form>
       </section>
       {{/if}}
       {{/each}}
