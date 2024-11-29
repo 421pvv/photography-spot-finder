@@ -130,6 +130,10 @@ input[type="file"] {
 .mainForms button[type="reset"]:hover {
   background-color: rgb(255, 0, 0);
 }
+.mainForms #password-policy {
+  color: grey;
+  font-size: 1.2em;
+}
 
 .formInputError {
   text-align: center;
