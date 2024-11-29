@@ -150,7 +150,7 @@ const validateEmail = (email) => {
   // got email regex from https://regex101.com/library/SOgUIV
   const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
 
-  if (!email.test(emailRegex)) {
+  if (!emailRegex.test(email)) {
     throw [`Email (${email}) is not valid!`];
   }
   return email.toLowerCase();

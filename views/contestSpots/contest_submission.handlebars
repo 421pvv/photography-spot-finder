@@ -1,4 +1,4 @@
-<article>
+<article data-id="{{spot._id}}">
     <header>
         <h1 class="page_title">{{spot.spotName}}</h1>
     </header>
@@ -20,9 +20,6 @@
             <p>Username: <span>{{poster.username}}</span></p>
             <p><a href="/users/profile/{{poster.username}}">View Profile</a></p>
 
-            {{#if viewingUser.originalPoster}}
-            <p><a href="/spots/edit/{{spot._id}}">Edit Spot</a></p>
-            {{/if}}
         </section>
     </div>
     <section id="imageSection">

@@ -83,24 +83,13 @@ router
       viewUser.originalPoster =
         req.session.user._id.toString() === spotInfo.posterId.toString();
       try {
-        const viewingUserRating = await spotsData.getSpotRatingByUserId(
-          spotId,
-          viewUser._id
-        );
-        logger.log("viewing user has left rating before: ");
-        logger.log(viewingUserRating);
-        viewUser.rating = viewingUserRating.rating;
-
-        try {
-          await contestData.getContestSubmissionByUser(spotId, viewUser._id);
-          viewUser.hasNotSubmitted = false;
-        } catch (e) {
-          logger.log("User has submitted before for contest spot: ", spotId);
-          logger.log(e);
-          viewUser.hasNotSubmitted = true;
-        }
+        await contestData.getContestSubmissionByUser(spotId, viewUser._id);
+        console.log("stuff");
+        viewUser.hasNotSubmitted = false;
       } catch (e) {
+        logger.log("User has submitted before for contest spot: ", spotId);
         logger.log(e);
+        viewUser.hasNotSubmitted = true;
       }
     }
     logger.log("viewing user info", viewUser);
@@ -126,6 +115,8 @@ router
       submissions = await contestData.getSubmissionsForContestSpot(spotId);
       submissions = submissions.map((submission) => {
         submission.user = req.session.user;
+        submission._id = submission._id.toString();
+
         return submission;
       });
       logger.log("Submissions", submissions);
@@ -161,7 +152,7 @@ router
     let url = req.body.url;
     let public_id = req.body.public_id;
     let spotId = req.body.spotId;
-
+    let spotInfo;
     if (!req.session.user) {
       errors = errors.concat("Need to be logged in to submit to a contest!");
     }
@@ -169,7 +160,7 @@ router
     try {
       spotId = validation.validateString(spotId, "Spot id");
       logger.log("contest spot: ", spotId);
-      await contestData.getContestSpotsById(spotId);
+      spotInfo = await contestData.getContestSpotsById(spotId);
     } catch (e) {
       logger.log(e);
       errors = errors.concat("Invalid contest Spot!");
@@ -197,26 +188,24 @@ router
     }
 
     try {
-      const contestSubmissionsCollection = await contestSubmissions();
-      const result = await contestSubmissionsCollection.insertOne({
-        contestSpotId: ObjectId.createFromHexString(spotId.toString()),
-        image: submissionImage,
-        posterId: ObjectId.createFromHexString(req.session.user._id.toString()),
-        createdAt: new Date(),
-        reportCount: 0,
-      });
-      const submision = await contestSubmissionsCollection.findOne({
-        _id: ObjectId.createFromHexString(result.insertedId.toString()),
-      });
+      const submision = await contestData.submitContestImage(
+        submissionImage.url,
+        submissionImage.public_id,
+        req.session.user._id.toString(),
+        spotId.toString(),
+        new Date()
+      );
 
       const posterInfo = await userData.getUserProfileById(
         submision.posterId.toString()
       );
       const props = {
         firstName: posterInfo.firstName,
+        _id: submision._id.toString(),
         lastName: posterInfo.lastName,
         url: submision.image.url,
         createdAt: new Date(submision.createdAt).toString(),
+        user: req.session.user,
       };
       return res.status(200).render("partials/submitted_image", {
         layout: null,
@@ -232,9 +221,9 @@ router
   });
 
 router
-  .route("/myContestRatings")
+  .route("/:contestSpotId/userVotes")
   .get(async (req, res) => {
-    let { contestSpotId } = req.body;
+    let { contestSpotId } = req.params;
     try {
       contestSpotId = validation.validateString(
         contestSpotId,
@@ -248,12 +237,22 @@ router
     }
 
     try {
+      validation.validateString(req.session.user._id.toString());
+    } catch (e) {
+      logger.log(e);
+      return res.status(401).json({
+        error: "Cannot fetch user votes (not logged in)!",
+      });
+    }
+
+    try {
       const ratings = await contestData.getContestSpotVotesByUser(
         req.session.user._id.toString(),
         contestSpotId
       );
       return res.status(200).json(ratings);
     } catch (e) {
+      logger.log(e);
       return res.status(500).json({
         error: "Could not fetch ratings",
       });
@@ -264,7 +263,8 @@ router
     let errors = [];
     try {
       validation.validateNumber(vote, "Contest Vote");
-      if (vote !== 1 || vote !== -1) {
+      console.log(vote, typeof vote);
+      if (vote !== 1 && vote !== -1) {
         throw `Contest vote can only be like (1) or dislike (-1)!`;
       }
     } catch (e) {
@@ -295,8 +295,10 @@ router
         req.session.user._id.toString(),
         new Date()
       );
+      logger.log("Vote succesfull: ", contestSubmissionVote);
       return res.status(200).json(contestSubmissionVote);
     } catch (e) {
+      logger.log(e);
       return res.status(500).json({
         error: "Contest vote submission failed! Please try again.",
       });
@@ -327,6 +329,9 @@ router
         contestSubmissionId,
         req.session.user._id.toString()
       );
+      return res.status(200).json({
+        deleted: true,
+      });
     } catch (e) {
       return res.status(500).json({
         error: "Contest vote submission failed! Please try again.",

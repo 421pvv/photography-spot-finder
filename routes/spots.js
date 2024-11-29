@@ -297,7 +297,7 @@ router
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
       req.session.authorizationErrors = errors;
-      return res.status(401).redirect("/users/profile");
+      return res.status(401).redirect("/users/login");
     }
 
     logger.log("Rendering edit spot for :", spotId);
@@ -376,7 +376,7 @@ router
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
       req.session.authErrors = errors;
-      return res.status(401).redirect("/users/profile");
+      return res.status(401).redirect("/users/login");
     }
 
     logger.log("Trying to create new spot:");
@@ -933,6 +933,158 @@ router.route("/search").get(async (req, res) => {
       ],
       errors: ["There was a server error. Please try again."],
     });
+  }
+});
+
+router.route("/:spotId").delete(async (req, res) => {
+  let errors = [];
+  let spotId;
+  let spotInfo;
+  try {
+    spotId = validation.validateString(req.params.spotId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    spotInfo = await spotsData.getSpotById(spotId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== spotInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a spot that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+
+  try {
+    await spotsData.deleteSpot(spotId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+});
+
+router.route("/deleteComment/:commentId").delete(async (req, res) => {
+  let errors = [];
+  let commentId;
+  let commentInfo;
+  try {
+    commentId = validation.validateString(req.params.commentId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    commentInfo = await spotsData.getCommentById(commentId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== commentInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a comment that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${commentId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+
+  try {
+    await spotsData.deleteComment(commentId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${commentId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+});
+
+router.route("/deleteRating/:ratingId").delete(async (req, res) => {
+  let errors = [];
+  let ratingId;
+  let ratingInfo;
+  try {
+    ratingId = validation.validateString(req.params.ratingId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    ratingInfo = await spotsData.getRatingById(ratingId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== ratingInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a rating that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${ratingId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+
+  try {
+    await spotsData.deleteRating(ratingId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${ratingId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
   }
 });
 export default router;

@@ -194,4 +194,239 @@ router.route("/profile/:username").get(async (req, res) => {
   delete req.session.authorizationErrors;
 });
 
+router
+  .route("/editprofile")
+  .get(async (req, res) => {
+    let errors = [];
+    if (!req.session.user) {
+      errors.push("You must login before trying to edit profile!");
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+    let userId = req.session.user._id;
+    try {
+      userId = validation.validateString(userId.toString(), "userId", true);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    let userInfo;
+    try {
+      userInfo = await userData.getUserProfileById(userId);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    if (errors.length > 0) {
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+    return res
+      .status(400)
+      .render("users/editprofile", { data: userInfo, user: req.session.user });
+  })
+  .patch(async (req, res) => {
+    const updateData = req.body;
+    console.log(updateData);
+    let errors = [];
+    if (!req.session.user) {
+      errors.push("You must login before trying to edit profile!");
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+    let userId = req.session.user._id;
+    try {
+      userId = validation.validateString(userId.toString(), "userId", true);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    let userInfo;
+    try {
+      userInfo = await userData.getUserProfileById(userId);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    if (errors.length > 0) {
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+
+    try {
+      updateData.firstName = validation.validateString(
+        updateData.firstName,
+        "First Name"
+      );
+    } catch (e) {
+      errors = errors.concat([e]);
+    }
+
+    try {
+      updateData.lastName = validation.validateString(
+        updateData.lastName,
+        "Last Name"
+      );
+    } catch (e) {
+      errors = errors.concat([e]);
+    }
+
+    try {
+      updateData.email = validation.validateEmail(updateData.email);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+
+    try {
+      updateData.bio = validation.validateString(updateData.bio);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+
+    console.log(updateData);
+    if (errors.length !== 0) {
+      return res.render("users/editprofile", {
+        errors,
+        hasErrors: true,
+        data: updateData,
+        user: req.session.user,
+      });
+    }
+    updateData.username = req.session.user.username;
+
+    try {
+      let updatedUser = await userData.updateUserProfile(updateData);
+    } catch (e) {
+      errors = errors.concat(e);
+      return res.render("users/editprofile", {
+        errors,
+        hasErrors: true,
+        data: updateData,
+        user: req.session.user,
+      });
+    }
+
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  });
+
+router
+  .route("/updatepassword")
+  .get(async (req, res) => {
+    let errors = [];
+    if (!req.session.user) {
+      errors.push("You must login before trying to update password!");
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+    let userId = req.session.user._id;
+    try {
+      userId = validation.validateString(userId.toString(), "userId", true);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    let userInfo;
+    try {
+      userInfo = await userData.getUserProfileById(userId);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    if (errors.length > 0) {
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+    return res.status(400).render("users/updatepassword", {
+      data: userInfo,
+      user: req.session.user,
+    });
+  })
+  .patch(async (req, res) => {
+    const updateData = req.body;
+    console.log(updateData);
+    let errors = [];
+    if (!req.session.user) {
+      errors.push("You must login before trying to update password!");
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+    let userId = req.session.user._id;
+    try {
+      userId = validation.validateString(userId.toString(), "userId", true);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    let userInfo;
+    try {
+      userInfo = await userData.getUserProfileById(userId);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    if (errors.length > 0) {
+      req.session.authErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+
+    try {
+      validation.validateLoginPassword(
+        updateData.currentpassword,
+        "Current Password"
+      );
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+
+    try {
+      validation.validatePassword(updateData.newpassword, "New Password");
+    } catch (e) {
+      console.log(e);
+      errors = errors.concat(e);
+    }
+
+    if (errors.length !== 0) {
+      return res.render("users/updatepassword", {
+        errors,
+        hasErrors: true,
+        data: updateData,
+        user: req.session.user,
+      });
+    }
+
+    let userFromDb;
+    try {
+      userFromDb = await userData.authenticateUser(
+        req.session.user.username,
+        updateData.currentpassword
+      );
+    } catch (e) {
+      errors = errors.concat("Current password is incorrect!");
+    }
+    logging.log(errors);
+
+    if (errors.length !== 0) {
+      return res.render("users/updatepassword", {
+        errors,
+        hasErrors: true,
+        data: updateData,
+        user: req.session.user,
+      });
+    }
+
+    const userObj = {
+      username: req.session.user.username,
+      password: updateData.newpassword,
+    };
+
+    try {
+      let updatedUser = await userData.updateUserProfile(userObj);
+    } catch (e) {
+      errors = errors.concat(e);
+      return res.render("users/updatepassword", {
+        errors,
+        hasErrors: true,
+        data: updateData,
+        user: req.session.user,
+      });
+    }
+
+    req.session.destroy();
+    return res.redirect("/users/login");
+  });
+
 export default router;
