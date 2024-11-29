@@ -263,6 +263,12 @@ const updateTopContestSpots = async () => {
     )
 }
 
+// const canSubmit = async (contestId, submisson) => {
+//   const current = new Date()
+
+//   const contestSpotsList = await con
+// }
+
 export default {
   getContestSpotsList,
   getContestSpotsById,
