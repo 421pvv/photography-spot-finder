@@ -297,7 +297,7 @@ router
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
       req.session.authorizationErrors = errors;
-      return res.status(401).redirect("/users/profile");
+      return res.status(401).redirect("/users/login");
     }
 
     logger.log("Rendering edit spot for :", spotId);
@@ -376,7 +376,7 @@ router
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
       req.session.authErrors = errors;
-      return res.status(401).redirect("/users/profile");
+      return res.status(401).redirect("/users/login");
     }
 
     logger.log("Trying to create new spot:");
@@ -963,7 +963,7 @@ router.route("/:spotId").delete(async (req, res) => {
   if (errors.length > 0) {
     logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
     req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/users/profile");
+    return res.status(401).redirect("/users/login");
   }
 
   try {
@@ -976,7 +976,7 @@ router.route("/:spotId").delete(async (req, res) => {
   if (errors.length > 0) {
     logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
     req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/users/profile");
+    return res.status(401).redirect("/users/login");
   } else {
     return res
       .status(200)
@@ -1013,7 +1013,7 @@ router.route("/deleteComment/:commentId").delete(async (req, res) => {
       `Invalid session (${req.sessionID}) tried to delete ${commentId}`
     );
     req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/users/profile");
+    return res.status(401).redirect("/users/login");
   }
 
   try {
@@ -1028,7 +1028,7 @@ router.route("/deleteComment/:commentId").delete(async (req, res) => {
       `Invalid session (${req.sessionID}) tried to delete ${commentId}`
     );
     req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/users/profile");
+    return res.status(401).redirect("/users/login");
   } else {
     return res
       .status(200)
@@ -1065,7 +1065,7 @@ router.route("/deleteRating/:ratingId").delete(async (req, res) => {
       `Invalid session (${req.sessionID}) tried to delete ${ratingId}`
     );
     req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/users/profile");
+    return res.status(401).redirect("/users/login");
   }
 
   try {
@@ -1080,7 +1080,7 @@ router.route("/deleteRating/:ratingId").delete(async (req, res) => {
       `Invalid session (${req.sessionID}) tried to delete ${ratingId}`
     );
     req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/users/profile");
+    return res.status(401).redirect("/users/login");
   } else {
     return res
       .status(200)
