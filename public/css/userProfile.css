@@ -61,7 +61,7 @@ main {
 }
 
 .user-activity .scrolltype section,
-.user-activity .scrolltype div {
+.user-activity .scrolltype .submissions {
   margin: 0.625em 0;
   padding: 0.625em;
   border: 0.0625em solid #dddddd;
@@ -99,6 +99,76 @@ main {
   max-width: 90%;
   margin: 2em auto;
   padding: 0;
+}
+
+a:hover {
+  color: #004999;
+  text-decoration: underline;
+}
+
+h3 {
+  text-align: center;
+  font-size: 1.3em;
+  margin: 0.625em 0;
+}
+
+.rating {
+  text-align: center;
+  font-size: 1.2em;
+  margin: 0.625em 0;
+}
+
+.comment-message {
+  text-align: center;
+  text-decoration: none;
+  font-weight: normal;
+  font-size: 1.2em;
+}
+
+.link-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.link-buttons a {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  background-color: #37d857;
+  color: black;
+  border: solid black;
+  border-radius: 0.5em;
+  padding: 0.625em 1.25em;
+  font-size: 1em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.link-buttons form button {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  background-color: #ff311e;
+  color: black;
+  border: solid black;
+  border-radius: 0.5em;
+  padding: 0.625em 1.25em;
+  font-size: 1em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  cursor: pointer;
+}
+
+.link-buttons a:hover {
+  background-color: #00ff33;
+}
+
+.link-buttons form button:hover {
+  background-color: rgb(255, 0, 0);
+}
+
+.link-buttons form {
+  margin: 0;
+  display: inline-block;
 }
 
 @media (max-width: 35em) {

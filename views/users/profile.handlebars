@@ -30,8 +30,11 @@
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
         <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
             alt="{{this.name}} top image"></a>
-        <p>Rating: {{this.averageRating}}</p>
-        <a href="/users/profile/removeFav/{{this._id}}">Remove from favorites</a>
+        <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this._id}}">View Spot Details</a>
+          <a href="/users/profile/removeFav/{{this._id}}">Remove from favorites</a>
+        </div>
       </section>
       {{/each}}
       {{else}}
@@ -40,8 +43,10 @@
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
         <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
             alt="{{this.name}} top image"></a>
-        <p>Rating: {{this.averageRating}}</p>
-        <a href="/users/profile/removeFav/{{this._id}}">Remove from favorites</a>
+        <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this._id}}">View Spot Details</a>
+        </div>
       </section>
       {{/each}}
       {{/if}}
@@ -59,23 +64,27 @@
       {{#each submittedSpots}}
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-        <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
-            alt="{{this.name}} top image"></a>
-        <p>Rating: {{this.averageRating}}</p>
-        <a href="/spots/edit/{{this._id}}">Edit spot details</a>
-        <form method="POST" action="/spots/{{this._id}}">
-          <input type="hidden" name="_method" value="DELETE">
-          <button type="submit">Delete Spot</button>
-        </form>
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this._id}}">View Spot Details</a>
+          <a href="/spots/edit/{{this._id}}">Edit Spot Details</a>
+          <form method="POST" action="/spots/{{this._id}}">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="delete" type="submit">Delete Spot</button>
+          </form>
+        </div>
       </section>
       {{/each}}
       {{else}}
       {{#each submittedSpots}}
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-        <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
-            alt="{{this.name}} top image"></a>
-        <p>Rating: {{this.averageRating}}</p>
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this._id}}">View Spot Details</a>
+        </div>
       </section>
       {{/each}}
       {{/if}}
@@ -92,28 +101,32 @@
       {{#if sameUser}}
       {{#each comments}}
       <section>
-        <h3>{{this.message}}</h3>
+        <h3 class="comment-message">{{this.message}}</h3>
         {{#if this.image}}
         <img class="comment-image-user-profile" src="{{this.image.url}}"
           alt="{{profile.firstName}} {{profile.lastName}} comment image">
         {{/if}}
-        <a href="/spots/details/{{this.spotId}}">View this comment's spot details</a>
-        <a href="/spots/comments/edit/">Edit comment</a>
-        <form method="POST" action="/spots/deleteComment/{{this._id}}">
-          <input type="hidden" name="_method" value="DELETE">
-          <button type="submit">Delete Comment</button>
-        </form>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this.spotId}}">View Comment's Spot Details</a>
+          <a href="/spots/comments/edit/">Edit Comment</a>
+          <form method="POST" action="/spots/deleteComment/{{this._id}}">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="delete" type="submit">Delete Comment</button>
+          </form>
+        </div>
       </section>
       {{/each}}
       {{else}}
       {{#each comments}}
       <section>
-        <h3>{{this.message}}</h3>
+        <h3 class="comment-message">{{this.message}}</h3>
         {{#if this.image}}
         <img class="comment-image-user-profile" src="{{this.image.url}}"
           alt="{{profile.firstName}} {{profile.lastName}} comment image">
         {{/if}}
-        <a href="/spots/details/{{this.spotId}}">View this comment's spot details</a>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this.spotId}}">View Comment's Spot Details</a>
+        </div>
       </section>
       {{/each}}
       {{/if}}
@@ -131,13 +144,15 @@
       {{#each ratings}}
       {{#if this.spot}}
       <section>
-        <h3>{{this.spot.name}}</h3>
-        <p>Your rating: {{this.rating}}</p>
-        <a href="/spots/details/{{this.spot._id}}">Modify your rating in the spot's page</a>
-        <form method="POST" action="/spots/deleteRating/{{this._id}}">
-          <input type="hidden" name="_method" value="DELETE">
-          <button type="submit">Delete Rating</button>
-        </form>
+        <h3><a href="/spots/details/{{this.spot._id}}">{{this.spot.name}}</a></h3>
+        <p class="rating">Your rating: {{this.rating}} out of 10</p>
+        <div class="link-buttons">
+          <a href="/spots/details/{{this.spot._id}}">Edit Rating in Spot's Page</a>
+          <form method="POST" action="/spots/deleteRating/{{this._id}}">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="delete" type="submit">Delete Rating</button>
+          </form>
+        </div>
       </section>
       {{/if}}
       {{/each}}
@@ -153,7 +168,7 @@
     <div class="scrolltype">
       {{#if contestSubmissions}}
       {{#each contestSubmissions}}
-      <div>
+      <div class="submissions">
         <img class="contest-image-user-profile" src="{{this.image.url}}"
           alt="{{profile.firstName}} {{profile.lastName}} contest image">
       </div>
