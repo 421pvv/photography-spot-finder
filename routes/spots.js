@@ -935,4 +935,52 @@ router.route("/search").get(async (req, res) => {
     });
   }
 });
+
+router.route("/:spotId").delete(async (req, res) => {
+  let errors = [];
+  let spotId;
+  let spotInfo;
+  try {
+    spotId = validation.validateString(req.params.spotId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    spotInfo = await spotsData.getSpotById(spotId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== spotInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a spot that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/profile");
+  }
+
+  try {
+    await spotsData.deleteSpot(spotId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/profile");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+});
 export default router;
