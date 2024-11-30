@@ -45,7 +45,10 @@
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
-          <a href="/users/profile/removeFav/{{this._id}}">Remove from favorites</a>
+          <form method="POST" action="/spots/removefavorite/{{this._id}}">
+            <input type="hidden" name="_method" value="DELETE">
+            <button class="delete" type="submit">Remove from favorites</button>
+          </form>
         </div>
       </section>
       {{/each}}

@@ -992,7 +992,7 @@ router.route("/:spotId").delete(async (req, res) => {
   let spotId;
   let spotInfo;
   try {
-    spotId = validation.validateString(req.params.spotId);
+    spotId = validation.validateString(req.params.spotId, "spotId", true);
   } catch (e) {
     logger.log(e);
     errors = errors.concat(e);
@@ -1040,7 +1040,11 @@ router.route("/deleteComment/:commentId").delete(async (req, res) => {
   let commentId;
   let commentInfo;
   try {
-    commentId = validation.validateString(req.params.commentId);
+    commentId = validation.validateString(
+      req.params.commentId,
+      "commentId",
+      true
+    );
   } catch (e) {
     logger.log(e);
     errors = errors.concat(e);
@@ -1092,7 +1096,7 @@ router.route("/deleteRating/:ratingId").delete(async (req, res) => {
   let ratingId;
   let ratingInfo;
   try {
-    ratingId = validation.validateString(req.params.ratingId);
+    ratingId = validation.validateString(req.params.ratingId, "ratingId", true);
   } catch (e) {
     logger.log(e);
     errors = errors.concat(e);
@@ -1137,5 +1141,57 @@ router.route("/deleteRating/:ratingId").delete(async (req, res) => {
       .status(200)
       .redirect(`/users/profile/${req.session.user.username}`);
   }
+});
+
+router.route("/removefavorite/:spotId").delete(async (req, res) => {
+  let errors = [];
+  let spotId;
+  let userInfo;
+  try {
+    spotId = validation.validateString(req.params.spotId, "spotId", true);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+  if (!req.session.user) {
+    logger.log("User not logged in");
+    errors.push("Please login first!");
+    res.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+  if (errors.length > 0) {
+    res.session.authorizationErrors = errors;
+    return res.status(401).redirect("users/login");
+  }
+
+  if (userInfo.favoriteSpots.indexOf(spotId) == -1) {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+
+  try {
+    await userData.putFavoriteSpot(req.session.user._id.toString(), spotId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    res.session.authorizationErrors = errors;
+    return res.status(401).redirect("users/login");
+  }
+
+  return res
+    .status(200)
+    .redirect(`/users/profile/${req.session.user.username}`);
 });
 export default router;
