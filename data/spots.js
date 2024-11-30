@@ -309,10 +309,16 @@ const deleteSpot = async (spotId, userId) => {
     await spotsCollection.deleteOne({
       _id: ObjectId.createFromHexString(spotId),
     });
-    await spotsCollection.deleteMany({
+
+    // deleting spot's ratings and comments
+
+    const commentsCollection = await comments();
+    await commentsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
-    await spotsCollection.deleteMany({
+
+    const ratingsCollection = await spotRatings();
+    await ratingsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
   } catch (e) {
@@ -322,17 +328,6 @@ const deleteSpot = async (spotId, userId) => {
   // delete all images from cloud
   const orphanImages = curSpot.images.map((image) => image.public_id);
   await cloudinaryData.deleteImages(orphanImages);
-
-  // deleting spot's ratings and comments
-  // const commentsCollection = await comments();
-  // await commentsCollection.deleteMany({
-  //   spotId: ObjectId.createFromHexString(spotId),
-  // });
-
-  // const ratingsCollection = await spotRatings();
-  // await ratingsCollection.deleteMany({
-  //   spotId: ObjectId.createFromHexString(spotId),
-  // });
 
   return curSpot;
 };
@@ -582,7 +577,6 @@ const putSpotRating = async (spotId, userId, rating, date) => {
   }
 
   //TODO add trigger for conest spots resubmisison
- 
 };
 
 const getSpotRatingByUserId = async (spotId, userId) => {

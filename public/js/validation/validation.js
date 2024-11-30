@@ -223,6 +223,17 @@ function validateRating(rating) {
   }
 }
 
+const validateEmail = (email) => {
+  email = validateString(email, "email");
+  // got email regex from https://regex101.com/library/SOgUIV
+  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+
+  if (!emailRegex.test(email)) {
+    throw [`Email (${email}) is not valid!`];
+  }
+  return email.toLowerCase();
+};
+
 export default {
   validateString,
   validateUsername,
@@ -232,4 +243,5 @@ export default {
   validateRating,
   validateCoordinates,
   validateNumber,
+  validateEmail,
 };
