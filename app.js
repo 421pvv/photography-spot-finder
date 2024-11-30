@@ -65,6 +65,7 @@ app.use("*", (req, res, next) => {
       url: "userVotes",
       error: "vote for a contest submission!",
     },
+    { url: "spots/favorite", error: "favorite a spot!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>

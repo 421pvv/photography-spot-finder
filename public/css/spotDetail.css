@@ -213,3 +213,15 @@ input[type="file"] {
 .detailForms input[type="submit"]:hover {
   background-color: #00ff33;
 }
+
+.fa {
+  font-size: 5vh;
+  margin-right: 1em;
+  margin-left: 1em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.favorite {
+  color: yellow;
+}

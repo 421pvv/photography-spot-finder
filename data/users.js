@@ -352,6 +352,38 @@ const getUserContestSubmissions = async (userId) => {
   return userContestSubmissions;
 };
 
+const putFavoriteSpot = async (userId, spotId) => {
+  userId = validation.validateString(userId, "user id", true);
+  let userInfo = await getUserProfileById(userId);
+
+  spotId = validation.validateString(spotId, "Spote id", true);
+  let spotInfo = await spotsData.getSpotById(spotId);
+  const usersCollection = await users();
+  if (userInfo.favoriteSpots.indexOf(spotId) == -1) {
+    await usersCollection.updateOne(
+      {
+        _id: ObjectId.createFromHexString(userId),
+      },
+      {
+        $addToSet: {
+          favoriteSpots: spotId,
+        },
+      }
+    );
+  } else {
+    await usersCollection.updateOne(
+      {
+        _id: ObjectId.createFromHexString(userId),
+      },
+      {
+        $pull: {
+          favoriteSpots: spotId,
+        },
+      }
+    );
+  }
+};
+
 export default {
   createUser,
   getUserByUsername,
@@ -365,4 +397,5 @@ export default {
   getUserSubmittedSpots,
   getUserRatings,
   getUserContestSubmissions,
+  putFavoriteSpot,
 };

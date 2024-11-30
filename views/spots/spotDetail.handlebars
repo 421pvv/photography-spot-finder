@@ -1,4 +1,4 @@
-<article>
+<article data-id="{{spot._id}}">
     <header>
         <h1 class="page_title">{{spot.spotName}}</h1>
     </header>
@@ -11,6 +11,10 @@
             <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
             <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
             <p>Tags: <span>{{spot.spotTags}}</span></p>
+            {{#if viewingUser._id}}
+            <p>Favorite Spot: <i class="fa fa-star {{viewingUser.favorite}}"></i> </p>
+            {{/if}}
+
         </section>
 
         <section>
@@ -214,3 +218,4 @@
 
 <script type="module" src="/public/js/spots/addSpotComment.js"> </script>
 <script type="module" src="/public/js/spots/addSpotRating.js"> </script>
+<script type="module" src="/public/js/spots/favoriteSpot.js"> </script>

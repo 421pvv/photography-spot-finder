@@ -7,6 +7,45 @@ import { MongoCryptKMSRequestNetworkTimeoutError } from "mongodb";
 import { contestRatings, spots } from "../config/mongoCollections.js";
 import log from "../log.js";
 const router = express.Router();
+router.route("/favorite/:spotId").put(async (req, res) => {
+  let { spotId } = req.params;
+  let userInfo;
+  logger.log("Attempting to favorite spot: ", spotId, req.session.user);
+
+  try {
+    spotId = validation.validateString(req.params.spotId);
+    await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${spotId} is not a valid id!`];
+    return res.status(400).redirect("/spots/search");
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.putFavoriteSpot(userInfo._id.toString(), spotId);
+    return res.status(200).json({
+      favoriteSpot: "succesful",
+    });
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(500).json({
+      error: "Favorite spot failed!",
+    });
+  }
+});
 
 router.route("/details/:spotId").get(async (req, res) => {
   let errors = [];
@@ -64,12 +103,24 @@ router.route("/details/:spotId").get(async (req, res) => {
     } catch (e) {
       logger.log(e);
     }
+
+    try {
+      const userInfo = await userData.getUserProfileById(viewUser._id);
+      if (userInfo.favoriteSpots.includes(spotId)) {
+        viewUser.favorite = "favorite";
+      } else {
+        viewUser.favorite = "";
+      }
+    } catch (e) {
+      logger.log(e);
+    }
   }
   logger.log("viewing user info", viewUser);
 
   const renderProps = {
     user: req.session.user,
     styles: [
+      `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">`,
       `<link rel="stylesheet" href="/public/css/spotDetail.css">`,
       `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">`,
       `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
