@@ -10,7 +10,7 @@ import validation from "../validation.js";
 import bcrypt from "bcrypt";
 import logger from "../log.js";
 import { ObjectId } from "mongodb";
-import { spotsData } from "./index.js";
+import { spotsData, contestData } from "./index.js";
 
 export const createUser = async (firstName, lastName, username, password) => {
   firstName = validation.validateString(firstName, "First Name");
@@ -394,6 +394,97 @@ const putFavoriteSpot = async (userId, spotId) => {
         },
       }
     );
+  }
+};
+
+// Report functions for users
+const reportSpot = async (userId, spotId) => {
+  userId = validation.validateString(userId, "userId", true);
+  spotId = validation.validateString(spotId, "spotId", true);
+  let userInfo = await getUserProfileById(userId);
+  const userSpotReports = userInfo.spotReports;
+  if (userSpotReports.includes(spotId)) {
+    throw ["User already reported the spot"];
+  }
+  let spotInfo = await spotsData.getSpotById(spotId);
+  const reportCount = spotInfo.reportCount + 1;
+  userSpotReports.push(spotId);
+  const updatedUserObject = { spotReports: userSpotReports };
+  const updatedSpotObject = { reportCount: reportCount };
+  let spotsCollection = await spots();
+  let usersCollection = await users();
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(userId) },
+    { $set: updatedUserObject },
+    { returnDocument: "after" }
+  );
+  const updatedSpot = await spotsCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(spotId) },
+    { $set: updatedSpotObject },
+    { returnDocument: "after" }
+  );
+  if (!updatedUser || !updatedSpot) {
+    throw ["Failed to report spot"];
+  }
+};
+
+const reportComment = async (userId, commentId) => {
+  userId = validation.validateString(userId, "userId", true);
+  commentId = validation.validateString(commentId, "commentId", true);
+  let userInfo = await getUserProfileById(userId);
+  const userCommentReports = userInfo.commentReports;
+  if (userCommentReports.includes(commentId)) {
+    throw ["User already reported the comment"];
+  }
+  let commentInfo = await spotsData.getCommentById(commentId);
+  const reportCount = commentInfo.reportCount + 1;
+  userCommentReports.push(commentId);
+  const updatedUserObject = { commentReports: userCommentReports };
+  const updatedCommentObject = { reportCount: reportCount };
+  let commentsCollection = await comments();
+  let usersCollection = await users();
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(userId) },
+    { $set: updatedUserObject },
+    { returnDocument: "after" }
+  );
+  const updatedComment = await commentsCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(commentId) },
+    { $set: updatedCommentObject },
+    { returnDocument: "after" }
+  );
+  if (!updatedUser || !updatedComment) {
+    throw ["Failed to report comment"];
+  }
+};
+
+const reportContestSubmission = async (userId, submissionId) => {
+  userId = validation.validateString(userId, "userId", true);
+  submissionId = validation.validateString(submissionId, "submissionId", true);
+  let userInfo = await getUserProfileById(userId);
+  const userContestReports = userInfo.contestReports;
+  if (userContestReports.includes(submissionId)) {
+    throw ["User already reported the contest submission"];
+  }
+  let submissionInfo = await contestData.getContestSubmissionById(submissionId);
+  const reportCount = submissionInfo.reportCount + 1;
+  userContestReports.push(submissionId);
+  const updatedUserObject = { contestReports: userContestReports };
+  const updatedSpotObject = { reportCount: reportCount };
+  let contestSubmissionsCollection = await contestSubmissions();
+  let usersCollection = await users();
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(userId) },
+    { $set: updatedUserObject },
+    { returnDocument: "after" }
+  );
+  const updatedSubmission = await contestSubmissionsCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(submissionId) },
+    { $set: updatedSpotObject },
+    { returnDocument: "after" }
+  );
+  if (!updatedUser || !updatedSubmission) {
+    throw ["Failed to report contest submission"];
   }
 };
 
