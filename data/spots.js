@@ -716,6 +716,122 @@ const updateSpotAggregateStatistics = async (spotId) => {
   );
 };
 
+// Functions for admin panel (Spots and comments with report count greater than or equal to 20)
+const getReportedSpots = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  let query = { reportCount: { $gte: 20 } };
+  const spotsCollection = await spots();
+  const reportedSpotsList = await spotsCollection.find(query).toArray();
+  if (!reportedSpotsList) {
+    throw ["Could not get reported spots"];
+  }
+  return reportedSpotsList;
+};
+
+const deleteReportedSpot = async (spotId, userId) => {
+  spotId = validation.validateString(spotId, "spotId", true);
+  const spotInfo = await getSpotById(id);
+  if (spotInfo.reportCount < 20) {
+    throw ["The spot has report count less than 20"];
+  }
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  const deletedSpot = await deleteSpot(spotId, spotInfo.posterId.toString());
+  return deletedSpot;
+};
+
+const clearSpotReports = async (spotId, userId) => {
+  spotId = validation.validateString(spotId, "spotId", true);
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  const updateObj = { reportCount: 0 };
+  const spotsCollection = await spots();
+  const clearedSpot = await spotsCollection.findOneAndUpdate(
+    {
+      _id: ObjectId.createFromHexString(spotId),
+    },
+    {
+      $set: updateObj,
+    },
+    {
+      returnDocument: "after",
+    }
+  );
+  if (!clearedSpot) {
+    throw ["Spot Report clearing failed"];
+  }
+  return clearedSpot;
+};
+
+const getReportedComments = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  let query = { reportCount: { $gte: 20 } };
+  const commentsCollection = await comments();
+  const reportedCommentsList = await commentsCollection.find(query).toArray();
+  if (!reportedCommentsList) {
+    throw ["Could not get reported comments"];
+  }
+  return reportedCommentsList;
+};
+
+const deleteReportedComment = async (commentId, userId) => {
+  commentId = validation.validateString(commentId, "commentId", true);
+  const commentInfo = await getCommentById(id);
+  if (commentInfo.reportCount < 20) {
+    throw ["The comment has report count less than 20"];
+  }
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  const deletedComment = await deleteComment(
+    commentId,
+    commentInfo.posterId.toString()
+  );
+  return deletedComment;
+};
+
+const clearCommentReports = async (commentId, userId) => {
+  commentId = validation.validateString(commentId, "commentId", true);
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  const updateObj = { reportCount: 0 };
+  const commentsCollection = await comments();
+  const clearedComment = await commentsCollection.findOneAndUpdate(
+    {
+      _id: ObjectId.createFromHexString(commentId),
+    },
+    {
+      $set: updateObj,
+    },
+    {
+      returnDocument: "after",
+    }
+  );
+  if (!clearedComment) {
+    throw ["Comment Report clearing failed"];
+  }
+  return clearedComment;
+};
+
 export default {
   createSpot,
   updateSpot,
@@ -733,4 +849,10 @@ export default {
   deleteRating,
   getSpotRatingByUserId,
   getDisplayCommentsBySpotId,
+  getReportedSpots,
+  deleteReportedSpot,
+  clearSpotReports,
+  getReportedComments,
+  deleteReportedComment,
+  clearCommentReports,
 };

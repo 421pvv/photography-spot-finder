@@ -283,7 +283,6 @@ const updateTopContestSpots = async () => {
   const topSpots = await spotsRatingsList
     .aggregate([
       {
-
         $match: {
           createdAt: { $gte: currentMonth },
         },
@@ -331,7 +330,7 @@ const updateTopContestSpots = async () => {
     reportCount: spot.spotDetails.reportCount || 0,
     averageRating: spot.averageRating,
     totalRatings: spot.totalRatings,
-    contestInfo: currentMonth
+    contestInfo: currentMonth,
   }));
 
   if (newTopSpots.length > 0) {
@@ -339,10 +338,8 @@ const updateTopContestSpots = async () => {
   }
 };
 
-
 const validateContestSpotSubmission = async (spotId) => {
-  
-  validation.validateString(spotId , "id", true)
+  validation.validateString(spotId, "id", true);
 
   const spotInfo = await getContestSpotsById(spotId);
   if (!spotInfo) {
@@ -350,7 +347,7 @@ const validateContestSpotSubmission = async (spotId) => {
   }
 
   const contestId = spotInfo.contestId;
-  validation.validateString(contestId, "id", true)
+  validation.validateString(contestId, "id", true);
 
   const contest = await getContestById(contestId);
   if (!contest) {
@@ -358,17 +355,92 @@ const validateContestSpotSubmission = async (spotId) => {
   }
 
   const currentDate = new Date();
-  const previousMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
-  const previousMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+  const previousMonthStart = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth() - 1,
+    1
+  );
+  const previousMonthEnd = new Date(
+    currentDate.getFullYear(),
+    currentDate.getMonth(),
+    0
+  );
 
   if (
-    !(new Date(contest.startDate) >= previousMonthStart && new Date(contest.startDate) <= previousMonthEnd)
+    !(
+      new Date(contest.startDate) >= previousMonthStart &&
+      new Date(contest.startDate) <= previousMonthEnd
+    )
   ) {
     throw ["Contest is not from the previous month."];
   }
 
   return spotInfo;
-  
+};
+
+// Functions for Admin Panel (Submissions with report count greater than or equal to 20)
+const getReportedContestSubmissions = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  let query = { reportCount: { $gte: 20 } };
+  const contestSubmissionsCollection = await contestSubmissions();
+  const reportedSubmissionsList = await contestSubmissionsCollection
+    .find(query)
+    .toArray();
+  if (!reportedSubmissionsList) {
+    throw ["Could not get reported contest submissions"];
+  }
+  return reportedSubmissionsList;
+};
+
+const deleteReportedContestSubmission = async (submissionId, userId) => {
+  submissionId = validation.validateString(submissionId, "submissionId", true);
+  const submissionInfo = await getContestSubmissionById(id);
+  if (submissionInfo.reportCount < 20) {
+    throw ["The submission has report count less than 20"];
+  }
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  try {
+    const contestSubmissionsCollection = await contestSubmissions();
+    await contestSubmissionsCollection.deleteOne({
+      _id: ObjectId.createFromHexString(submissionId),
+    });
+    const contestRatingsCollection = await contestRatings();
+    await contestRatingsCollection.deleteMany({
+      contestSubmissionId: ObjectId.createFromHexString(submissionId),
+    });
+  } catch (e) {
+    throw ["Contest submission delete failed"];
+  }
+};
+
+const clearContestSubmissionReports = async (submissionId, userId) => {
+  submissionId = validation.validateString(submissionId, "submissionId", true);
+  userId = validation.validateString(userId, "userId", true);
+  const userInfo = await userData.getUserProfileById(userId);
+  if (userInfo.role !== "admin") {
+    throw ["The user is not an admin"];
+  }
+  const updateObj = { reportCount: 0 };
+  const contestSubmissionsCollection = await contestSubmissions();
+  const clearedSubmission = await contestSubmissionsCollection.findOneAndUpdate(
+    {
+      _id: ObjectId.createFromHexString(submissionId),
+    },
+    { $set: updateObj },
+    { returnDocument: "after" }
+  );
+  if (!clearedSubmission) {
+    throw ["Failed to clear reports of contest submission"];
+  }
+  return clearedSubmission;
 };
 
 export default {
@@ -381,5 +453,8 @@ export default {
   putContestSubmissionVote,
   deleteContestSubmissionVote,
   submitContestImage,
-  validateContestSpotSubmission
+  validateContestSpotSubmission,
+  getReportedContestSubmissions,
+  deleteReportedContestSubmission,
+  clearContestSubmissionReports,
 };
