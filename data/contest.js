@@ -272,7 +272,7 @@ const submitContestImage = async (url, public_id, userId, spotId, date) => {
   return submision;
 };
 
-const updateTopContestSpots = async (contestInfo) => {
+const updateTopContestSpots = async () => {
   const current = new Date();
   const currentMonth = new Date(current.getFullYear(), current.getMonth(), 1);
 
@@ -283,6 +283,7 @@ const updateTopContestSpots = async (contestInfo) => {
   const topSpots = await spotsRatingsList
     .aggregate([
       {
+
         $match: {
           createdAt: { $gte: currentMonth },
         },
@@ -330,6 +331,7 @@ const updateTopContestSpots = async (contestInfo) => {
     reportCount: spot.spotDetails.reportCount || 0,
     averageRating: spot.averageRating,
     totalRatings: spot.totalRatings,
+    contestInfo: currentMonth
   }));
 
   if (newTopSpots.length > 0) {
@@ -338,11 +340,36 @@ const updateTopContestSpots = async (contestInfo) => {
 };
 
 
-// const canSubmit = async (contestId, submisson) => {
-//   const current = new Date()
+const validateContestSpotSubmission = async (spotId) => {
+  
+  validation.validateString(spotId , "id", true)
 
-//   const contestSpotsList = await con
-// }
+  const spotInfo = await getContestSpotsById(spotId);
+  if (!spotInfo) {
+    throw ["Contest spot not found."];
+  }
+
+  const contestId = spotInfo.contestId;
+  validation.validateString(contestId, "id", true)
+
+  const contest = await getContestById(contestId);
+  if (!contest) {
+    throw ["No contest associated with this contest spot."];
+  }
+
+  const currentDate = new Date();
+  const previousMonthStart = new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1);
+  const previousMonthEnd = new Date(currentDate.getFullYear(), currentDate.getMonth(), 0);
+
+  if (
+    !(new Date(contest.startDate) >= previousMonthStart && new Date(contest.startDate) <= previousMonthEnd)
+  ) {
+    throw ["Contest is not from the previous month."];
+  }
+
+  return spotInfo;
+  
+};
 
 export default {
   getContestSpotsList,
@@ -354,4 +381,5 @@ export default {
   putContestSubmissionVote,
   deleteContestSubmissionVote,
   submitContestImage,
+  validateContestSpotSubmission
 };
