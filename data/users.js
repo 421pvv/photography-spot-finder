@@ -252,7 +252,10 @@ const getUserComments = async (userId) => {
   const commentsCollection = await comments();
   const commentsOfUser = await commentsCollection
     .find({
-      posterId: ObjectId.createFromHexString(userId),
+      $and: [
+        { posterId: ObjectId.createFromHexString(userId) },
+        { reportCount: { $lt: 20 } },
+      ],
     })
     .toArray();
   if (!commentsOfUser) {
@@ -313,7 +316,12 @@ const getUserSubmittedSpots = async (userId) => {
   userId = validation.validateString(userId, "userId", true);
   const spotsCollection = await spots();
   const userSpots = await spotsCollection
-    .find({ posterId: ObjectId.createFromHexString(userId) })
+    .find({
+      $and: [
+        { posterId: ObjectId.createFromHexString(userId) },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
     .toArray();
   if (!userSpots) {
     throw [`Could not get spots of the user with id of ${userId}`];
@@ -344,7 +352,12 @@ const getUserContestSubmissions = async (userId) => {
   userId = validation.validateString(userId, "userId", true);
   const constestSubmissionsCollection = await contestSubmissions();
   let userContestSubmissions = await constestSubmissionsCollection
-    .find({ posterId: ObjectId.createFromHexString(userId) })
+    .find({
+      $and: [
+        { posterId: ObjectId.createFromHexString(userId) },
+        { reportCount: { $lt: 20 } },
+      ],
+    })
     .toArray();
   if (!userContestSubmissions) {
     throw [`Could not get ratings of user with id of ${userId}`];
