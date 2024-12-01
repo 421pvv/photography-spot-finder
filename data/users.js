@@ -502,4 +502,7 @@ export default {
   getUserRatings,
   getUserContestSubmissions,
   putFavoriteSpot,
+  reportSpot,
+  reportComment,
+  reportContestSubmission,
 };
