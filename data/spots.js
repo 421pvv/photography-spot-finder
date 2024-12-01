@@ -436,6 +436,7 @@ const addComment = async (spotId, userId, message, createdAt, image) => {
   } else {
     commentObject.image = null;
   }
+  commentObject.reportCount = 0;
 
   let commentResult;
   try {
@@ -548,8 +549,6 @@ const putSpotRating = async (spotId, userId, rating, date) => {
     throw ["Invalid date for rating."];
   }
   ratingObject.createdAt = date;
-
-  ratingObject.reportCount = 0;
 
   let insertedRating;
   try {
