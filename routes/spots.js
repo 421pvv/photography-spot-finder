@@ -1194,4 +1194,63 @@ router.route("/removefavorite/:spotId").delete(async (req, res) => {
     .status(200)
     .redirect(`/users/profile/${req.session.user.username}`);
 });
+
+router.route("/byDistanceJSON").get(async (req, res) => {
+  let errors = [];
+  logger.log(req.query);
+  let { longitude, latitude, distance } = req.query;
+  logger.log("Search by location for", longitude, latitude, distance);
+  try {
+    distance = parseFloat(distance);
+    validation.validateNumber(distance);
+    if (distance < 0) {
+      thorw`Invalid radius!`;
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    longitude = parseFloat(longitude);
+    latitude = parseFloat(latitude);
+    validation.validateCoordinates(longitude, latitude);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({
+      errors: errors,
+    });
+  }
+
+  try {
+    const spots = await spotsData.getSpotsByDistance(
+      distance,
+      longitude,
+      latitude
+    );
+
+    return res.status(200).json({ data: spots });
+  } catch (e) {
+    logger.log(e);
+    return res.status(500).json({
+      errors: [e],
+    });
+  }
+});
+
+router.route("/byDistance").get(async (req, res) => {
+  return res.status(200).render("spots/searchByDistance", {
+    user: req.session.user,
+    styles: [
+      `<link rel="stylesheet" href="/public/css/distanceSearch.css">`,
+      `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">`,
+      `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
+    ],
+    apikey: process.env.MAPBOX_API_TOKEN,
+  });
+});
 export default router;

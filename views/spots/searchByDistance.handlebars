@@ -1,0 +1,81 @@
+<div class="invalidResourceError">
+    {{#each invalidResourceErrors}}
+    <p>{{this}}</p>
+    {{/each}}
+</div>
+
+<div class="distance-search">
+    <form id="filterForm">
+        <label for="distance">Search radius distance: </label>
+        <input type="number" id="distance" name="distance" placeholder="Enter # miles for search radius..."
+            value="{{distance}}" step="0.001" min="0.001">
+        <button type="submit" id="applyFilterButton">Search</button>
+    </form>
+</div>
+
+<section id="spotsMapSection">
+    <div id="map"></div>
+    <button id="mapRecenter">Recenter map</button>
+</section>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+
+
+<script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.min.js"></script>
+<script>
+    let distanceLocation;
+    let userMarker;
+    let userLocation;
+    let map;
+
+    let currentSpots = [];
+    // set up map
+    $(document).ready(() => {
+        let geolocation = navigator.geolocation;
+        geolocation.getCurrentPosition(
+            handleCurrentLocation
+            ,
+            handleLocationError
+        )
+        function handleCurrentLocation(position) {
+            setUpMap([position.coords.longitude, position.coords.latitude]);
+        }
+        function handleLocationError(error) {
+            setUpMap([-73.971321, 40.766676]);
+        }
+
+        function setUpMap(position) {
+            let defaultLoc = position;
+            distanceLocation = position;
+            mapboxgl.accessToken = "{{apikey}}";
+            let marker;
+
+            map = new mapboxgl.Map({
+                container: "map",
+                center: defaultLoc,
+                style: "mapbox://styles/mapbox/satellite-v9",
+                projection: "globe",
+                zoom: 15,
+            });
+            marker = new mapboxgl.Marker().setLngLat(defaultLoc).addTo(map);
+            userMarker = marker;
+            userLocation = position;
+            map.on("style.load", () => {
+                map.setFog({});
+            });
+
+            $("#mapRecenter").click(() => {
+                map.flyTo({
+                    center: defaultLoc,
+                    zoom: 15,
+                });
+            });
+        }
+    })
+
+</script>
+
+<script type="module" src="/public/js/spots/distanceSearch.js"> </script>

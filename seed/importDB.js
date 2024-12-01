@@ -30,6 +30,9 @@ async function importDB(fileName) {
     }/${collection}.json`}" --jsonArray`;
     execSync(command);
   }
+  const spotsCollection = await spots();
+  await spotsCollection.createIndex({ location: "2dsphere" });
+
   await closeConnection();
 }
 

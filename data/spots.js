@@ -91,6 +91,34 @@ const createSpot = async (
   return spot;
 };
 
+const getSpotsByDistance = async (distance, long, lat) => {
+  validation.validateNumber(distance);
+  if (distance < 0) {
+    throw `Distance cannot be negative!`;
+  }
+
+  validation.validateCoordinates(long, lat);
+
+  distance = 1609.34 * distance; // convert from miles to meters
+  logger.log("Querying for spots in radius", distance);
+  const spotsCollection = await spots();
+  const allSpotsList = await spotsCollection
+    .find({
+      location: {
+        $near: {
+          $geometry: { type: "Point", coordinates: [long, lat] },
+          $minDistance: 0,
+          $maxDistance: distance,
+        },
+      },
+    })
+    .toArray();
+  if (!allSpotsList) {
+    throw ["Spots search by distance failed!"];
+  }
+  return allSpotsList;
+};
+
 // gets all spots with report count less than 20 and with the given filters (if filters are ptovided)
 const getAllSpots = async (keyword, filter) => {
   logger.log("Getting all spots with query: ");
@@ -855,4 +883,5 @@ export default {
   getReportedComments,
   deleteReportedComment,
   clearCommentReports,
+  getSpotsByDistance,
 };
