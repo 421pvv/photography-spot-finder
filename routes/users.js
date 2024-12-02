@@ -91,11 +91,18 @@ router
 router
   .route("/login")
   .get(async (req, res) => {
+    if (req.query.message) {
+      if (req.session.authorizationErrors) {
+        req.session.authorizationErrors.push(req.query.message);
+      } else {
+        req.session.authorizationErrors = [req.query.message];
+      }
+    }
     res.render("users/login", {
-      authErrors: req.session.authErrors,
+      authErrors: req.session.authorizationErrors,
       hasAuthErrors: true,
     });
-    delete req.session.authErrors;
+    delete req.session.authorizationErrors;
   })
   .post(async (req, res) => {
     const loginData = req.body;
@@ -200,7 +207,7 @@ router
     let errors = [];
     if (!req.session.user) {
       errors.push("You must login before trying to edit profile!");
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
     let userId = req.session.user._id;
@@ -216,7 +223,7 @@ router
       errors = errors.concat(e);
     }
     if (errors.length > 0) {
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
     return res
@@ -229,7 +236,7 @@ router
     let errors = [];
     if (!req.session.user) {
       errors.push("You must login before trying to edit profile!");
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
     let userId = req.session.user._id;
@@ -245,7 +252,7 @@ router
       errors = errors.concat(e);
     }
     if (errors.length > 0) {
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
 
@@ -313,7 +320,7 @@ router
     let errors = [];
     if (!req.session.user) {
       errors.push("You must login before trying to update password!");
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
     let userId = req.session.user._id;
@@ -329,7 +336,7 @@ router
       errors = errors.concat(e);
     }
     if (errors.length > 0) {
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
     return res.status(400).render("users/updatepassword", {
@@ -343,7 +350,7 @@ router
     let errors = [];
     if (!req.session.user) {
       errors.push("You must login before trying to update password!");
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
     let userId = req.session.user._id;
@@ -359,7 +366,7 @@ router
       errors = errors.concat(e);
     }
     if (errors.length > 0) {
-      req.session.authErrors = errors;
+      req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
 
@@ -426,7 +433,9 @@ router
     }
 
     req.session.destroy();
-    return res.redirect("/users/login");
+    return res.redirect(
+      "/users/login?message=Please%20login%20again%20to%20continue"
+    );
   });
 
 export default router;
