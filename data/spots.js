@@ -1,7 +1,7 @@
 import { spots, comments, spotRatings } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { ObjectId } from "mongodb";
-import { userData, cloudinaryData } from "./index.js";
+import { userData, cloudinaryData, contestData } from "./index.js";
 import logger from "../log.js";
 import log from "../log.js";
 
@@ -601,9 +601,9 @@ const putSpotRating = async (spotId, userId, rating, date) => {
   } catch (e) {
     logger.log(e);
     throw [`Rating submision failed!`];
+  } finally {
+    await contestData.updateTopContestSpots();
   }
-
-  //TODO add trigger for conest spots resubmisison
 };
 
 const getSpotRatingByUserId = async (spotId, userId) => {
