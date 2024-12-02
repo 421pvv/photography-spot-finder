@@ -1,5 +1,12 @@
 export const usernamePolicies = [
-  { regex: /^[^ ]{6,}$/, error: "Username must have at least six characters!" },
+  {
+    regex: /^.{6,20}$/,
+    error: "Username must be between 6 to 20 characters long!",
+  },
+  {
+    regex: /^[0-9A-Za-z]+$/,
+    error: "Username must contain only alpha numeric characters!",
+  },
 ];
 
 export const passwordPolicies = [
