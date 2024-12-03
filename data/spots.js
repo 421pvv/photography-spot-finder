@@ -344,8 +344,23 @@ const deleteSpot = async (spotId, userId) => {
     });
 
     // deleting spot's ratings and comments
-
+    let commentImages = [];
     const commentsCollection = await comments();
+    const commentsImageData = await commentsCollection
+      .find(
+        { spotId: ObjectId.createFromHexString(spotId) },
+        { projection: { _id: 0, image: 1 } }
+      )
+      .toArray();
+
+    for (const imageData of commentsImageData) {
+      if (imageData.image !== null) {
+        commentImages.push(imageData.image.public_id);
+      }
+    }
+
+    await cloudinaryData.deleteImages(commentImages);
+
     await commentsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
