@@ -1,4 +1,9 @@
-import { spots, comments, spotRatings } from "../config/mongoCollections.js";
+import {
+  spots,
+  comments,
+  spotRatings,
+  users,
+} from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { ObjectId } from "mongodb";
 import { userData, cloudinaryData, contestData } from "./index.js";
@@ -772,6 +777,8 @@ const deleteReportedSpot = async (spotId, userId) => {
     throw ["The user is not an admin"];
   }
   const deletedSpot = await deleteSpot(spotId, spotInfo.posterId.toString());
+  const usersCollection = await users();
+  await usersCollection.updateMany({}, { $pull: { spotReports: spotId } });
   return deletedSpot;
 };
 
@@ -798,6 +805,8 @@ const clearSpotReports = async (spotId, userId) => {
   if (!clearedSpot) {
     throw ["Spot Report clearing failed"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany({}, { $pull: { spotReports: spotId } });
   return clearedSpot;
 };
 
@@ -831,6 +840,11 @@ const deleteReportedComment = async (commentId, userId) => {
     commentId,
     commentInfo.posterId.toString()
   );
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { commentReports: commentId } }
+  );
   return deletedComment;
 };
 
@@ -857,6 +871,11 @@ const clearCommentReports = async (commentId, userId) => {
   if (!clearedComment) {
     throw ["Comment Report clearing failed"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { commentReports: commentId } }
+  );
   return clearedComment;
 };
 

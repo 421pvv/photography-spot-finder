@@ -3,6 +3,7 @@ import {
   contestSpots,
   contestSubmissions,
   spotRatings,
+  users,
 } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import logger from "../log.js";
@@ -412,6 +413,11 @@ const deleteReportedContestSubmission = async (submissionId, userId) => {
     await contestRatingsCollection.deleteMany({
       contestSubmissionId: ObjectId.createFromHexString(submissionId),
     });
+    const usersCollection = await users();
+    await usersCollection.updateMany(
+      {},
+      { $pull: { contestReports: submissionId } }
+    );
   } catch (e) {
     throw ["Contest submission delete failed"];
   }
@@ -436,6 +442,11 @@ const clearContestSubmissionReports = async (submissionId, userId) => {
   if (!clearedSubmission) {
     throw ["Failed to clear reports of contest submission"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { contestReports: submissionId } }
+  );
   return clearedSubmission;
 };
 
