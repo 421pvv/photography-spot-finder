@@ -3,6 +3,7 @@ import {
   contestSpots,
   contestSubmissions,
   spotRatings,
+  users,
 } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import logger from "../log.js";
@@ -210,8 +211,6 @@ const putContestSubmissionVote = async (
       }
     );
 
-    await updateTopContestSpots();
-
     return insertedSubmission;
   } catch (e) {
     logger.log(e);
@@ -238,15 +237,13 @@ const deleteContestSubmissionVote = async (contestSubmissionId, posterId) => {
 };
 
 const submitContestImage = async (url, public_id, userId, spotId, date) => {
-  //TODO: check if it's valid to still submit for this contest spot
-
   validation.validateObject(date);
   if (!(date instanceof Date) || isNaN(date) || date > new Date()) {
     throw ["Invalid date for rating."];
   }
 
   spotId = validation.validateString(spotId, "Spot id", true);
-  let spotInfo = await getContestSpotsById(spotId);
+  await validateContestSpotSubmission(spotId);
 
   userId = validation.validateString(userId, "User Id", true);
   let userInfo = await userData.getUserProfileById(userId);
@@ -314,7 +311,7 @@ const updateTopContestSpots = async () => {
     ])
     .toArray();
 
-  await contestSpotsList.deleteMany({ month: currentMonth });
+  await contestSpotsList.deleteMany({ contestInfo: currentMonth });
 
   const newTopSpots = topSpots.map((spot) => ({
     name: spot.spotDetails.name,
@@ -327,7 +324,7 @@ const updateTopContestSpots = async () => {
     tags: spot.spotDetails.tags,
     posterId: spot.spotDetails.posterId,
     createdAt: spot.spotDetails.createdAt,
-    reportCount: spot.spotDetails.reportCount || 0,
+    reportCount: spot.spotDetails.reportCount,
     averageRating: spot.averageRating,
     totalRatings: spot.totalRatings,
     contestInfo: currentMonth,
@@ -416,6 +413,11 @@ const deleteReportedContestSubmission = async (submissionId, userId) => {
     await contestRatingsCollection.deleteMany({
       contestSubmissionId: ObjectId.createFromHexString(submissionId),
     });
+    const usersCollection = await users();
+    await usersCollection.updateMany(
+      {},
+      { $pull: { contestReports: submissionId } }
+    );
   } catch (e) {
     throw ["Contest submission delete failed"];
   }
@@ -440,6 +442,11 @@ const clearContestSubmissionReports = async (submissionId, userId) => {
   if (!clearedSubmission) {
     throw ["Failed to clear reports of contest submission"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { contestReports: submissionId } }
+  );
   return clearedSubmission;
 };
 
@@ -455,6 +462,7 @@ export default {
   submitContestImage,
   validateContestSpotSubmission,
   getReportedContestSubmissions,
+  updateTopContestSpots,
   deleteReportedContestSubmission,
   clearContestSubmissionReports,
 };

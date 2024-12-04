@@ -1,7 +1,12 @@
-import { spots, comments, spotRatings } from "../config/mongoCollections.js";
+import {
+  spots,
+  comments,
+  spotRatings,
+  users,
+} from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { ObjectId } from "mongodb";
-import { userData, cloudinaryData } from "./index.js";
+import { userData, cloudinaryData, contestData } from "./index.js";
 import logger from "../log.js";
 import log from "../log.js";
 
@@ -339,8 +344,23 @@ const deleteSpot = async (spotId, userId) => {
     });
 
     // deleting spot's ratings and comments
-
+    let commentImages = [];
     const commentsCollection = await comments();
+    const commentsImageData = await commentsCollection
+      .find(
+        { spotId: ObjectId.createFromHexString(spotId) },
+        { projection: { _id: 0, image: 1 } }
+      )
+      .toArray();
+
+    for (const imageData of commentsImageData) {
+      if (imageData.image !== null) {
+        commentImages.push(imageData.image.public_id);
+      }
+    }
+
+    await cloudinaryData.deleteImages(commentImages);
+
     await commentsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
@@ -601,9 +621,9 @@ const putSpotRating = async (spotId, userId, rating, date) => {
   } catch (e) {
     logger.log(e);
     throw [`Rating submision failed!`];
+  } finally {
+    await contestData.updateTopContestSpots();
   }
-
-  //TODO add trigger for conest spots resubmisison
 };
 
 const getSpotRatingByUserId = async (spotId, userId) => {
@@ -772,6 +792,8 @@ const deleteReportedSpot = async (spotId, userId) => {
     throw ["The user is not an admin"];
   }
   const deletedSpot = await deleteSpot(spotId, spotInfo.posterId.toString());
+  const usersCollection = await users();
+  await usersCollection.updateMany({}, { $pull: { spotReports: spotId } });
   return deletedSpot;
 };
 
@@ -798,6 +820,8 @@ const clearSpotReports = async (spotId, userId) => {
   if (!clearedSpot) {
     throw ["Spot Report clearing failed"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany({}, { $pull: { spotReports: spotId } });
   return clearedSpot;
 };
 
@@ -831,6 +855,11 @@ const deleteReportedComment = async (commentId, userId) => {
     commentId,
     commentInfo.posterId.toString()
   );
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { commentReports: commentId } }
+  );
   return deletedComment;
 };
 
@@ -857,6 +886,11 @@ const clearCommentReports = async (commentId, userId) => {
   if (!clearedComment) {
     throw ["Comment Report clearing failed"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { commentReports: commentId } }
+  );
   return clearedComment;
 };
 

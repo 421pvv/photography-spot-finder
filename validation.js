@@ -278,6 +278,26 @@ function validateArray(array, varName) {
   }
 }
 
+function validateContestRequestTimeStamp(date, contestInfo) {
+  const start = new Date(
+    contestInfo.getFullYear(),
+    contestInfo.getMonth() + 1,
+    1
+  );
+  const end = new Date(
+    contestInfo.getFullYear(),
+    contestInfo.getMonth() + 2,
+    0
+  );
+
+  if (date < start) {
+    throw `Invalid contest update! Contest hasn't started yet!`;
+  }
+  if (date > end) {
+    throw `Invalid contest update! Contest had ended!`;
+  }
+}
+
 export default {
   validateString,
   validateUsername,
@@ -290,4 +310,5 @@ export default {
   validateEmail,
   validateArray,
   validateNumber,
+  validateContestRequestTimeStamp,
 };
