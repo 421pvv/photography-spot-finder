@@ -1,126 +1,84 @@
-<section>
+<div id="adminPanel">
   <h1>Admin Panel</h1>
 
-  <h2>Reported Spots</h2>
-  {{#if reportedSpots}}
-    <section id="spotsList">
-      {{#if reportedSpots.length}}
-        <ul>
-          {{#each reportedSpots}}
-            <li>
-              <h3>
-                <a href="/spots/details/{{this._id}}">
-                  {{this.name}}
-                </a>
-              </h3>
-              <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
-                   onerror="this.onerror=null; this.src='/public/images/no_image_available.jpeg'" />
-              
-              <div class="spot-info">
-                <p><strong>Tags:</strong> 
-                  {{#each this.tags}} 
-                    <span>{{this}}</span> 
-                  {{/each}}
-                </p>
-                <p><strong>Average Rating:</strong> {{this.averageRating}} out of 10</p>
-                <p><strong>Posted on:</strong> {{this.createdAt}}</p>
-                <p><strong>Report Count:</strong> {{this.reportCount}}</p>
-                
-                <form action="/admin/clearSpotReports" method="POST" style="display:inline-block;">
-                  <input type="hidden" name="spotId" value="{{this._id}}">
-                  <button type="submit" class="btn btn-warning">Clear Report Count</button>
-                </form>
-
-                <form action="/admin/deleteReportedSpot" method="POST" style="display:inline-block;">
-                  <input type="hidden" name="spotId" value="{{this._id}}">
-                  <button type="submit" class="btn btn-danger">Delete Spot</button>
-                </form>
-              </div>
-            </li>
-          {{/each}}
-        </ul>
+  <section class="admin-section">
+    <h2>Manage Spots</h2>
+    <div class="scrolltype">
+      {{#if reportedSpots}}
+        {{#each reportedSpots}}
+        <section>
+          <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
+          <img src="{{this.images.0.url}}" alt="{{this.name}} top image" class="spot-image-admin">
+          <p>Report Count: {{this.reportCount}}</p>
+          <div class="link-buttons">
+            <form method="POST" action="/admin/clearSpotReports">
+              <input type="hidden" name="spotId" value="{{this._id}}">
+              <button class="clear-reports" type="submit">Clear Reports</button>
+            </form>
+            <form method="POST" action="/admin/deleteReportedSpot">
+              <input type="hidden" name="spotId" value="{{this._id}}">
+              <button class="delete" type="submit">Delete Spot</button>
+            </form>
+          </div>
+        </section>
+        {{/each}}
       {{else}}
-        <p>No reported spots available.</p>
+        <p>No spots found!</p>
       {{/if}}
-    </section>
-  {{else}}
-    <p>No reported spots found.</p>
-  {{/if}}
-  <h2>Reported Comments</h2>
-  {{#if reportedComments}}
-  <section id="commentsList">
-    {{#if reportedComments.length}}
-    <ul>
-      {{#each reportedComments}}
-      <li>
-        <p><strong>Comment:</strong> {{this.message}}</p>
-        <p><strong>Posted By:</strong> {{this.poster.firstName}} {{this.poster.lastName}}</p>
-        <p><strong>Posted At:</strong> {{this.createdAt}}</p>
-        <p><strong>Report Count:</strong> {{this.reportedCount}}</p>
-
-        <form action="/admin/clearCommentReports" method="POST" style="display:inline-block;">
-          <input type="hidden" name="commentId" value="{{this._id}}">
-            <button type="submit" class="btn btn-warning">Clear Report Count</button>
-        </form>
-
-        <form action="/admin/deleteReportedComment" method="POST" style="display:inline-block;">
-          <input type="hidden" name="commentId" value="{{this._id}}">
-          <button type="submit" class="btn btn-danger">Delete Comment</button>
-          </form>
-      </li>
-      {{/each}}
-    </ul>
-    {{else}}
-        <p>No reported comments available.</p>
-      {{/if}}
-    </section>
-  {{else}}
-    <p>No reported comments found.</p>
-  {{/if}}
+    </div>
   </section>
-  <h2>Reported Contest Spots</h2>
-  {{#if reportedContenstSpots}}
-    <section id="spotsList">
-      {{#if reportedContenstSpots.length}}
-        <ul>
-          {{#each reportedContenstSpots}}
-            <li>
-              <h3>
-                <a href="/spots/details/{{_id}}">
-                  {{name}}
-                </a>
-              </h3>
-              <img src="{{this.image.url}}" alt="{{this.name}} top image"
-                   onerror="this.onerror=null; this.src='/public/images/no_image_available.jpeg'" />
-              
-              <div class="spot-info">
-                <p><strong>Tags:</strong> 
-                  {{#each this.tags}} 
-                    <span>{{this}}</span> 
-                  {{/each}}
-                </p>
-                <p><strong>Average Rating:</strong> {{this.averageRating}} out of 10</p>
-                <p><strong>Posted on:</strong> {{this.createdAt}}</p>
-                <p><strong>Report Count:</strong> {{this.reportCount}}</p>
-                
-                <form action="/admin/clearSpotReports" method="POST" style="display:inline-block;">
-                  <input type="hidden" name="spotId" value="{{this._id}}">
-                  <button type="submit" class="btn btn-warning">Clear Report Count</button>
-                </form>
 
-                <form action="/admin/deleteReportedSpot" method="POST" style="display:inline-block;">
-                  <input type="hidden" name="spotId" value="{{this._id}}">
-                  <button type="submit" class="btn btn-danger">Delete Spot</button>
-                </form>
-              </div>
-            </li>
-          {{/each}}
-        </ul>
+  <section class="admin-section">
+    <h2>Manage Comments</h2>
+    <div class="scrolltype">
+      {{#if reportedComments}}
+        {{#each reportedComments}}
+        <section>
+          <p>Reported comment: <a href="/spots/details/{{this.spotId}}">{{this.message}}</a></p>
+          <p>Roport count: {{this.reportCount}}</p>
+          <p>Posted By: {{this.posterId}}</p>
+          <div class="link-buttons">
+            <form method="POST" action="/admin/clearReportedComment">
+              <input type="hidden" name="spotId" value="{{this._id}}">
+              <button class="clear-reports" type="submit">Clear Reports</button>
+            </form>
+            <form method="POST" action="/admin/deleteReportedComment">
+              <input type="hidden" name="spotId" value="{{this._id}}">
+              <button class="delete" type="submit">Delete Spot</button>
+            </form>
+          </div>
+        </section>
+        {{/each}}
       {{else}}
-        <p>No reported Contest spots available.</p>
+        <p>No reports found!</p>
       {{/if}}
-    </section>
-  {{else}}
-    <p>No reported Contest spots found.</p>
-  {{/if}}
-</section>
+    </div>
+  </section>
+
+  <section class="admin-section">
+    <h2>Manage Contest Submissions</h2>
+    <div class="scrolltype">
+      {{#if reportedContenstSpots}}
+        {{#each reportedContenstSpots}}
+        <div class="submissions">
+          <img class="contest-image-admin" src="{{this.image.url}}" alt="Contest submission image">
+          <p>Submitted By: {{this.posterId}}</p>
+          <p>Report Count: {{this.reportCount}}</p>
+          <div class="link-buttons">
+            <form method="POST" action="/admin/clearReportedContestSubmission">
+              <input type="hidden" name="spotId" value="{{this._id}}">
+              <button class="clear-reports" type="submit">Clear Reports</button>
+            </form>
+            <form method="POST" action="/admin/deleteReportedContestSubmission">
+              <input type="hidden" name="spotId" value="{{this._id}}">
+              <button class="delete" type="submit">Delete Spot</button>
+            </form>
+          </div>
+        </div>
+        {{/each}}
+      {{else}}
+        <p>No contest submissions found!</p>
+      {{/if}}
+    </div>
+  </section>
+</div>

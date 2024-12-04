@@ -1,73 +1,126 @@
-#spotsList, #commentsList{
-    width: 100vw;
-    border-radius: 1em;
-    padding: 0;
-    justify-content: center;
-    align-items: center;
-  }
-  
-  #spotsList ul ,#commentsList ul{
-    width: 100vw;
-    list-style: none;
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
     margin: 0;
     padding: 0;
-  }
-  
-  #spotsList li ,#commentsList li{
-    margin: 2em auto;
-    width: 80vw;
-    padding: 2em;
-    margin-bottom: 5%;
-    background-color: #ffffff;
-    border: 0.1em solid #ddd;
-    border-radius: 1em;
-    box-shadow: #d2d2d7 0em 0.5em 2em;
-  }
-  
-  #spotsList li h2{
-    font-size: 2em;
-    font-weight: bold;
     color: #333;
-    text-align: center;
   }
   
-  #spotsList li p ,#commentsList li p{
-    font-size: 0.875em;
-    margin: 0.5em 0;
-  }
-  
-  .spot-info {
-    text-align: center;
-    display: block;
-    margin: 0 auto;
-    font-size: 1.5em;
-  }
-  
-  #spotsList li img {
-    width: auto;
-    height: 60vh;
-    display: block;
-    object-fit: contain;
-    border-radius: 1em;
-    max-width: 100%;
+  #adminPanel {
+    max-width: 95%;
     margin: 2em auto;
-    padding: 0;
-  }
-  #spotsList a {
-    text-decoration: none;
-    color: blue;
-  }
-  #spotsList a:hover {
-    text-decoration: underline;
-    color: rgb(135, 19, 237);
+    padding: 2em;
+    background-color: #fff;
+    border-radius: 0.5em;
+    box-shadow: 0 0.125em 0.5em rgba(0, 0, 0, 0.1);
   }
   
-  #spotsList li span {
-    display: inline-block;
-    margin-right: 0.5em;
-    padding: 0.5em 0.5em;
-    background-color: #007bff;
-    color: white;
-    font-size: 0.75em;
-    border-radius: 0.5em;
+  #adminPanel h1 {
+    font-size: 2em;
+    color: #444;
+    text-align: center;
+    margin-bottom: 1.5em;
+    border-bottom: 0.125em solid #ddd;
+    padding-bottom: 0.5em;
   }
+  
+
+  .admin-section {
+    margin-bottom: 2em;
+    background-color: #fff;
+    padding: 1.5em;
+    border-radius: 0.5em;
+    box-shadow: 0 0.125em 0.5em rgba(0, 0, 0, 0.1);
+  }
+  
+  .admin-section h2 {
+    font-size: 1.75em;
+    color: #333;
+    margin-bottom: 1em;
+    border-bottom: 0.125em solid #ddd;
+    padding-bottom: 0.5em;
+  }
+  
+  .scrolltype {
+    max-height: 40em;
+    overflow-y: auto;
+    border: 0.0625em solid #ddd;
+    padding: 0.625em;
+    border-radius: 0.5em;
+    background-color: #f9f9f9;
+  }
+  
+  .scrolltype section,
+  .scrolltype .submissions {
+    background-color: #fff;
+    padding: 1em;
+    margin-bottom: 0.625em;
+    border: 0.0625em solid #ddd;
+    border-radius: 0.5em;
+    box-shadow: 0 0.125em 0.25em rgba(0, 0, 0, 0.1);
+  }
+  
+  .scrolltype section:hover {
+    background-color: #f1f1f1;
+    box-shadow: 0 0.1875em 0.375em rgba(0, 0, 0, 0.15);
+  }
+  
+  .spot-image-admin,
+  .contest-image-admin {
+    width: auto;
+    height: 20vh;
+    display: block;
+    object-fit: cover;
+    border-radius: 0.5em;
+    margin: 1em auto;
+    max-width: 90%;
+  }
+  
+  .username {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 0.625em;
+    color: #444;
+  }
+  
+  .link-buttons {
+    display: flex;
+    gap: 1em;
+    justify-content: flex-start;
+  }
+  
+  .link-buttons a,
+  .link-buttons form button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.75em 1.25em;
+    border-radius: 0.5em;
+    text-decoration: none;
+    cursor: pointer;
+    font-size: 1em;
+  }
+  
+  .link-buttons a:hover {
+    background-color: #218838;
+  }
+  
+  .link-buttons form button:hover {
+    background-color: #c82333;
+  }
+  
+  button.delete {
+    background-color: #dc3545;
+  }
+  
+  button.delete:hover {
+    background-color: #c82333;
+  }
+  
+  @media (max-width: 35em) {
+    .link-buttons {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+  

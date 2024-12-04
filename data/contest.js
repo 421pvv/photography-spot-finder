@@ -395,7 +395,7 @@ const getReportedContestSubmissions = async (userId) => {
 
 const deleteReportedContestSubmission = async (submissionId, userId) => {
   submissionId = validation.validateString(submissionId, "submissionId", true);
-  const submissionInfo = await getContestSubmissionById(id);
+  const submissionInfo = await getContestSubmissionById(submissionId);
   if (submissionInfo.reportCount < 20) {
     throw ["The submission has report count less than 20"];
   }
