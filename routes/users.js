@@ -147,9 +147,10 @@ router
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
+      role: userFromDb.role
     };
     logging.log(req.session.user);
-    res.redirect(`/users/profile/${req.session.user.username}`);
+      res.redirect(`/users/profile/${req.session.user.username}`);
   });
 
 router.route("/logout").get(async (req, res) => {

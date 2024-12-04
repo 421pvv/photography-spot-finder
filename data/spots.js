@@ -762,7 +762,7 @@ const getReportedSpots = async (userId) => {
 
 const deleteReportedSpot = async (spotId, userId) => {
   spotId = validation.validateString(spotId, "spotId", true);
-  const spotInfo = await getSpotById(id);
+  const spotInfo = await getSpotById(spotId);
   if (spotInfo.reportCount < 20) {
     throw ["The spot has report count less than 20"];
   }

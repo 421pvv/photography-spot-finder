@@ -175,6 +175,7 @@ const getUserByUsername = async (username, includePassword) => {
       lastName: 1,
       username: 1,
       password: 1,
+      role: 1
     };
   } else {
     options.projection = {
@@ -182,6 +183,7 @@ const getUserByUsername = async (username, includePassword) => {
       firstName: 1,
       username: 1,
       lastName: 1,
+      role: 1
     };
   }
 
