@@ -23,6 +23,6 @@ filterForm.addEventListener("submit", (event) => {
       errorsDiv.appendChild(pItem);
     }
   } else {
-    editForm.submit();
+    filterForm.submit();
   }
 });
