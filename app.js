@@ -81,6 +81,8 @@ app.use("*", (req, res, next) => {
       error: "vote for a contest submission!",
     },
     { url: "spots/favorite", error: "favorite a spot!" },
+    { url: "users/editprofile", error: "edit profile!" },
+    { url: "users/updatepassword", error: "update password!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>

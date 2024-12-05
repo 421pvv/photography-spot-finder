@@ -63,6 +63,49 @@ const authenticateUser = async (username, password) => {
   }
 };
 
+const checkIfEmailExists = async (email, username) => {
+  username = validation.validateUsername(username);
+  email = validation.validateEmail(email);
+  const usersCollection = await users();
+  const user = await usersCollection.findOne(
+    { email: email },
+    { projection: { _id: 0, email: 1, username: 1 } }
+  );
+  if (user && user.username !== username) {
+    throw ["This email is already associated with another account!"];
+  }
+};
+
+export const removeEmail = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const user = await getUserProfileById(userId);
+  const usersCollection = await users();
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(userId) },
+    { $set: { email: "" } },
+    { returnDocument: "after" }
+  );
+  if (!updatedUser) {
+    throw ["Failed to remove email"];
+  }
+  return { emailRemoved: true };
+};
+
+export const removeBio = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const user = await getUserProfileById(userId);
+  const usersCollection = await users();
+  const updatedUser = await usersCollection.findOneAndUpdate(
+    { _id: ObjectId.createFromHexString(userId) },
+    { $set: { bio: "" } },
+    { returnDocument: "after" }
+  );
+  if (!updatedUser) {
+    throw ["Failed to remove bio"];
+  }
+  return { bioRemoved: true };
+};
+
 export const updateUserProfile = async (userObject) => {
   logger.log("Tring to update profile: ");
   logger.log(userObject);
@@ -126,6 +169,11 @@ export const updateUserProfile = async (userObject) => {
     } catch (e) {
       errors = errors.concat(e);
     }
+    try {
+      await checkIfEmailExists(email, username);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
   }
 
   if (bio !== undefined) {
@@ -175,7 +223,7 @@ const getUserByUsername = async (username, includePassword) => {
       lastName: 1,
       username: 1,
       password: 1,
-      role: 1
+      role: 1,
     };
   } else {
     options.projection = {
@@ -183,7 +231,7 @@ const getUserByUsername = async (username, includePassword) => {
       firstName: 1,
       username: 1,
       lastName: 1,
-      role: 1
+      role: 1,
     };
   }
 
@@ -507,4 +555,6 @@ export default {
   reportSpot,
   reportComment,
   reportContestSubmission,
+  removeEmail,
+  removeBio,
 };
