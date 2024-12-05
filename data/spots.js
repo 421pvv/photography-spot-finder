@@ -777,6 +777,20 @@ const getReportedSpots = async (userId) => {
   if (!reportedSpotsList) {
     throw ["Could not get reported spots"];
   }
+  for (let i = 0; i < reportedSpotsList.length; i++) {
+    const user = await userData.getUserProfileById(
+      reportedSpotsList[i].posterId.toString()
+    );
+    reportedSpotsList[i].posterUsername = user.username;
+    reportedSpotsList[i].posterFullName = `${user.firstName} ${user.lastName}`;
+  }
+  // reportedSpotsList = reportedSpotsList.map(async (reportedSpot) => {
+  //   const user = await userData.getUserProfileById(
+  //     reportedSpot.posterId.toString()
+  //   );
+  //   reportedSpot.posterUsername = user.username;
+  // });
+
   return reportedSpotsList;
 };
 
@@ -836,6 +850,15 @@ const getReportedComments = async (userId) => {
   const reportedCommentsList = await commentsCollection.find(query).toArray();
   if (!reportedCommentsList) {
     throw ["Could not get reported comments"];
+  }
+  for (let i = 0; i < reportedCommentsList.length; i++) {
+    const user = await userData.getUserProfileById(
+      reportedCommentsList[i].posterId.toString()
+    );
+    reportedCommentsList[i].posterUsername = user.username;
+    reportedCommentsList[
+      i
+    ].posterFullName = `${user.firstName} ${user.lastName}`;
   }
   return reportedCommentsList;
 };

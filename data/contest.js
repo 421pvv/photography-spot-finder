@@ -390,6 +390,15 @@ const getReportedContestSubmissions = async (userId) => {
   if (!reportedSubmissionsList) {
     throw ["Could not get reported contest submissions"];
   }
+  for (let i = 0; i < reportedSubmissionsList.length; i++) {
+    const user = await userData.getUserProfileById(
+      reportedSubmissionsList[i].posterId.toString()
+    );
+    reportedSubmissionsList[i].posterUsername = user.username;
+    reportedSubmissionsList[
+      i
+    ].posterFullName = `${user.firstName} ${user.lastName}`;
+  }
   return reportedSubmissionsList;
 };
 

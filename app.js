@@ -32,11 +32,15 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
-app.engine("handlebars", exphbs.engine({ defaultLayout: "main" ,
-  helpers: {
-    eq: (a, b) => a === b
-  }
-}));
+app.engine(
+  "handlebars",
+  exphbs.engine({
+    defaultLayout: "main",
+    helpers: {
+      eq: (a, b) => a === b,
+    },
+  })
+);
 app.set("view engine", "handlebars");
 
 // sanatize all inputs
@@ -100,7 +104,7 @@ app.use("/spots/putRating/:spotId", (req, res, next) => {
 
 app.use("/users/login", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile");
+    return res.redirect(`/users/profile/${req.session.user.username}`);
   } else {
     next();
   }
@@ -108,11 +112,26 @@ app.use("/users/login", (req, res, next) => {
 
 app.use("/users/signup", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile");
+    return res.redirect(`/users/profile/${req.session.user.username}`);
   } else {
     next();
   }
 });
+
+app.use("/admin", (req, res, next) => {
+  if (req.session.user) {
+    if (req.session.user.role !== "admin") {
+      return res.status(403).render("error", {
+        message: "You do not have permission to view this page",
+        user: req.session.user,
+      });
+    }
+  } else {
+    res.redirect("/users/login");
+  }
+  next();
+});
+
 configRoutes(app);
 
 app.listen(3000, () => {

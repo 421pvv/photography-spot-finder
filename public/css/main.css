@@ -184,3 +184,8 @@ a:hover {
   border-radius: 1em;
   font-size: 1em;
 }
+
+.errorPageMessage {
+  text-align: center;
+  font-size: 2em;
+}

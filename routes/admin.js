@@ -8,15 +8,14 @@ import { contestRatings, spots } from "../config/mongoCollections.js";
 import log from "../log.js";
 const router = express.Router();
 
+// const isAdmin = (req, res, next) => {
+//   if (req.session.user && req.session.user.role === "admin") {
+//     return next();
+//   }
+//   res.status(403).render("error", { message: "Access denied. Admins only!" });
+// };
 
-const isAdmin = (req, res, next) => {
-  if (req.session.user && req.session.user.role === "admin") {
-    return next();
-  }
-  res.status(403).render("error", { message: "Access denied. Admins only!" });
-};
-
-router.get("/", isAdmin, async (req, res) => {
+router.get("/", async (req, res) => {
   let errors = [];
   let reportedSpots = [];
   let reportedComments = [];
@@ -29,13 +28,17 @@ router.get("/", isAdmin, async (req, res) => {
   }
 
   try {
-    reportedComments = await spotsData.getReportedComments(req.session.user._id);
+    reportedComments = await spotsData.getReportedComments(
+      req.session.user._id
+    );
   } catch (e) {
     errors.push("Unable to get reported comments.");
   }
 
   try {
-    reportedContenstSpots = await contestData.getReportedContestSubmissions(req.session.user._id);
+    reportedContenstSpots = await contestData.getReportedContestSubmissions(
+      req.session.user._id
+    );
   } catch (e) {
     errors.push("Unable to get reported contest spots.");
   }
@@ -60,84 +63,82 @@ router.get("/", isAdmin, async (req, res) => {
   }
 });
 
-
-
-router.post("/clearSpotReports", isAdmin, async (req, res) => {
-    const { spotId } = req.body;
-    try{
-      await spotsData.clearSpotReports(spotId, req.session.user._id);
-
-      res.redirect("/admin")
-    } catch (e) {
-      req.session.errorMessage = e[0] || "Failed to clear spot reports.";
-      res.redirect("/admin");
-    }
-
-});
-
-router.post("/deleteReportedSpot", isAdmin, async (req, res) => {
+router.post("/clearSpotReports", async (req, res) => {
   const { spotId } = req.body;
-    try{
-      await spotsData.deleteReportedSpot(spotId, req.session.user._id);
+  try {
+    await spotsData.clearSpotReports(spotId, req.session.user._id);
 
-      res.redirect("/admin")
-    } catch (e) {
-      req.session.errorMessage = e[0] || "Failed to clear spot reports.";
-      res.redirect("/admin");
-    }
+    res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    res.redirect("/admin");
+  }
 });
 
-router.post("/clearReportedComment", isAdmin, async (req, res) => {
+router.post("/deleteReportedSpot", async (req, res) => {
   const { spotId } = req.body;
-    try{
-      await spotsData.clearCommentReports(spotId, req.session.user._id);
+  try {
+    await spotsData.deleteReportedSpot(spotId, req.session.user._id);
 
-      res.redirect("/admin")
-    } catch (e) {
-      req.session.errorMessage = e[0] || "Failed to clear spot reports.";
-      res.redirect("/admin");
-    }
+    res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    res.redirect("/admin");
+  }
 });
 
-router.post("/deleteReportedComment", isAdmin, async (req, res) => {
+router.post("/clearReportedComment", async (req, res) => {
   const { spotId } = req.body;
-    try{
-      await spotsData.deleteReportedComment(spotId, req.session.user._id);
+  try {
+    await spotsData.clearCommentReports(spotId, req.session.user._id);
 
-      res.redirect("/admin")
-    } catch (e) {
-      req.session.errorMessage = e[0] || "Failed to clear spot reports.";
-      res.redirect("/admin");
-    }
+    res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    res.redirect("/admin");
+  }
 });
 
-router.post("/clearReportedContestSubmission", isAdmin, async (req, res) => {
+router.post("/deleteReportedComment", async (req, res) => {
   const { spotId } = req.body;
-    try{
-      await contestData.clearContestSubmissionReports(spotId, req.session.user._id);
-      deleteReportedContestSubmission
-      res.redirect("/admin")
-    } catch (e) {
-      req.session.errorMessage = e[0] || "Failed to clear spot reports.";
-      res.redirect("/admin");
-    }
+  try {
+    await spotsData.deleteReportedComment(spotId, req.session.user._id);
+
+    res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    res.redirect("/admin");
+  }
 });
 
-
-router.post("/deleteReportedContestSubmission", isAdmin, async (req, res) => {
+router.post("/clearReportedContestSubmission", async (req, res) => {
   const { spotId } = req.body;
-    try{
-      await contestData.deleteReportedContestSubmission(spotId, req.session.user._id);
-
-      res.redirect("/admin")
-    } catch (e) {
-      req.session.errorMessage = e[0] || "Failed to clear spot reports.";
-      res.redirect("/admin");
-    }
+  try {
+    await contestData.clearContestSubmissionReports(
+      spotId,
+      req.session.user._id
+    );
+    deleteReportedContestSubmission;
+    res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    res.redirect("/admin");
+  }
 });
 
+router.post("/deleteReportedContestSubmission", async (req, res) => {
+  const { spotId } = req.body;
+  try {
+    await contestData.deleteReportedContestSubmission(
+      spotId,
+      req.session.user._id
+    );
 
-
-
+    res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    res.redirect("/admin");
+  }
+});
 
 export default router;

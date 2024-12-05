@@ -1,16 +1,22 @@
 <div id="adminPanel">
   <h1>Admin Panel</h1>
+  <p id="admin-message">Welcome {{user.firstName}} {{user.lastName}}! Since you are an admin, you can view and manage
+    the flagged content.</p>
 
-  <section class="admin-section">
-    <h2>Manage Spots</h2>
-    <div class="scrolltype">
-      {{#if reportedSpots}}
+  <div id="admin-fields">
+
+    <section class="admin-section">
+      <h2>Spots</h2>
+      <div class="scrolltype">
+        {{#if reportedSpots}}
         {{#each reportedSpots}}
         <section>
           <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
           <img src="{{this.images.0.url}}" alt="{{this.name}} top image" class="spot-image-admin">
+          <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
           <p>Report Count: {{this.reportCount}}</p>
           <div class="link-buttons">
+            <a href="/spots/details/{{this._id}}">Spot Details</a>
             <form method="POST" action="/admin/clearSpotReports">
               <input type="hidden" name="spotId" value="{{this._id}}">
               <button class="clear-reports" type="submit">Clear Reports</button>
@@ -22,47 +28,51 @@
           </div>
         </section>
         {{/each}}
-      {{else}}
-        <p>No spots found!</p>
-      {{/if}}
-    </div>
-  </section>
+        {{else}}
+        <p>No spots here!</p>
+        {{/if}}
+      </div>
+    </section>
 
-  <section class="admin-section">
-    <h2>Manage Comments</h2>
-    <div class="scrolltype">
-      {{#if reportedComments}}
+    <section class="admin-section">
+      <h2>Comments</h2>
+      <div class="scrolltype">
+        {{#if reportedComments}}
         {{#each reportedComments}}
-        <section>
-          <p>Reported comment: <a href="/spots/details/{{this.spotId}}">{{this.message}}</a></p>
-          <p>Roport count: {{this.reportCount}}</p>
-          <p>Posted By: {{this.posterId}}</p>
+        <section class="commentsSection">
+          <h3>{{this.message}}</h3>
+          {{#if this.image}}
+          <img class="spot-image-admin" src="{{this.image.url}}" alt="{{this.posterFullName}} comment image">
+          {{/if}}
+          <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
+          <p>Report Count: {{this.reportCount}}</p>
           <div class="link-buttons">
+            <a href="/spots/details/{{this.spotId}}">Comment's Spot Details</a>
             <form method="POST" action="/admin/clearReportedComment">
               <input type="hidden" name="spotId" value="{{this._id}}">
               <button class="clear-reports" type="submit">Clear Reports</button>
             </form>
             <form method="POST" action="/admin/deleteReportedComment">
               <input type="hidden" name="spotId" value="{{this._id}}">
-              <button class="delete" type="submit">Delete Spot</button>
+              <button class="delete" type="submit">Delete Comment</button>
             </form>
           </div>
         </section>
         {{/each}}
-      {{else}}
-        <p>No reports found!</p>
-      {{/if}}
-    </div>
-  </section>
+        {{else}}
+        <p>No comments here!</p>
+        {{/if}}
+      </div>
+    </section>
 
-  <section class="admin-section">
-    <h2>Manage Contest Submissions</h2>
-    <div class="scrolltype">
-      {{#if reportedContenstSpots}}
+    <section class="admin-section">
+      <h2>Contest Submissions</h2>
+      <div class="scrolltype">
+        {{#if reportedContenstSpots}}
         {{#each reportedContenstSpots}}
         <div class="submissions">
           <img class="contest-image-admin" src="{{this.image.url}}" alt="Contest submission image">
-          <p>Submitted By: {{this.posterId}}</p>
+          <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
           <p>Report Count: {{this.reportCount}}</p>
           <div class="link-buttons">
             <form method="POST" action="/admin/clearReportedContestSubmission">
@@ -71,14 +81,15 @@
             </form>
             <form method="POST" action="/admin/deleteReportedContestSubmission">
               <input type="hidden" name="spotId" value="{{this._id}}">
-              <button class="delete" type="submit">Delete Spot</button>
+              <button class="delete" type="submit">Delete Submission</button>
             </form>
           </div>
         </div>
         {{/each}}
-      {{else}}
-        <p>No contest submissions found!</p>
-      {{/if}}
-    </div>
-  </section>
+        {{else}}
+        <p>No contest submissions here!</p>
+        {{/if}}
+      </div>
+    </section>
+  </div>
 </div>
