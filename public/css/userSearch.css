@@ -113,6 +113,10 @@
   font-family: Georgia, "Times New Roman", Times, serif;
 }
 
+.link-buttons a:hover {
+  background-color: #00ff33;
+}
+
 #form-errors-div {
   text-align: center;
   color: red;
