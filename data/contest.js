@@ -173,7 +173,7 @@ const putContestSubmissionVote = async (
     "Spot Id",
     true
   );
-  const contestSubmission = await getContestSubmissionById(contestSubmissionId);
+  const submision = await getContestSubmissionById(contestSubmissionId);
   ratingObject.contestSubmissionId =
     ObjectId.createFromHexString(contestSubmissionId);
 

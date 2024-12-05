@@ -292,3 +292,7 @@ button {
 .vote-bar h4 {
   text-align: center;
 }
+
+.flagged {
+  color: red;
+}

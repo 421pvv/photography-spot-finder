@@ -2,18 +2,13 @@
     <header>
         <h1 class="page_title">{{spot.spotName}}</h1>
     </header>
-
     <div id="summary-container">
         <section>
             <h2>Overview</h2>
-
             <p>Average Rating: <span>{{spot.averageRating}}</span></p>
             <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
             <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
             <p>Tags: <span>{{spot.spotTags}}</span></p>
-            {{#if viewingUser._id}}
-            <p>Favorite Spot: <i class="fa fa-star {{viewingUser.favorite}}"></i> </p>
-            {{/if}}
 
         </section>
 
@@ -64,7 +59,23 @@
     </section>
 
     {{#if viewingUser._id}}
-    <div id="userInteractionsDiv">
+    <div class="userInteractionsDiv">
+        <section>
+            <form>
+                <h3> <label hidden="true" for="favoriteButton"> Favorite Spot </label>
+                </h3>
+                <i id="favoriteButton" class="fa fa-star {{viewingUser.favorite}}"></i>
+            </form>
+        </section>
+        <section>
+            <form>
+                <h3> <label hidden="true" for="flagButton"> Flag Spot </label> </h3>
+                <i id="spotFlagButton" data-id="{{spot._id}}" data-type="spot"
+                    class="fa fa-flag {{viewingUser.flag}}"></i>
+            </form>
+        </section>
+    </div>
+    <div class="userInteractionsDiv">
         <section>
             <h3>Add Comment</h3>
 
@@ -160,6 +171,8 @@
                     <div class="comment-meta ">
                         <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
                         <p>Posted at {{this.createdAt}}</p>
+                        <label hidden="true" for="flagButton"> Flag Comment </label>
+                        <i data-id="{{this._id}}" class="commentFlagButton fa fa-flag {{this.flag}}"></i>
                     </div>
                 </div>
             </li>
@@ -219,3 +232,5 @@
 <script type="module" src="/public/js/spots/addSpotComment.js"> </script>
 <script type="module" src="/public/js/spots/addSpotRating.js"> </script>
 <script type="module" src="/public/js/spots/favoriteSpot.js"> </script>
+<script type="module" src="/public/js/spots/flagSpot.js"> </script>
+<script type="module" src="/public/js/spots/flagComment.js"> </script>

@@ -7,6 +7,99 @@ import { MongoCryptKMSRequestNetworkTimeoutError } from "mongodb";
 import { contestRatings, spots } from "../config/mongoCollections.js";
 import log from "../log.js";
 const router = express.Router();
+
+router.route("/comment/flag/:commentId").post(async (req, res) => {
+  let { commentId } = req.params;
+  let userInfo;
+
+  try {
+    commentId = validation.validateString(req.params.commentId);
+    await spotsData.getCommentById(commentId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${commentId} is not a valid id!`];
+    return res.status(400).json({
+      error: `Comment info fetch failed!`,
+    });
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.reportComment(userInfo._id.toString(), commentId);
+    return res.status(200).json({
+      flagSpot: "succesful",
+    });
+  } catch (e) {
+    try {
+      if (e[0] == "User already reported the comment") {
+        return res.status(406).json({
+          error: "You have already reported the comment!",
+        });
+      }
+    } catch (e) {}
+    logger.log(e);
+    return res.status(500).json({
+      error: "Flag comment failed!",
+    });
+  }
+});
+
+router.route("/flag/:spotId").post(async (req, res) => {
+  let { spotId } = req.params;
+  let userInfo;
+
+  try {
+    spotId = validation.validateString(req.params.spotId);
+    await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${spotId} is not a valid id!`];
+    return res.status(400).redirect("/spots/search");
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.reportSpot(userInfo._id.toString(), spotId);
+    return res.status(200).json({
+      flagSpot: "succesful",
+    });
+  } catch (e) {
+    logger.log(e);
+    try {
+      if (e[0] === "User already reported the spot") {
+        return res.status(406).json({
+          error: "You have already reported this spot!",
+        });
+      }
+    } catch (e) {}
+    return res.status(500).json({
+      error: "Favorite spot failed!",
+    });
+  }
+});
+
 router.route("/favorite/:spotId").put(async (req, res) => {
   let { spotId } = req.params;
   let userInfo;
@@ -88,6 +181,8 @@ router.route("/details/:spotId").get(async (req, res) => {
   };
 
   const viewUser = {};
+  let flaggedComments;
+
   if (req.session.user) {
     viewUser._id = req.session.user._id.toString();
     viewUser.originalPoster =
@@ -111,6 +206,12 @@ router.route("/details/:spotId").get(async (req, res) => {
       } else {
         viewUser.favorite = "";
       }
+      if (userInfo.spotReports.includes(spotId)) {
+        viewUser.flag = "flagged";
+      } else {
+        viewUser.flag = "";
+      }
+      flaggedComments = userInfo.commentReports;
     } catch (e) {
       logger.log(e);
     }
@@ -137,12 +238,18 @@ router.route("/details/:spotId").get(async (req, res) => {
   try {
     comments = await spotsData.getDisplayCommentsBySpotId(spotId);
     comments = comments.map((comment) => {
+      comment._id = comment._id.toString();
       logger.log(comment.createdAt instanceof Date);
       comment.createdAt = new Date(comment.createdAt).toString();
       if (!comment.image) {
         delete comment.image;
       }
       comment.poster = comment.poster[0];
+      if (flaggedComments && flaggedComments.includes(comment._id)) {
+        comment.flag = "flagged";
+      } else {
+        comment.flag = "";
+      }
       return comment;
     });
     logger.log("Comments", comments);

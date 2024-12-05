@@ -54,7 +54,7 @@ article h2 {
   max-width: 100%;
 }
 
-#userInteractionsDiv {
+.userInteractionsDiv {
   margin: 2%;
   display: flex;
   justify-content: space-between;
@@ -62,10 +62,11 @@ article h2 {
   width: 100%;
 }
 
-#userInteractionsDiv section {
+.userInteractionsDiv section {
   width: 40%;
 }
-#userInteractionsDiv label {
+
+.userInteractionsDiv label {
   display: block;
 }
 
@@ -222,6 +223,17 @@ input[type="file"] {
   user-select: none;
 }
 
+.fa-star,
+.fa-flag {
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+}
+
 .favorite {
   color: yellow;
+}
+
+.flagged {
+  color: red;
 }

@@ -66,6 +66,9 @@ app.use("*", (req, res, next) => {
       error: "vote for a contest submission!",
     },
     { url: "spots/favorite", error: "favorite a spot!" },
+    { url: "spots/favorite", error: "flag a spot!" },
+    { url: "spots/comment/flag", error: "flag a spot comment!" },
+    { url: "/contest/submission/flag", error: "flag a contest submission!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>
@@ -96,7 +99,7 @@ app.use("/spots/putRating/:spotId", (req, res, next) => {
 
 app.use("/users/login", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile");
+    return res.redirect("/users/profile/" + req.session.user.username);
   } else {
     next();
   }
@@ -104,7 +107,7 @@ app.use("/users/login", (req, res, next) => {
 
 app.use("/users/signup", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile");
+    return res.redirect("/users/profile/" + req.session.user.username);
   } else {
     next();
   }

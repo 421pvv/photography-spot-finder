@@ -12,6 +12,56 @@ import {
 import log from "../log.js";
 const router = express.Router();
 
+router.route("/submission/flag/:submissionId").post(async (req, res) => {
+  let { submissionId } = req.params;
+  let userInfo;
+
+  try {
+    submissionId = validation.validateString(req.params.submissionId);
+    await contestData.getContestSubmissionById(submissionId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${submissionId} is not a valid id!`];
+    return res.status(400).json({
+      error: `Comment info fetch failed!`,
+    });
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.reportContestSubmission(
+      userInfo._id.toString(),
+      submissionId
+    );
+    return res.status(200).json({
+      flagSpot: "succesful",
+    });
+  } catch (e) {
+    try {
+      if (e[0] == "User already reported the contest submission") {
+        return res.status(406).json({
+          error: e[0],
+        });
+      }
+    } catch (e) {}
+    logger.log(e);
+    return res.status(500).json({
+      error: "Flag comment failed!",
+    });
+  }
+});
+
 router.route("/").get(async (req, res) => {
   let errors = [];
 
@@ -42,6 +92,7 @@ router
     let spotId;
     let spotInfo;
     let submissions;
+    let contestSubmissionReports;
     try {
       spotId = validation.validateString(req.params.spotId);
     } catch (e) {
@@ -86,6 +137,11 @@ router
         await contestData.getContestSubmissionByUser(spotId, viewUser._id);
         console.log("stuff");
         viewUser.hasNotSubmitted = false;
+
+        const viewingUserProfile = await userData.getUserProfileById(
+          viewUser._id
+        );
+        contestSubmissionReports = viewingUserProfile.contestReports;
       } catch (e) {
         logger.log("User has submitted before for contest spot: ", spotId);
         logger.log(e);
@@ -116,7 +172,14 @@ router
       submissions = submissions.map((submission) => {
         submission.user = req.session.user;
         submission._id = submission._id.toString();
-
+        if (
+          contestSubmissionReports &&
+          contestSubmissionReports.includes(submission._id)
+        ) {
+          submission.flag = "flagged";
+        } else {
+          submission.flag = "";
+        }
         return submission;
       });
       logger.log("Submissions", submissions);
