@@ -150,7 +150,11 @@ router
       role: userFromDb.role,
     };
     logging.log(req.session.user);
-    res.redirect(`/users/profile/${req.session.user.username}`);
+    if (req.session.user.role === "admin") {
+      res.redirect("/admin");
+    } else {
+      res.redirect(`/users/profile/${req.session.user.username}`);
+    }
   });
 
 router.route("/logout").get(async (req, res) => {
