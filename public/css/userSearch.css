@@ -1,0 +1,114 @@
+.user-search {
+  width: 80%;
+  background-color: #ffffff;
+  border: 0.1em solid #ddd;
+  border-radius: 1em;
+  margin: 0 auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
+  box-shadow: #d5d2d7 0em 0.5em 2em;
+}
+
+.user-search form {
+  display: flex;
+  padding: 2em;
+  flex-direction: column;
+  gap: 1em;
+}
+
+.user-search input {
+  width: 100%;
+  padding: 0.8em 1.25em;
+  margin: 0.5em 0;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
+}
+
+.user-search label {
+  font-size: 1.5em;
+}
+
+.user-search input:focus {
+  border-color: #37d857;
+}
+
+.user-search button {
+  width: 100%;
+  padding: 0.2em;
+  display: block;
+  margin: 0 auto;
+  background-color: #37d857;
+  cursor: pointer;
+  border-radius: 1em;
+  font-size: 1.5em;
+}
+
+.user-search button:hover {
+  background-color: #00ff33;
+}
+
+#noUsers {
+  margin: auto;
+  margin-top: 2em;
+  font-size: 2em;
+  text-align: center;
+}
+
+#UsersFound {
+  max-width: 80%;
+  margin: auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(20em, 25em));
+  gap: 1.25em;
+  justify-content: center;
+  align-content: center;
+}
+
+.foundUser h2 {
+  font-size: 2em;
+}
+
+.foundUser p {
+  font-size: 1.5em;
+}
+
+#UsersFound section {
+  margin: 0.3125em 0;
+  text-align: center;
+}
+
+#UsersFound section {
+  margin: 0.625em 0;
+  padding: 0.625em;
+  border: 0.0625em solid #dddddd;
+  border-radius: 0.5em;
+  background-color: #ffffff;
+  box-shadow: 0 0.125em 0.25em rgba(0, 0, 0, 0.1);
+  color: #333333;
+  word-wrap: break-word;
+}
+
+#UsersFound section:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 0.1875em 0.375em rgba(0, 0, 0, 0.2);
+}
+
+.link-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.link-buttons a {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  background-color: #37d857;
+  color: black;
+  border: solid black;
+  border-radius: 0.5em;
+  padding: 0.625em 1.25em;
+  font-size: 1em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}

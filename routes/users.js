@@ -520,4 +520,61 @@ router.route("/editprofile/removeBio").delete(async (req, res) => {
   }
 });
 
+router
+  .route("/search")
+  .get(async (req, res) => {
+    return res.status(200).render("users/search", {
+      user: req.session.user,
+      styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
+    });
+  })
+  .post(async (req, res) => {
+    const body = req.body;
+    let errors = [];
+    if (!req.body) {
+      errors.push("Request body is empty");
+    }
+    if (errors.length != 0) {
+      return res.status(400).render("users/search", {
+        user: req.session.user,
+        errors: errors,
+        searched: true,
+        styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
+      });
+    }
+    let keyword = req.body.keyword;
+    try {
+      keyword = validation.validateString(keyword, "keyword", false);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+    if (errors.length != 0) {
+      return res.status(400).render("users/search", {
+        user: req.session.user,
+        errors: errors,
+        searched: true,
+        styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
+      });
+    }
+    let usersFound;
+    try {
+      usersFound = await userData.getUsersByKeyword(keyword);
+    } catch (e) {
+      errors = errors.concat(e);
+      return res.status(400).render("users/search", {
+        user: req.session.user,
+        errors: errors,
+        keyword: keyword,
+        searched: true,
+      });
+    }
+    return res.status(200).render("users/search", {
+      user: req.session.user,
+      keyword: keyword,
+      usersFound: usersFound,
+      searched: true,
+      styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
+    });
+  });
+
 export default router;

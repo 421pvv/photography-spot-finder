@@ -538,6 +538,31 @@ const reportContestSubmission = async (userId, submissionId) => {
   }
 };
 
+const getUsersByKeyword = async (keyword) => {
+  keyword = validation.validateString(keyword, "keyword", false);
+  const searchRegex = new RegExp("^" + keyword + ".*$", "i");
+  const keywordQuery = {
+    $or: [
+      { firstName: searchRegex },
+      { lastName: searchRegex },
+      { username: searchRegex },
+    ],
+  };
+  const options = { projection: { firstName: 1, lastName: 1, username: 1 } };
+
+  const usersCollection = await users();
+
+  const usersFound = await usersCollection
+    .find(keywordQuery, options)
+    .toArray();
+  if (!usersFound) {
+    throw ["Could not get the users!"];
+  }
+  // logger.log(`Users found with the keyword ${keyword}: `);
+  // logger.log(usersFound);
+  return usersFound;
+};
+
 export default {
   createUser,
   getUserByUsername,
@@ -557,4 +582,5 @@ export default {
   reportContestSubmission,
   removeEmail,
   removeBio,
+  getUsersByKeyword,
 };
