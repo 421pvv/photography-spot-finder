@@ -538,7 +538,6 @@ router
       return res.status(400).render("users/search", {
         user: req.session.user,
         errors: errors,
-        searched: true,
         styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
       });
     }
@@ -552,7 +551,6 @@ router
       return res.status(400).render("users/search", {
         user: req.session.user,
         errors: errors,
-        searched: true,
         styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
       });
     }
@@ -565,7 +563,6 @@ router
         user: req.session.user,
         errors: errors,
         keyword: keyword,
-        searched: true,
       });
     }
     return res.status(200).render("users/search", {

@@ -112,3 +112,9 @@
   font-size: 1em;
   font-family: Georgia, "Times New Roman", Times, serif;
 }
+
+#form-errors-div {
+  text-align: center;
+  color: red;
+  font-size: 1.5em;
+}

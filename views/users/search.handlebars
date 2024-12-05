@@ -1,18 +1,21 @@
 <div class="user-search">
     <form id="filterForm" method="POST">
         <label for="keyword">Search for users:</label>
-        <input type="text" id="keyword" name="keyword" placeholder="Enter a name or username..." value="{{keyword}}">
+        <input type="text" id="keyword" name="keyword" placeholder="Enter a name or username..." value="{{keyword}}"
+            required>
         <button type="submit" id="applyFilterButton">Search</button>
     </form>
+    <div id="form-errors-div">
+        {{#if errors}}
+        {{#each errors}}
+        <p>{{this}}</p>
+        {{/each}}
+        {{/if}}
+    </div>
 </div>
 
 {{#if searched}}
 <div id="UsersFound">
-    {{#if errors}}
-    {{#each errors}}
-    <p class="errors">{{this}}</p>
-    {{/each}}
-    {{else}}
     {{#if usersFound}}
     {{#each usersFound}}
     <section class="FoundUser">
@@ -26,6 +29,8 @@
     {{else}}
     <p id="noUsers">No users found!</p>
     {{/if}}
-    {{/if}}
 </div>
 {{/if}}
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+<script type="module" src="/public/js/users/user_search_validation.js"></script>
