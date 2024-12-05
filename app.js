@@ -122,7 +122,7 @@ app.use("/admin", (req, res, next) => {
   if (req.session.user) {
     if (req.session.user.role !== "admin") {
       return res.status(403).render("error", {
-        message: "You do not have permission to view this page",
+        message: "403: You do not have permission to view this page",
         user: req.session.user,
       });
     }

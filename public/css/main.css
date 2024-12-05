@@ -188,4 +188,6 @@ a:hover {
 .errorPageMessage {
   text-align: center;
   font-size: 2em;
+  color: rgb(255, 0, 0);
+  margin-top: 2em;
 }
