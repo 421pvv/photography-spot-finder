@@ -52,14 +52,6 @@ main {
   margin: 0.3125em 0;
 }
 
-#NotFound {
-  color: #444444;
-  background-color: #ffeeee;
-  padding: 0.9375em;
-  border-radius: 0.3125em;
-  text-align: center;
-}
-
 .user-activity .scrolltype section,
 .user-activity .scrolltype .submissions {
   margin: 0.625em 0;
@@ -169,6 +161,12 @@ h3 {
 .link-buttons form {
   margin: 0;
   display: inline-block;
+}
+
+#NotFound {
+  margin: auto;
+  font-size: 2em;
+  text-align: center;
 }
 
 @media (max-width: 35em) {

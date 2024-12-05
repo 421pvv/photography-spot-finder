@@ -147,10 +147,10 @@ router
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
-      role: userFromDb.role
+      role: userFromDb.role,
     };
     logging.log(req.session.user);
-      res.redirect(`/users/profile/${req.session.user.username}`);
+    res.redirect(`/users/profile/${req.session.user.username}`);
   });
 
 router.route("/logout").get(async (req, res) => {
@@ -168,6 +168,7 @@ router.route("/profile/:username").get(async (req, res) => {
       notfound: true,
       user: req.session.user,
       username: username,
+      styles: [`<link rel="stylesheet" href="/public/css/userProfile.css">`],
     });
   }
   const userFavoriteSpots = await userData.getAndUpdateUserFavoriteSpots(

@@ -63,6 +63,13 @@ app.use("*", (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (req.originalUrl === "/") {
+    return res.redirect("/home");
+  }
+  next();
+});
+
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
     { url: "spots/new", error: "add a new spot!" },
@@ -82,7 +89,7 @@ app.use("*", (req, res, next) => {
 
   if (restrictedPath.length > 0 && !req.session.user) {
     logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
-    req.session.authErrors = [
+    req.session.authorizationErrors = [
       `You're not logged in! Please login in (or signup) before attempting to ${restrictedPath[0].error}`,
     ];
     return res.redirect("/users/login");
