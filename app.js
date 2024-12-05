@@ -136,7 +136,7 @@ app.use("/admin", (req, res, next) => {
       });
     }
   } else {
-    res.redirect("/users/login");
+    return res.redirect("/users/login");
   }
   next();
 });

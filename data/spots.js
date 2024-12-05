@@ -447,6 +447,7 @@ const getDisplayCommentsBySpotId = async (id) => {
   }
   logger.log("Comments fetched: " + id.toString());
   logger.log(spotComments);
+  spotComments = spotComments.filter((comment) => comment.reportCount < 20);
   return spotComments;
 };
 

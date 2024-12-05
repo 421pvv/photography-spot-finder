@@ -48,7 +48,8 @@ router.get("/", async (req, res) => {
   }
 
   if (errors.length > 0) {
-    res.render("admin/adminPanel", {
+    logger.log(errors);
+    return res.render("admin/adminPanel", {
       user: req.session.user,
       reportedSpots,
       reportedComments,
@@ -57,7 +58,7 @@ router.get("/", async (req, res) => {
       styles: [`<link rel="stylesheet" href="/public/css/adminPanel.css">`],
     });
   } else {
-    res.render("admin/adminPanel", {
+    return res.render("admin/adminPanel", {
       user: req.session.user,
       reportedSpots,
       reportedComments,
@@ -68,80 +69,117 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/clearSpotReports", async (req, res) => {
-  const { spotId } = req.body;
+  let { spotId } = req.body;
   try {
-    await spotsData.clearSpotReports(spotId, req.session.user._id);
-
-    res.redirect("/admin");
+    spotId = validation.validateString(spotId, "spotId", true);
   } catch (e) {
     req.session.errorMessage = e;
-    res.redirect("/admin");
+    return res.redirect("/admin");
+  }
+
+  try {
+    await spotsData.clearSpotReports(spotId, req.session.user._id);
+    return res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e;
+    return res.redirect("/admin");
   }
 });
 
 router.post("/deleteReportedSpot", async (req, res) => {
-  const { spotId } = req.body;
+  let { spotId } = req.body;
   try {
-    await spotsData.deleteReportedSpot(spotId, req.session.user._id);
-
-    res.redirect("/admin");
+    spotId = validation.validateString(spotId, "spotId", true);
   } catch (e) {
     req.session.errorMessage = e;
-    res.redirect("/admin");
+    return res.redirect("/admin");
+  }
+
+  try {
+    await spotsData.deleteReportedSpot(spotId, req.session.user._id);
+    return res.redirect("/admin");
+  } catch (e) {
+    req.session.errorMessage = e;
+    return res.redirect("/admin");
   }
 });
 
 router.post("/clearReportedComment", async (req, res) => {
-  const { spotId } = req.body;
+  let { spotId } = req.body;
+  try {
+    spotId = validation.validateString(spotId, "spotId", true);
+  } catch (e) {
+    req.session.errorMessage = e;
+    return res.redirect("/admin");
+  }
   try {
     await spotsData.clearCommentReports(spotId, req.session.user._id);
 
-    res.redirect("/admin");
+    return res.redirect("/admin");
   } catch (e) {
     req.session.errorMessage = e;
-    res.redirect("/admin");
+    return res.redirect("/admin");
   }
 });
 
 router.post("/deleteReportedComment", async (req, res) => {
-  const { spotId } = req.body;
+  let { spotId } = req.body;
+  try {
+    spotId = validation.validateString(spotId, "spotId", true);
+  } catch (e) {
+    req.session.errorMessage = e;
+    return res.redirect("/admin");
+  }
   try {
     await spotsData.deleteReportedComment(spotId, req.session.user._id);
 
-    res.redirect("/admin");
+    return res.redirect("/admin");
   } catch (e) {
     req.session.errorMessage = e;
-    res.redirect("/admin");
+    return res.redirect("/admin");
   }
 });
 
 router.post("/clearReportedContestSubmission", async (req, res) => {
-  const { spotId } = req.body;
+  let { spotId } = req.body;
+  try {
+    spotId = validation.validateString(spotId, "spotId", true);
+  } catch (e) {
+    req.session.errorMessage = e;
+    return res.redirect("/admin");
+  }
   try {
     await contestData.clearContestSubmissionReports(
       spotId,
       req.session.user._id
     );
-    deleteReportedContestSubmission;
-    res.redirect("/admin");
+    return res.redirect("/admin");
   } catch (e) {
     req.session.errorMessage = e;
-    res.redirect("/admin");
+    return res.redirect("/admin");
   }
 });
 
 router.post("/deleteReportedContestSubmission", async (req, res) => {
-  const { spotId } = req.body;
+  let { spotId } = req.body;
+  try {
+    spotId = validation.validateString(spotId, "spotId", true);
+  } catch (e) {
+    req.session.errorMessage = e;
+    return res.redirect("/admin");
+  }
+
   try {
     await contestData.deleteReportedContestSubmission(
       spotId,
       req.session.user._id
     );
 
-    res.redirect("/admin");
+    return res.redirect("/admin");
   } catch (e) {
+    logger.log(e);
     req.session.errorMessage = e;
-    res.redirect("/admin");
+    return res.redirect("/admin");
   }
 });
 

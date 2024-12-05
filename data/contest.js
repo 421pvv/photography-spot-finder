@@ -34,7 +34,7 @@ const getContestSpotsById = async (spotId) => {
 const getSubmissionsForContestSpot = async (spotId) => {
   spotId = validation.validateString(spotId, "id", true);
   const contestSpotsList = await contestSubmissions();
-  const submissions = await contestSpotsList
+  let submissions = await contestSpotsList
     .aggregate([
       {
         $match: {
@@ -61,6 +61,7 @@ const getSubmissionsForContestSpot = async (spotId) => {
           firstName: "$poster.firstName",
           lastName: "$poster.lastName",
           username: "$poster.username",
+          reportCount: 1,
         },
       },
     ])
@@ -69,6 +70,8 @@ const getSubmissionsForContestSpot = async (spotId) => {
   if (!submissions.length) {
     return [];
   }
+
+  submissions = submissions.filter((submission) => submission.reportCount < 20);
 
   return submissions.map((submission) => ({
     ...submission,
