@@ -9,7 +9,7 @@
     <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
 
     <button type="button" id="filterButton">Filter Options</button>
-    <div id="filterOptions" hidden="true">
+    <div id="filterOptions" hidden>
       {{> filterOptions }}
     </div>
     <button type="submit" id="applyFilterButton">Search</button>
@@ -35,7 +35,7 @@
           {{this.name}}
         </a></h2>
       <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
-        onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg" />
+        onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
 
       <div class="spot-info">
         <p>Tags:

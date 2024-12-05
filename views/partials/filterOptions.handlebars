@@ -8,13 +8,12 @@
   <label for="tags">Tags (comma separated):</label>
   <input type="text" id="tags" name="tags" placeholder="e.g. nature, sunset" value="{{tags}}">
 
-  <label for="timeFilter">Time:</label>
   <div>
     <label for="fromDate">From Date:</label>
-    <input id="fromDate" type="datetime-local" name="fromDate" value="{{fromDate}}" />
+    <input id="fromDate" type="datetime-local" name="fromDate" value="{{fromDate}}">
 
     <label for="toDate">To Date:</label>
-    <input id="toDate" type="datetime-local" name="toDate" value="{{toDate}}" />
+    <input id="toDate" type="datetime-local" name="toDate" value="{{toDate}}">
   </div>
 </div>
 
@@ -27,6 +26,3 @@
     minRatingValue.textContent = minRatingInput.value;
   });
 </script>
-
-
-
