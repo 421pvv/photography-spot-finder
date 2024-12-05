@@ -17,12 +17,17 @@
   gap: 1em;
 }
 
+.search-and-filter label {
+  font-size: 1.5em;
+}
+
 .search-and-filter input[type="text"] {
-  padding: 1em;
-  font-size: 1em;
-  border: 0.1em solid #ddd9d9;
-  border-radius: 0.75em;
-  outline: none;
+  width: 100%;
+  padding: 0.8em 1.25em;
+  margin: 0.5em 0;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
 }
 
 .search-and-filter input[type="text"]:focus {
@@ -31,19 +36,18 @@
 
 .search-and-filter button {
   width: 100%;
-  padding: 1em;
+  padding: 0.2em;
   font-size: 0.875em;
-  border: none;
   display: block;
   margin: 0 auto;
   background-color: #37d857;
-  color: #fff;
-  border-radius: 0.5em;
   cursor: pointer;
+  border-radius: 1em;
+  font-size: 1.5em;
 }
 
 .search-and-filter button:hover {
-  background-color: #37d857;
+  background-color: #00ff33;
 }
 
 #filterOptions {
@@ -61,7 +65,7 @@
 
 .filter-section label {
   display: block;
-  font-size: 0.875em;
+  font-size: 1em;
   font-weight: bold;
   margin-bottom: 0.5em;
   color: #333;
@@ -172,4 +176,11 @@
   color: white;
   font-size: 0.75em;
   border-radius: 0.5em;
+}
+
+#NoSpotsFound {
+  margin: auto;
+  margin-top: 2em;
+  font-size: 2em;
+  text-align: center;
 }

@@ -158,6 +158,6 @@ $("#addSpotForm").on("reset", (event) => {
 });
 
 $("#formCancelButton").on("click", (event) => {
-  document.location.href = "/users/profile";
+  document.location.href = "/spots/allSpots";
   event.preventDefault();
 });

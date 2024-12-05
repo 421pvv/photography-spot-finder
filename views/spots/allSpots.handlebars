@@ -6,8 +6,10 @@
 
 <div class="search-and-filter">
   <form id="filterForm" action="/spots/search" method="GET">
-    <input type="text" name="keyword" placeholder="Search for spots..." value="{{keyword}}">
-
+    <label for="keyword">
+      Search by keyword:
+    </label>
+    <input type="text" name="keyword" id="keyword" placeholder="Enter a keyword to search..." value="{{keyword}}">
     <button type="button" id="filterButton">Filter Options</button>
     <div id="filterOptions" hidden>
       {{> filterOptions }}
@@ -26,7 +28,7 @@
   {{/if}}
 </div>
 
-<section id="spotsList">
+<div id="spotsList">
   {{#if spots.length}}
   <ul>
     {{#each spots}}
@@ -48,6 +50,6 @@
     {{/each}}
   </ul>
   {{else}}
-  <p>No spots available.</p>
+  <p id="NoSpotsFound">No spots available.</p>
   {{/if}}
-</section>
+</div>
