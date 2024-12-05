@@ -444,7 +444,7 @@ router
     );
   });
 
-router.route("/editprofile/removeEmail").patch(async (req, res) => {
+router.route("/editprofile/removeEmail").delete(async (req, res) => {
   let errors = [];
   if (!req.session.user) {
     errors.push("You must login before trying to update profile!");
@@ -482,7 +482,7 @@ router.route("/editprofile/removeEmail").patch(async (req, res) => {
   }
 });
 
-router.route("/editprofile/removeBio").patch(async (req, res) => {
+router.route("/editprofile/removeBio").delete(async (req, res) => {
   let errors = [];
   if (!req.session.user) {
     errors.push("You must login before trying to update profile!");

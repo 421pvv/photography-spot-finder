@@ -23,13 +23,13 @@
     <a href="/users/updatepassword">Update Password</a>
     {{#if profile.email}}
     <form method="POST" action="/users/editprofile/removeEmail">
-      <input type="hidden" name="_method" value="PATCH">
+      <input type="hidden" name="_method" value="DELETE">
       <button type="submit">Remove Email</button>
     </form>
     {{/if}}
     {{#if profile.bio}}
     <form method="POST" action="/users/editprofile/removeBio">
-      <input type="hidden" name="_method" value="PATCH">
+      <input type="hidden" name="_method" value="DELETE">
       <button type="submit">Remove Bio</button>
     </form>
     {{/if}}

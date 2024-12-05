@@ -39,7 +39,7 @@ editForm.addEventListener("submit", (event) => {
   }
 
   try {
-    bioInput = validation.validateString(bioInput.value, "bio", false);
+    bioInput.value = validation.validateString(bioInput.value, "bio", false);
   } catch (e) {
     errors = errors.concat(e);
   }

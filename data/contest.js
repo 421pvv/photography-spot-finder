@@ -8,7 +8,7 @@ import {
 import validation from "../validation.js";
 import logger from "../log.js";
 import { ObjectId } from "mongodb";
-import { userData } from "./index.js";
+import { userData, cloudinaryData } from "./index.js";
 
 const getContestSpotsList = async () => {
   const contestSpotsList = await contestSpots();
@@ -414,10 +414,12 @@ const deleteReportedContestSubmission = async (submissionId, userId) => {
     throw ["The user is not an admin"];
   }
   try {
+    const submission = await getContestSubmissionById(submissionId);
     const contestSubmissionsCollection = await contestSubmissions();
     await contestSubmissionsCollection.deleteOne({
       _id: ObjectId.createFromHexString(submissionId),
     });
+    await cloudinaryData.deleteImages([submission.image.public_id]);
     const contestRatingsCollection = await contestRatings();
     await contestRatingsCollection.deleteMany({
       contestSubmissionId: ObjectId.createFromHexString(submissionId),
