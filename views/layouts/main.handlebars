@@ -25,6 +25,7 @@
   <header>
     <nav id="topNavBar">
       <ul>
+        <li><a href="/home">Home Page</a></li>
         <li><a href="/spots/allSpots">Browse Spots</a></li>
         <li><a href="/spots/byDistance">Distance Search</a></li>
 
@@ -32,6 +33,9 @@
 
         {{#if user}}
         <li><a href="/spots/new">Add Spot</a></li>
+        {{#if (eq user.role 'admin')}}
+        <li><a href="/admin/">Admin Panel</a></li>
+        {{/if}}
         <li><a href="/users/profile/{{user.username}}">Profile</a></li>
         <li><a href="/users/logout">Logout</a></li>
         {{else}}

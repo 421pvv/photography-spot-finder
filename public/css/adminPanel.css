@@ -1,0 +1,160 @@
+main {
+  max-width: 95%;
+  margin: auto;
+  min-height: 80vh;
+}
+
+#admin-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30em, 1fr));
+  gap: 1.25em;
+}
+
+h3 {
+  text-align: center;
+}
+
+p {
+  text-align: center;
+}
+
+#adminPanel {
+  max-width: 95%;
+  margin: 2em auto;
+  padding: 2em;
+  background-color: #fff;
+  border-radius: 0.5em;
+  box-shadow: 0 0.125em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+#adminPanel h1 {
+  font-size: 2em;
+  text-align: center;
+}
+
+#admin-message {
+  font-size: 1.5em;
+  text-align: center;
+  margin-bottom: 1.5em;
+  border-bottom: 0.125em solid #ddd;
+  padding-bottom: 0.5em;
+}
+
+.admin-section {
+  margin-bottom: 2em;
+  background-color: #fff;
+  padding: 1.5em;
+  border-radius: 0.5em;
+  box-shadow: 0 0.125em 0.5em rgba(0, 0, 0, 0.1);
+}
+
+.admin-section h2 {
+  font-size: 1.75em;
+  color: #333;
+  margin-bottom: 1em;
+  border-bottom: 0.125em solid #ddd;
+  padding-bottom: 0.5em;
+}
+
+.scrolltype {
+  max-height: 40em;
+  overflow-y: auto;
+  border: 0.0625em solid #ddd;
+  padding: 0.625em;
+  border-radius: 0.5em;
+  background-color: #f9f9f9;
+}
+
+.scrolltype section,
+.scrolltype .submissions {
+  background-color: #fff;
+  padding: 1em;
+  margin-bottom: 0.625em;
+  border: 0.0625em solid #ddd;
+  border-radius: 0.5em;
+  box-shadow: 0 0.125em 0.25em rgba(0, 0, 0, 0.1);
+}
+
+.scrolltype section:hover {
+  background-color: #f1f1f1;
+  box-shadow: 0 0.1875em 0.375em rgba(0, 0, 0, 0.15);
+}
+
+.spot-image-admin,
+.contest-image-admin {
+  width: auto;
+  height: 20vh;
+  display: block;
+  object-fit: cover;
+  border-radius: 0.5em;
+  margin: 1em auto;
+  max-width: 90%;
+}
+
+.username {
+  font-weight: bold;
+  font-size: 1.1em;
+  margin-bottom: 0.625em;
+  color: #444;
+}
+
+.link-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 0.5em;
+}
+
+.link-buttons a {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  background-color: #37d857;
+  color: black;
+  border: solid black;
+  border-radius: 0.5em;
+  padding: 0.625em 1.25em;
+  font-size: 1em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+}
+
+.link-buttons form button {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  background-color: #ff311e;
+  color: black;
+  border: solid black;
+  border-radius: 0.5em;
+  padding: 0.625em 1.25em;
+  font-size: 1em;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  cursor: pointer;
+}
+
+.link-buttons a:hover {
+  background-color: #00ff33;
+}
+
+.link-buttons form button:hover {
+  background-color: rgb(255, 0, 0);
+}
+
+.link-buttons form {
+  margin: 0;
+  display: inline-block;
+}
+
+/* .commentsSection h3 {
+  font-weight: normal;
+} */
+
+.adminErrorMessages {
+  color: #ff311e;
+  text-align: center;
+}
+
+@media (max-width: 35em) {
+  #admin-fields {
+    grid-template-columns: repeat(auto-fit, minmax(30em, 1fr));
+  }
+}

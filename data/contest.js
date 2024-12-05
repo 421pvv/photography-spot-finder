@@ -3,11 +3,12 @@ import {
   contestSpots,
   contestSubmissions,
   spotRatings,
+  users,
 } from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import logger from "../log.js";
 import { ObjectId } from "mongodb";
-import { userData } from "./index.js";
+import { userData, cloudinaryData } from "./index.js";
 
 const getContestSpotsList = async () => {
   const contestSpotsList = await contestSpots();
@@ -33,7 +34,7 @@ const getContestSpotsById = async (spotId) => {
 const getSubmissionsForContestSpot = async (spotId) => {
   spotId = validation.validateString(spotId, "id", true);
   const contestSpotsList = await contestSubmissions();
-  const submissions = await contestSpotsList
+  let submissions = await contestSpotsList
     .aggregate([
       {
         $match: {
@@ -60,6 +61,7 @@ const getSubmissionsForContestSpot = async (spotId) => {
           firstName: "$poster.firstName",
           lastName: "$poster.lastName",
           username: "$poster.username",
+          reportCount: 1,
         },
       },
     ])
@@ -68,6 +70,8 @@ const getSubmissionsForContestSpot = async (spotId) => {
   if (!submissions.length) {
     return [];
   }
+
+  submissions = submissions.filter((submission) => submission.reportCount < 20);
 
   return submissions.map((submission) => ({
     ...submission,
@@ -389,12 +393,21 @@ const getReportedContestSubmissions = async (userId) => {
   if (!reportedSubmissionsList) {
     throw ["Could not get reported contest submissions"];
   }
+  for (let i = 0; i < reportedSubmissionsList.length; i++) {
+    const user = await userData.getUserProfileById(
+      reportedSubmissionsList[i].posterId.toString()
+    );
+    reportedSubmissionsList[i].posterUsername = user.username;
+    reportedSubmissionsList[
+      i
+    ].posterFullName = `${user.firstName} ${user.lastName}`;
+  }
   return reportedSubmissionsList;
 };
 
 const deleteReportedContestSubmission = async (submissionId, userId) => {
   submissionId = validation.validateString(submissionId, "submissionId", true);
-  const submissionInfo = await getContestSubmissionById(id);
+  const submissionInfo = await getContestSubmissionById(submissionId);
   if (submissionInfo.reportCount < 20) {
     throw ["The submission has report count less than 20"];
   }
@@ -404,14 +417,21 @@ const deleteReportedContestSubmission = async (submissionId, userId) => {
     throw ["The user is not an admin"];
   }
   try {
+    const submission = await getContestSubmissionById(submissionId);
     const contestSubmissionsCollection = await contestSubmissions();
     await contestSubmissionsCollection.deleteOne({
       _id: ObjectId.createFromHexString(submissionId),
     });
+    await cloudinaryData.deleteImages([submission.image.public_id]);
     const contestRatingsCollection = await contestRatings();
     await contestRatingsCollection.deleteMany({
       contestSubmissionId: ObjectId.createFromHexString(submissionId),
     });
+    const usersCollection = await users();
+    await usersCollection.updateMany(
+      {},
+      { $pull: { contestReports: submissionId } }
+    );
   } catch (e) {
     throw ["Contest submission delete failed"];
   }
@@ -436,6 +456,11 @@ const clearContestSubmissionReports = async (submissionId, userId) => {
   if (!clearedSubmission) {
     throw ["Failed to clear reports of contest submission"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { contestReports: submissionId } }
+  );
   return clearedSubmission;
 };
 

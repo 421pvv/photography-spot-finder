@@ -963,6 +963,18 @@ router
     }
   });
 
+router.route("/allSpots").get(async (req, res) => {
+  const allSpots = await spotsData.getAllSpots(undefined, {});
+  res.render("spots/allSpots", {
+    spots: allSpots,
+    styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+    scripts: [
+      `<script type="module" src="/public/js/spots/filters.js"></script>`,
+    ],
+    user: req.session.user,
+  });
+});
+
 router.route("/search").get(async (req, res) => {
   let keyword = req.query.keyword;
   let { tags, minRating, fromDate, toDate } = req.query;

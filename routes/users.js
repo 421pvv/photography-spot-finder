@@ -147,9 +147,14 @@ router
       firstName: userFromDb.firstName,
       lastName: userFromDb.lastName,
       username: userFromDb.username,
+      role: userFromDb.role,
     };
     logging.log(req.session.user);
-    res.redirect(`/users/profile/${req.session.user.username}`);
+    if (req.session.user.role === "admin") {
+      res.redirect("/admin");
+    } else {
+      res.redirect(`/users/profile/${req.session.user.username}`);
+    }
   });
 
 router.route("/logout").get(async (req, res) => {
@@ -167,6 +172,7 @@ router.route("/profile/:username").get(async (req, res) => {
       notfound: true,
       user: req.session.user,
       username: username,
+      styles: [`<link rel="stylesheet" href="/public/css/userProfile.css">`],
     });
   }
   const userFavoriteSpots = await userData.getAndUpdateUserFavoriteSpots(
@@ -227,7 +233,7 @@ router
       return res.status(401).redirect("/users/login");
     }
     return res
-      .status(400)
+      .status(200)
       .render("users/editprofile", { data: userInfo, user: req.session.user });
   })
   .patch(async (req, res) => {
@@ -288,7 +294,7 @@ router
 
     console.log(updateData);
     if (errors.length !== 0) {
-      return res.render("users/editprofile", {
+      return res.status(400).render("users/editprofile", {
         errors,
         hasErrors: true,
         data: updateData,
@@ -301,7 +307,7 @@ router
       let updatedUser = await userData.updateUserProfile(updateData);
     } catch (e) {
       errors = errors.concat(e);
-      return res.render("users/editprofile", {
+      return res.status(400).render("users/editprofile", {
         errors,
         hasErrors: true,
         data: updateData,
@@ -339,7 +345,7 @@ router
       req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
     }
-    return res.status(400).render("users/updatepassword", {
+    return res.status(200).render("users/updatepassword", {
       data: userInfo,
       user: req.session.user,
     });
@@ -387,7 +393,7 @@ router
     }
 
     if (errors.length !== 0) {
-      return res.render("users/updatepassword", {
+      return res.status(400).render("users/updatepassword", {
         errors,
         hasErrors: true,
         data: updateData,
@@ -407,7 +413,7 @@ router
     logging.log(errors);
 
     if (errors.length !== 0) {
-      return res.render("users/updatepassword", {
+      return res.status(400).render("users/updatepassword", {
         errors,
         hasErrors: true,
         data: updateData,
@@ -424,7 +430,7 @@ router
       let updatedUser = await userData.updateUserProfile(userObj);
     } catch (e) {
       errors = errors.concat(e);
-      return res.render("users/updatepassword", {
+      return res.status(400).render("users/updatepassword", {
         errors,
         hasErrors: true,
         data: updateData,
@@ -437,5 +443,81 @@ router
       "/users/login?message=Please%20login%20again%20to%20continue"
     );
   });
+
+router.route("/editprofile/removeEmail").delete(async (req, res) => {
+  let errors = [];
+  if (!req.session.user) {
+    errors.push("You must login before trying to update profile!");
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+  let userId = req.session.user._id;
+  try {
+    userId = validation.validateString(userId.toString(), "userId", true);
+  } catch (e) {
+    errors = errors.concat(e);
+  }
+  let userInfo;
+  try {
+    userInfo = await userData.getUserProfileById(userId);
+  } catch (e) {
+    errors = errors.concat(e);
+  }
+  if (errors.length > 0) {
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+  let acknowledged;
+  try {
+    acknowledged = await userData.removeEmail(userId);
+    return res.redirect(`/users/profile/${req.session.user.username}`);
+  } catch (e) {
+    errors = errors.concat(e);
+  }
+  if (!acknowledged || !acknowledged.emailRemoved) {
+    return res.status(500).render("error", {
+      message: "500: Internal Server Error",
+      user: req.session.user,
+    });
+  }
+});
+
+router.route("/editprofile/removeBio").delete(async (req, res) => {
+  let errors = [];
+  if (!req.session.user) {
+    errors.push("You must login before trying to update profile!");
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+  let userId = req.session.user._id;
+  try {
+    userId = validation.validateString(userId.toString(), "userId", true);
+  } catch (e) {
+    errors = errors.concat(e);
+  }
+  let userInfo;
+  try {
+    userInfo = await userData.getUserProfileById(userId);
+  } catch (e) {
+    errors = errors.concat(e);
+  }
+  if (errors.length > 0) {
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+  let acknowledged;
+  try {
+    acknowledged = await userData.removeBio(userId);
+    return res.redirect(`/users/profile/${req.session.user.username}`);
+  } catch (e) {
+    errors = errors.concat(e);
+  }
+  if (!acknowledged || !acknowledged.bioRemoved) {
+    return res.status(500).render("error", {
+      message: "500: Internal Server Error",
+      user: req.session.user,
+    });
+  }
+});
 
 export default router;

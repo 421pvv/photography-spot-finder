@@ -1,19 +1,17 @@
 import usersRouter from "./users.js";
 import spotsRouter from "./spots.js";
-import { spotsData } from "../data/index.js";
+import adminRouter from "./admin.js";
 import contestRouter from "./contest.js";
+import homeRouter from "./home.js";
 const constructorMethod = (app) => {
+  app.use("/", homeRouter);
   app.use("/users", usersRouter);
   app.use("/spots", spotsRouter);
   app.use("/contest", contestRouter);
+  app.use("/admin", adminRouter);
   app.use("*", async (req, res) => {
-    const allSpots = await spotsData.getAllSpots(undefined, {});
-    res.render("spots/allSpots", {
-      spots: allSpots,
-      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
-      scripts: [
-        `<script type="module" src="/public/js/spots/filters.js"></script>`,
-      ],
+    res.status(404).render("error", {
+      message: "404: Route not found",
       user: req.session.user,
     });
   });

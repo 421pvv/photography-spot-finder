@@ -32,7 +32,15 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
-app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
+app.engine(
+  "handlebars",
+  exphbs.engine({
+    defaultLayout: "main",
+    helpers: {
+      eq: (a, b) => a === b,
+    },
+  })
+);
 app.set("view engine", "handlebars");
 
 // sanatize all inputs
@@ -55,6 +63,13 @@ app.use("*", (req, res, next) => {
   next();
 });
 
+app.use((req, res, next) => {
+  if (req.originalUrl === "/") {
+    return res.redirect("/home");
+  }
+  next();
+});
+
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
     { url: "spots/new", error: "add a new spot!" },
@@ -66,6 +81,8 @@ app.use("*", (req, res, next) => {
       error: "vote for a contest submission!",
     },
     { url: "spots/favorite", error: "favorite a spot!" },
+    { url: "users/editprofile", error: "edit profile!" },
+    { url: "users/updatepassword", error: "update password!" },
     { url: "spots/favorite", error: "flag a spot!" },
     { url: "spots/comment/flag", error: "flag a spot comment!" },
     { url: "/contest/submission/flag", error: "flag a contest submission!" },
@@ -77,7 +94,7 @@ app.use("*", (req, res, next) => {
 
   if (restrictedPath.length > 0 && !req.session.user) {
     logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
-    req.session.authErrors = [
+    req.session.authorizationErrors = [
       `You're not logged in! Please login in (or signup) before attempting to ${restrictedPath[0].error}`,
     ];
     return res.redirect("/users/login");
@@ -99,7 +116,7 @@ app.use("/spots/putRating/:spotId", (req, res, next) => {
 
 app.use("/users/login", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile/" + req.session.user.username);
+    return res.redirect(`/users/profile/${req.session.user.username}`);
   } else {
     next();
   }
@@ -107,11 +124,26 @@ app.use("/users/login", (req, res, next) => {
 
 app.use("/users/signup", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile/" + req.session.user.username);
+    return res.redirect(`/users/profile/${req.session.user.username}`);
   } else {
     next();
   }
 });
+
+app.use("/admin", (req, res, next) => {
+  if (req.session.user) {
+    if (req.session.user.role !== "admin") {
+      return res.status(403).render("error", {
+        message: "403: You do not have permission to view this page",
+        user: req.session.user,
+      });
+    }
+  } else {
+    return res.redirect("/users/login");
+  }
+  next();
+});
+
 configRoutes(app);
 
 app.listen(3000, () => {

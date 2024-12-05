@@ -8,8 +8,8 @@
   {{/if}}
 </div>
 {{#if notfound}}
-<div id="NotFound">
-  <p>Oops! There is no user with a username of {{username}}</p>
+<div>
+  <p id="NotFound">Oops! There is no user with a username of {{username}}</p>
 </div>
 {{else}}
 {{#if message}}
@@ -21,14 +21,28 @@
     <a href="/users/editprofile">
       Edit Profile</a>
     <a href="/users/updatepassword">Update Password</a>
+    {{#if profile.email}}
+    <form method="POST" action="/users/editprofile/removeEmail">
+      <input type="hidden" name="_method" value="DELETE">
+      <button type="submit">Remove Email</button>
+    </form>
+    {{/if}}
+    {{#if profile.bio}}
+    <form method="POST" action="/users/editprofile/removeBio">
+      <input type="hidden" name="_method" value="DELETE">
+      <button type="submit">Remove Bio</button>
+    </form>
+    {{/if}}
   </div>
   {{/if}}
   <h1 id="userFirstLastNames">{{profile.firstName}} {{profile.lastName}}</h1>
   <p class="username">@{{profile.username}}</p>
-  {{!-- {{#if sameUser}}
-  <p>Email: {{#if profile.email}}{{profile.email}}{{else}}Edit your profile to add an email!{{/if}}</p>
-  {{/if}} --}}
-  <p class="bio">{{#if profile.bio}}{{profile.bio}}{{else}}-{{/if}}</p>
+  {{#if sameUser}}
+  {{#if profile.email}}
+  <p class="bio">{{profile.email}}</p>
+  {{/if}}
+  {{/if}}
+  {{#if profile.bio}}<p class="bio">{{profile.bio}}</p>{{/if}}
 </section>
 
 <div class="activity-sections">

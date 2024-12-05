@@ -1,4 +1,9 @@
-import { spots, comments, spotRatings } from "../config/mongoCollections.js";
+import {
+  spots,
+  comments,
+  spotRatings,
+  users,
+} from "../config/mongoCollections.js";
 import validation from "../validation.js";
 import { ObjectId } from "mongodb";
 import { userData, cloudinaryData, contestData } from "./index.js";
@@ -339,8 +344,23 @@ const deleteSpot = async (spotId, userId) => {
     });
 
     // deleting spot's ratings and comments
-
+    let commentImages = [];
     const commentsCollection = await comments();
+    const commentsImageData = await commentsCollection
+      .find(
+        { spotId: ObjectId.createFromHexString(spotId) },
+        { projection: { _id: 0, image: 1 } }
+      )
+      .toArray();
+
+    for (const imageData of commentsImageData) {
+      if (imageData.image !== null) {
+        commentImages.push(imageData.image.public_id);
+      }
+    }
+
+    await cloudinaryData.deleteImages(commentImages);
+
     await commentsCollection.deleteMany({
       spotId: ObjectId.createFromHexString(spotId),
     });
@@ -427,6 +447,7 @@ const getDisplayCommentsBySpotId = async (id) => {
   }
   logger.log("Comments fetched: " + id.toString());
   logger.log(spotComments);
+  spotComments = spotComments.filter((comment) => comment.reportCount < 20);
   return spotComments;
 };
 
@@ -757,12 +778,26 @@ const getReportedSpots = async (userId) => {
   if (!reportedSpotsList) {
     throw ["Could not get reported spots"];
   }
+  for (let i = 0; i < reportedSpotsList.length; i++) {
+    const user = await userData.getUserProfileById(
+      reportedSpotsList[i].posterId.toString()
+    );
+    reportedSpotsList[i].posterUsername = user.username;
+    reportedSpotsList[i].posterFullName = `${user.firstName} ${user.lastName}`;
+  }
+  // reportedSpotsList = reportedSpotsList.map(async (reportedSpot) => {
+  //   const user = await userData.getUserProfileById(
+  //     reportedSpot.posterId.toString()
+  //   );
+  //   reportedSpot.posterUsername = user.username;
+  // });
+
   return reportedSpotsList;
 };
 
 const deleteReportedSpot = async (spotId, userId) => {
   spotId = validation.validateString(spotId, "spotId", true);
-  const spotInfo = await getSpotById(id);
+  const spotInfo = await getSpotById(spotId);
   if (spotInfo.reportCount < 20) {
     throw ["The spot has report count less than 20"];
   }
@@ -772,6 +807,8 @@ const deleteReportedSpot = async (spotId, userId) => {
     throw ["The user is not an admin"];
   }
   const deletedSpot = await deleteSpot(spotId, spotInfo.posterId.toString());
+  const usersCollection = await users();
+  await usersCollection.updateMany({}, { $pull: { spotReports: spotId } });
   return deletedSpot;
 };
 
@@ -798,6 +835,8 @@ const clearSpotReports = async (spotId, userId) => {
   if (!clearedSpot) {
     throw ["Spot Report clearing failed"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany({}, { $pull: { spotReports: spotId } });
   return clearedSpot;
 };
 
@@ -812,6 +851,15 @@ const getReportedComments = async (userId) => {
   const reportedCommentsList = await commentsCollection.find(query).toArray();
   if (!reportedCommentsList) {
     throw ["Could not get reported comments"];
+  }
+  for (let i = 0; i < reportedCommentsList.length; i++) {
+    const user = await userData.getUserProfileById(
+      reportedCommentsList[i].posterId.toString()
+    );
+    reportedCommentsList[i].posterUsername = user.username;
+    reportedCommentsList[
+      i
+    ].posterFullName = `${user.firstName} ${user.lastName}`;
   }
   return reportedCommentsList;
 };
@@ -830,6 +878,11 @@ const deleteReportedComment = async (commentId, userId) => {
   const deletedComment = await deleteComment(
     commentId,
     commentInfo.posterId.toString()
+  );
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { commentReports: commentId } }
   );
   return deletedComment;
 };
@@ -857,6 +910,11 @@ const clearCommentReports = async (commentId, userId) => {
   if (!clearedComment) {
     throw ["Comment Report clearing failed"];
   }
+  const usersCollection = await users();
+  await usersCollection.updateMany(
+    {},
+    { $pull: { commentReports: commentId } }
+  );
   return clearedComment;
 };
 
