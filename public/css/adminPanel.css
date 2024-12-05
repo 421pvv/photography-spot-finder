@@ -142,6 +142,11 @@ p {
   font-weight: normal;
 } */
 
+.adminErrorMessages {
+  color: #ff311e;
+  text-align: center;
+}
+
 @media (max-width: 35em) {
   #admin-fields {
     grid-template-columns: repeat(auto-fit, minmax(30em, 1fr));

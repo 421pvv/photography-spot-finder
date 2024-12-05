@@ -20,11 +20,15 @@ router.get("/", async (req, res) => {
   let reportedSpots = [];
   let reportedComments = [];
   let reportedContenstSpots = [];
+  if (req.session.errorMessage) {
+    errors = errors.concat(req.session.errorMessage);
+    delete req.session.errorMessage;
+  }
 
   try {
     reportedSpots = await spotsData.getReportedSpots(req.session.user._id);
   } catch (e) {
-    errors.push("Unable to get reported spots.");
+    errors = errors.concat(e);
   }
 
   try {
@@ -32,7 +36,7 @@ router.get("/", async (req, res) => {
       req.session.user._id
     );
   } catch (e) {
-    errors.push("Unable to get reported comments.");
+    errors = errors.concat(e);
   }
 
   try {
@@ -40,7 +44,7 @@ router.get("/", async (req, res) => {
       req.session.user._id
     );
   } catch (e) {
-    errors.push("Unable to get reported contest spots.");
+    errors = errors.concat(e);
   }
 
   if (errors.length > 0) {
@@ -70,7 +74,7 @@ router.post("/clearSpotReports", async (req, res) => {
 
     res.redirect("/admin");
   } catch (e) {
-    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    req.session.errorMessage = e;
     res.redirect("/admin");
   }
 });
@@ -82,7 +86,7 @@ router.post("/deleteReportedSpot", async (req, res) => {
 
     res.redirect("/admin");
   } catch (e) {
-    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    req.session.errorMessage = e;
     res.redirect("/admin");
   }
 });
@@ -94,7 +98,7 @@ router.post("/clearReportedComment", async (req, res) => {
 
     res.redirect("/admin");
   } catch (e) {
-    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    req.session.errorMessage = e;
     res.redirect("/admin");
   }
 });
@@ -106,7 +110,7 @@ router.post("/deleteReportedComment", async (req, res) => {
 
     res.redirect("/admin");
   } catch (e) {
-    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    req.session.errorMessage = e;
     res.redirect("/admin");
   }
 });
@@ -121,7 +125,7 @@ router.post("/clearReportedContestSubmission", async (req, res) => {
     deleteReportedContestSubmission;
     res.redirect("/admin");
   } catch (e) {
-    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    req.session.errorMessage = e;
     res.redirect("/admin");
   }
 });
@@ -136,7 +140,7 @@ router.post("/deleteReportedContestSubmission", async (req, res) => {
 
     res.redirect("/admin");
   } catch (e) {
-    req.session.errorMessage = e[0] || "Failed to clear spot reports.";
+    req.session.errorMessage = e;
     res.redirect("/admin");
   }
 });

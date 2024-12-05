@@ -1,4 +1,9 @@
 <div id="adminPanel">
+  {{#if errors}}
+  {{#each errors}}
+  <p class="adminErrorMessages">{{this}}</p>
+  {{/each}}
+  {{/if}}
   <h1>Admin Panel</h1>
   <p id="admin-message">Welcome {{user.firstName}} {{user.lastName}}! Since you are an admin, you can view and manage
     the flagged content.</p>
