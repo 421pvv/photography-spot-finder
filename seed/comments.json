@@ -9,7 +9,7 @@
       "public_id": "puf86xfufxna93unh6ip",
       "url": "https://res.cloudinary.com/db7w46lyt/image/upload/v1731960778/puf86xfufxna93unh6ip.jpg"
     },
-    "reportCount": { "$numberDouble": "NaN" }
+    "reportCount": 0
   },
   {
     "_id": { "$oid": "673c04cf420d4c169e6db5d9" },
@@ -18,7 +18,7 @@
     "message": "I will come here again during fall to get some more great phots.",
     "createdAt": { "$date": "2024-11-19T03:23:59.381Z" },
     "image": null,
-    "reportCount": { "$numberDouble": "NaN" }
+    "reportCount": 0
   },
   {
     "_id": { "$oid": "673c049c420d4c169e6db5d8" },
@@ -30,7 +30,7 @@
       "public_id": "pnv2yuqaz2mcsugxp2zj",
       "url": "https://res.cloudinary.com/db7w46lyt/image/upload/v1731986585/pnv2yuqaz2mcsugxp2zj.jpg"
     },
-    "reportCount": { "$numberDouble": "NaN" }
+    "reportCount": 0
   },
   {
     "_id": { "$oid": "673c02b9420d4c169e6db5d5" },
@@ -50,7 +50,7 @@
     "message": "hello",
     "createdAt": { "$date": "2024-11-25T20:42:39.825Z" },
     "image": null,
-    "reportCount": { "$numberDouble": "NaN" }
+    "reportCount": 0
   },
   {
     "_id": { "$oid": "673c051f420d4c169e6db5da" },
@@ -61,7 +61,8 @@
     "image": {
       "public_id": "xwaizjxajybdzck1cm07",
       "url": "https://res.cloudinary.com/db7w46lyt/image/upload/v1731986712/xwaizjxajybdzck1cm07.jpg"
-    }
+    },
+    "reportCount": 0
   },
   {
     "_id": { "$oid": "673c0346420d4c169e6db5d6" },
@@ -72,6 +73,7 @@
     "image": {
       "public_id": "tbfzwpiybo4fez5sntss",
       "url": "https://res.cloudinary.com/db7w46lyt/image/upload/v1731986238/tbfzwpiybo4fez5sntss.jpg"
-    }
+    },
+    "reportCount": 0
   }
 ]
