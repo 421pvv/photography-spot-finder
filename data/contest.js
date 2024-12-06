@@ -273,6 +273,7 @@ const submitContestImage = async (url, public_id, userId, spotId, date) => {
 };
 
 const updateTopContestSpots = async () => {
+  logger.log("Updating top three spots for contest spots");
   const current = new Date();
   const currentMonth = new Date(current.getFullYear(), current.getMonth(), 1);
 
@@ -303,7 +304,7 @@ const updateTopContestSpots = async () => {
       {
         $lookup: {
           from: "spots",
-          localField: "spotId",
+          localField: "_id",
           foreignField: "_id",
           as: "spotDetails",
         },
@@ -313,27 +314,33 @@ const updateTopContestSpots = async () => {
       },
     ])
     .toArray();
+  logger.log("Top spots: ", topSpots);
 
   await contestSpotsList.deleteMany({ contestInfo: currentMonth });
 
-  const newTopSpots = topSpots.map((spot) => ({
-    name: spot.spotDetails.name,
-    location: spot.spotDetails.location,
-    address: spot.spotDetails.address,
-    description: spot.spotDetails.description,
-    accessibility: spot.spotDetails.accessibility,
-    bestTimes: spot.spotDetails.bestTimes,
-    images: spot.spotDetails.images,
-    tags: spot.spotDetails.tags,
-    posterId: spot.spotDetails.posterId,
-    createdAt: spot.spotDetails.createdAt,
-    reportCount: spot.spotDetails.reportCount,
-    averageRating: spot.averageRating,
-    totalRatings: spot.totalRatings,
-    contestInfo: currentMonth,
-  }));
+  const newTopSpots = topSpots.map((spot) => {
+    return {
+      _id: spot.spotDetails._id,
+      name: spot.spotDetails.name,
+      location: spot.spotDetails.location,
+      address: spot.spotDetails.address,
+      description: spot.spotDetails.description,
+      accessibility: spot.spotDetails.accessibility,
+      bestTimes: spot.spotDetails.bestTimes,
+      images: spot.spotDetails.images,
+      tags: spot.spotDetails.tags,
+      posterId: spot.spotDetails.posterId,
+      createdAt: spot.spotDetails.createdAt,
+      reportCount: spot.spotDetails.reportCount,
+      averageRating: spot.averageRating,
+      totalRatings: spot.totalRatings,
+      contestInfo: currentMonth,
+    };
+  });
 
   if (newTopSpots.length > 0) {
+    logger.log("Inserting top spots: ", newTopSpots);
+
     await contestSpotsList.insertMany(newTopSpots);
   }
 };
@@ -346,34 +353,7 @@ const validateContestSpotSubmission = async (spotId) => {
     throw ["Contest spot not found."];
   }
 
-  const contestId = spotInfo.contestId;
-  validation.validateString(contestId, "id", true);
-
-  const contest = await getContestById(contestId);
-  if (!contest) {
-    throw ["No contest associated with this contest spot."];
-  }
-
-  const currentDate = new Date();
-  const previousMonthStart = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth() - 1,
-    1
-  );
-  const previousMonthEnd = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    0
-  );
-
-  if (
-    !(
-      new Date(contest.startDate) >= previousMonthStart &&
-      new Date(contest.startDate) <= previousMonthEnd
-    )
-  ) {
-    throw ["Contest is not from the previous month."];
-  }
+  validation.validateContestRequestTimeStamp(new Date(), spotInfo.contestInfo);
 
   return spotInfo;
 };
