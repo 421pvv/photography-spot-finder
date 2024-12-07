@@ -35,7 +35,7 @@
     <textarea id="spotAccessibility" name="spotAccessibility"
       placeholder="Describe how accessible the spot is.">{{spot.spotAccessibility}}</textarea>
     <div id="spotAccessibilityErrors">
-      
+
       {{#if errors.error_spotAccessibility}}
       {{#each errors.error_spotAccessibility}}
       <p class="formInputError">{{this}}</p>
@@ -234,6 +234,9 @@
     uploadPreset: 'Spot Images',
     resourceType: "image",
     multiple: false,
+    transformation: [
+      { quality: 'auto', fetch_format: 'auto' },
+    ]
   }, (error, result) => {
     if (!error && result && result.event === "success") {
       urls.push({
@@ -289,4 +292,4 @@
 
 
 
-<script type="module" src="/public/js/spots/addspotValidation.js"> </script> 
+<script type="module" src="/public/js/spots/addspotValidation.js"> </script>

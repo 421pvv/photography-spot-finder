@@ -35,6 +35,7 @@ var myWidget = cloudinary.createUploadWidget(
     uploadPreset: "Spot Images",
     resourceType: "image",
     multiple: false,
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   (error, result) => {
     if (!error && result && result.event === "success") {

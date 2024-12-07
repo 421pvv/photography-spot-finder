@@ -62,16 +62,22 @@
     <div class="userInteractionsDiv">
         <section>
             <form>
-                <h3> <label hidden="true" for="favoriteButton"> Favorite Spot </label>
+                <h3> <label for="likeLink"> Favorite Spot </label>
                 </h3>
-                <i id="favoriteButton" class="fa fa-star {{viewingUser.favorite}}"></i>
+                <button type="button" class="actionButton" id="likeLink" name="likeLink">
+
+                    <i id="favoriteButton" class="fa fa-star {{viewingUser.favorite}}"></i>
+                </button>
+
             </form>
         </section>
         <section>
-            <form>
-                <h3> <label hidden="true" for="flagButton"> Flag Spot </label> </h3>
-                <i id="spotFlagButton" data-id="{{spot._id}}" data-type="spot"
-                    class="fa fa-flag {{viewingUser.flag}}"></i>
+            <form action="#">
+                <h3> <label for="flagLink"> Flag Spot </label> </h3>
+                <button type="button" class="actionButton" id="flagLink" name="flagLink">
+                    <i id="spotFlagButton" data-id="{{spot._id}}" data-type="spot"
+                        class="fa fa-flag {{viewingUser.flag}}"></i>
+                </button>
             </form>
         </section>
     </div>
@@ -132,19 +138,19 @@
                 {{/if}}
                 <label for="ratingSlider">
                     Rating Slider
-
-                    {{#if viewingUser.rating}}
-                    <input name="rating" type="range" min="1" max="10" value="{{viewingUser.rating}}" id="ratingSlider"
-                        step="0.1">
-                    <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">{{viewingUser.rating}}</span></p>
-
-
-                    {{else}}
-                    <input name="rating" type="range" min="1" max="10" value="5" id="ratingSlider" step="0.1">
-                    <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">5</span></p>
-                    {{/if}}
-
                 </label>
+
+                {{#if viewingUser.rating}}
+                <input name="rating" type="range" min="1" max="10" value="{{viewingUser.rating}}" id="ratingSlider"
+                    step="0.1">
+                <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">{{viewingUser.rating}}</span></p>
+
+
+                {{else}}
+                <input name="rating" type="range" min="1" max="10" value="5" id="ratingSlider" step="0.1">
+                <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">5</span></p>
+                {{/if}}
+
                 <input type="submit" id="ratingSubmit">
             </form>
 
