@@ -63,7 +63,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is not provided!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
 
         expectedUserInfo = validUserCopy();
@@ -310,7 +311,10 @@ describe("Testing users data functions", () => {
           "Expected Last Name to be of type string, but it is not provided!",
         ]);
 
-        const userErrors = "Username must have at least six characters!";
+        const userErrors = [
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
+        ];
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = "";
         await expect(
@@ -416,7 +420,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is not provided!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = null;
@@ -558,7 +563,9 @@ describe("Testing users data functions", () => {
             expectedUserInfo.username,
             expectedUserInfo.password
           )
-        ).rejects.toEqual(["Username must have at least six characters!"]);
+        ).rejects.toEqual([
+          "Username must be between 6 to 20 characters long!",
+        ]);
       });
       it("Throws when another user already has aquired the given username", async () => {
         let expectedUserInfo;
@@ -685,6 +692,7 @@ describe("Testing users data functions", () => {
         expectedUserInfo.username = expectedUserInfo.username.toLowerCase();
         delete expectedUserInfo.password;
         expectedUserInfo._id = receivedUserInfo._id;
+        expectedUserInfo.role = "user";
         expect(receivedUserInfo).toEqual(expectedUserInfo);
       });
     });
@@ -723,7 +731,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is not provided!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
 
         expectedUserInfo = validUserCopy();
@@ -749,7 +758,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "String Username is empty or has only spaces!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = "\t \n";
@@ -760,7 +770,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "String Username is empty or has only spaces!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = 56651;
@@ -771,7 +782,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is of type number!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = [""];
@@ -782,7 +794,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is an array!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = { hello: 56651 };
@@ -793,7 +806,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is of type object!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = true;
@@ -804,7 +818,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is of type boolean!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = false;
@@ -815,7 +830,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is of type boolean!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = undefined;
@@ -826,7 +842,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is not provided!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
         expectedUserInfo = validUserCopy();
         expectedUserInfo.username = null;
@@ -837,7 +854,8 @@ describe("Testing users data functions", () => {
           )
         ).rejects.toEqual([
           "Expected Username to be of type string, but it is not provided!",
-          "Username must have at least six characters!",
+          "Username must be between 6 to 20 characters long!",
+          "Username must contain only alpha numeric characters!",
         ]);
 
         expectedUserInfo = validUserCopy();
@@ -929,7 +947,9 @@ describe("Testing users data functions", () => {
             expectedUserInfo.username,
             expectedUserInfo.password
           )
-        ).rejects.toEqual(["Username must have at least six characters!"]);
+        ).rejects.toEqual([
+          "Username must be between 6 to 20 characters long!",
+        ]);
       });
       it("Throws when username doesn't exist", async () => {
         let expectedUserInfo;
@@ -951,6 +971,7 @@ describe("Testing users data functions", () => {
         expectedUserInfo.username = expectedUserInfo.username.toLowerCase();
         delete expectedUserInfo.password;
         expectedUserInfo._id = receivedUserInfo._id;
+        expectedUserInfo.role = "user";
         expect(receivedUserInfo).toEqual(expectedUserInfo);
       });
       it("It throw user's info when password is invalid for valid user", async () => {
