@@ -8,6 +8,138 @@ import { contestRatings, spots } from "../config/mongoCollections.js";
 import log from "../log.js";
 const router = express.Router();
 
+router.route("/comment/flag/:commentId").post(async (req, res) => {
+  let { commentId } = req.params;
+  let userInfo;
+
+  try {
+    commentId = validation.validateString(req.params.commentId);
+    await spotsData.getCommentById(commentId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${commentId} is not a valid id!`];
+    return res.status(400).json({
+      error: `Comment info fetch failed!`,
+    });
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.reportComment(userInfo._id.toString(), commentId);
+    return res.status(200).json({
+      flagSpot: "succesful",
+    });
+  } catch (e) {
+    try {
+      if (e[0] == "User already reported the comment") {
+        return res.status(406).json({
+          error: "You have already reported the comment!",
+        });
+      }
+    } catch (e) {}
+    logger.log(e);
+    return res.status(500).json({
+      error: "Flag comment failed!",
+    });
+  }
+});
+
+router.route("/flag/:spotId").post(async (req, res) => {
+  let { spotId } = req.params;
+  let userInfo;
+
+  try {
+    spotId = validation.validateString(req.params.spotId);
+    await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${spotId} is not a valid id!`];
+    return res.status(400).redirect("/spots/search");
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.reportSpot(userInfo._id.toString(), spotId);
+    return res.status(200).json({
+      flagSpot: "succesful",
+    });
+  } catch (e) {
+    logger.log(e);
+    try {
+      if (e[0] === "User already reported the spot") {
+        return res.status(406).json({
+          error: "You have already reported this spot!",
+        });
+      }
+    } catch (e) {}
+    return res.status(500).json({
+      error: "Favorite spot failed!",
+    });
+  }
+});
+
+router.route("/favorite/:spotId").put(async (req, res) => {
+  let { spotId } = req.params;
+  let userInfo;
+  logger.log("Attempting to favorite spot: ", spotId, req.session.user);
+
+  try {
+    spotId = validation.validateString(req.params.spotId);
+    await spotsData.getSpotById(spotId);
+  } catch (e) {
+    logger.log(e);
+    req.session.invalidResourceErrors = [`${spotId} is not a valid id!`];
+    return res.status(400).redirect("/spots/search");
+  }
+
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(400).json({
+      error: `User info fetch failed!`,
+    });
+  }
+
+  try {
+    await userData.putFavoriteSpot(userInfo._id.toString(), spotId);
+    return res.status(200).json({
+      favoriteSpot: "succesful",
+    });
+  } catch (e) {
+    logger.log(e);
+
+    return res.status(500).json({
+      error: "Favorite spot failed!",
+    });
+  }
+});
+
 router.route("/details/:spotId").get(async (req, res) => {
   let errors = [];
   let spotId;
@@ -49,6 +181,8 @@ router.route("/details/:spotId").get(async (req, res) => {
   };
 
   const viewUser = {};
+  let flaggedComments;
+
   if (req.session.user) {
     viewUser._id = req.session.user._id.toString();
     viewUser.originalPoster =
@@ -64,12 +198,30 @@ router.route("/details/:spotId").get(async (req, res) => {
     } catch (e) {
       logger.log(e);
     }
+
+    try {
+      const userInfo = await userData.getUserProfileById(viewUser._id);
+      if (userInfo.favoriteSpots.includes(spotId)) {
+        viewUser.favorite = "favorite";
+      } else {
+        viewUser.favorite = "";
+      }
+      if (userInfo.spotReports.includes(spotId)) {
+        viewUser.flag = "flagged";
+      } else {
+        viewUser.flag = "";
+      }
+      flaggedComments = userInfo.commentReports;
+    } catch (e) {
+      logger.log(e);
+    }
   }
   logger.log("viewing user info", viewUser);
 
   const renderProps = {
     user: req.session.user,
     styles: [
+      `<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">`,
       `<link rel="stylesheet" href="/public/css/spotDetail.css">`,
       `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">`,
       `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
@@ -86,12 +238,18 @@ router.route("/details/:spotId").get(async (req, res) => {
   try {
     comments = await spotsData.getDisplayCommentsBySpotId(spotId);
     comments = comments.map((comment) => {
+      comment._id = comment._id.toString();
       logger.log(comment.createdAt instanceof Date);
       comment.createdAt = new Date(comment.createdAt).toString();
       if (!comment.image) {
         delete comment.image;
       }
       comment.poster = comment.poster[0];
+      if (flaggedComments && flaggedComments.includes(comment._id)) {
+        comment.flag = "flagged";
+      } else {
+        comment.flag = "";
+      }
       return comment;
     });
     logger.log("Comments", comments);
@@ -297,7 +455,7 @@ router
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
       req.session.authorizationErrors = errors;
-      return res.status(401).redirect("/users/profile");
+      return res.status(401).redirect("/users/login");
     }
 
     logger.log("Rendering edit spot for :", spotId);
@@ -376,7 +534,7 @@ router
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
       req.session.authErrors = errors;
-      return res.status(401).redirect("/users/profile");
+      return res.status(401).redirect("/users/login");
     }
 
     logger.log("Trying to create new spot:");
@@ -805,156 +963,413 @@ router
     }
   });
 
+router.route("/allSpots").get(async (req, res) => {
+  const allSpots = await spotsData.getAllSpots(undefined, {});
+  res.render("spots/allSpots", {
+    spots: allSpots,
+    styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+    scripts: [
+      `<script type="module" src="/public/js/spots/filters.js"></script>`,
+    ],
+    user: req.session.user,
+  });
+});
+
 router.route("/search").get(async (req, res) => {
-  try {
-    let keyword = req.query.keyword;
-    let { tags, minRating, fromDate, toDate } = req.query;
-    let filter = {};
-    let errors = [];
+  let keyword = req.query.keyword;
+  let { tags, minRating, fromDate, toDate } = req.query;
+  let filter = {};
+  let errors = [];
 
-    if (keyword) {
-      try {
-        keyword = validation.validateString(keyword);
-      } catch (e) {
-        logger.log(e);
-        return res.status(400).render("spots/allSpots", {
-          spots: [],
-          user: req.session.user,
-          styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
-          scripts: [
-            `<script type="module" src="/public/js/spots/filters.js"></script>`,
-          ],
-          keyword: keyword,
-          errors: ["Invalid filter keyword"],
-        });
-      }
-    }
-    if (keyword === "") {
-      keyword = undefined;
-    }
-
+  if (keyword) {
     try {
-      if (tags) {
-        tags = tags.split(",");
-        for (const tagI in tags) {
-          let tag = tags[tagI];
-          tags[tagI] = validation.validateString(tag, "tag");
-        }
-
-        filter.tag = tags;
-      }
+      keyword = validation.validateString(keyword);
     } catch (e) {
       logger.log(e);
-      errors = errors.concat(e);
-    }
-
-    filter.tag = tags;
-
-    try {
-      if (minRating) {
-        minRating = parseFloat(minRating);
-        validation.validateNumber(minRating);
-        if (minRating > 10 || minRating < 0) {
-          errors.push("Min Rating must be between 0 and 10 (inclusive)");
-        }
-        filter.minRating = minRating;
-      }
-    } catch (e) {
-      logger(e);
-      errors = errors.concat(e);
-    }
-
-    try {
-      if (fromDate) {
-        validation.validateString(fromDate);
-        try {
-          fromDate = new Date(fromDate);
-        } catch (e) {
-          throw "From date is invalid";
-        }
-
-        if (isNaN(fromDate)) {
-          errors.push("From date is invalid");
-        } else if (fromDate < new Date(2024, 10, 1)) {
-          errors.push("From date must be after or on November 1, 2024");
-        }
-
-        filter.fromDate = fromDate;
-      }
-    } catch (e) {
-      logger.log(e);
-      errors = errors.concat(e);
-    }
-
-    try {
-      if (toDate) {
-        validation.validateString(toDate);
-        try {
-          toDate = new Date(toDate);
-        } catch (e) {
-          errors.push("To date is invalid");
-        }
-
-        if (isNaN(toDate)) {
-          throw "To date is invalid";
-        } else if (toDate > new Date()) {
-          throw "To date cannot be after current time";
-        }
-
-        filter.toDate = toDate;
-      }
-    } catch (e) {
-      logger.log(e);
-      errors = errors.concat(e);
-    }
-    logger.log("Fetching all spots with keyword: ", keyword);
-    logger.log(filter);
-    try {
-      const spots = await spotsData.getAllSpots(keyword, filter);
-      res.render("spots/allSpots", {
-        spots: spots,
-        styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
-        scripts: [
-          `<script type="module" src="/public/js/spots/filters.js"></script>`,
-        ],
-        user: req.session.user,
-        keyword: keyword,
-        invalidResourceErrors: req.session.invalidResourceErrors,
-      });
-      delete req.session.invalidResourceErrors;
-      return;
-    } catch (e) {
-      logger.log(e);
-      res.status(500).render("spots/allSpots", {
+      return res.status(400).render("spots/allSpots", {
         spots: [],
         user: req.session.user,
-        keyword: keyword,
         styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
         scripts: [
           `<script type="module" src="/public/js/spots/filters.js"></script>`,
         ],
-        errors: ["There was a server error. Please try again."],
+        keyword: keyword,
+        errors: ["Invalid filter keyword"],
       });
     }
-  } catch (err) {
-    console.error("Error during search:", err.message || err);
-    res.status(400).render("spots/allSpots", {
-      spots: [],
-      user: req.session.user,
-      // keyword: keyword,
+  }
+  if (keyword === "") {
+    keyword = undefined;
+  }
+
+  try {
+    if (tags) {
+      tags = tags.split(",");
+      for (const tagI in tags) {
+        let tag = tags[tagI];
+        tags[tagI] = validation.validateString(tag, "tag");
+      }
+    }
+  } catch (e) {
+    logger(e);
+    errors = errors.concat(e);
+  }
+
+  filter.tag = tags;
+
+  try {
+    if (minRating) {
+      minRating = parseFloat(minRating);
+      validation.validateNumber(minRating);
+      if (minRating > 10 || minRating < 0) {
+        errors.push("Min Rating must be between 0 and 10 (inclusive)");
+      }
+      filter.minRating = minRating;
+    }
+  } catch (e) {
+    logger(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    if (fromDate) {
+      validation.validateString(fromDate);
+      try {
+        fromDate = new Date(fromDate);
+      } catch (e) {
+        throw "From date is invalid";
+      }
+
+      if (isNaN(fromDate)) {
+        errors.push("From date is invalid");
+      } else if (fromDate < new Date(2024, 10, 1)) {
+        errors.push("From date must be after or on November 1, 2024");
+      }
+
+      filter.fromDate = fromDate;
+    }
+  } catch (e) {
+    logger(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    if (toDate) {
+      validation.validateString(toDate);
+      try {
+        toDate = new Date(toDate);
+      } catch (e) {
+        errors.push("To date is invalid");
+      }
+
+      if (isNaN(toDate)) {
+        throw "To date is invalid";
+      } else if (toDate > new Date()) {
+        throw "To date cannot be after current time";
+      }
+
+      filter.toDate = toDate;
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  logger.log("Fetching all spots with keyword: ", keyword);
+  logger.log(filter);
+  try {
+    const spots = await spotsData.getAllSpots(keyword, filter);
+    res.render("spots/allSpots", {
+      spots: spots,
       styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
       scripts: [
         `<script type="module" src="/public/js/spots/filters.js"></script>`,
       ],
-      errors: [err.message || "An unknown error occurred."],
+      user: req.session.user,
+      keyword: keyword,
+      invalidResourceErrors: req.session.invalidResourceErrors,
+    });
+    delete req.session.invalidResourceErrors;
+    return;
+  } catch (e) {
+    logger.log(e);
+    res.status(500).render("spots/allSpots", {
+      spots: [],
+      user: req.session.user,
+      keyword: keyword,
+      styles: [`<link rel="stylesheet" href="/public/css/allSpots.css">`],
+      scripts: [
+        `<script type="module" src="/public/js/spots/filters.js"></script>`,
+      ],
+      errors: ["There was a server error. Please try again."],
+    });
+  }
+});
+
+router.route("/:spotId").delete(async (req, res) => {
+  let errors = [];
+  let spotId;
+  let spotInfo;
+  try {
+    spotId = validation.validateString(req.params.spotId, "spotId", true);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    spotInfo = await spotsData.getSpotById(spotId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== spotInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a spot that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+
+  try {
+    await spotsData.deleteSpot(spotId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to delete ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+});
+
+router.route("/deleteComment/:commentId").delete(async (req, res) => {
+  let errors = [];
+  let commentId;
+  let commentInfo;
+  try {
+    commentId = validation.validateString(
+      req.params.commentId,
+      "commentId",
+      true
+    );
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    commentInfo = await spotsData.getCommentById(commentId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== commentInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a comment that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${commentId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+
+  try {
+    await spotsData.deleteComment(commentId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${commentId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+});
+
+router.route("/deleteRating/:ratingId").delete(async (req, res) => {
+  let errors = [];
+  let ratingId;
+  let ratingInfo;
+  try {
+    ratingId = validation.validateString(req.params.ratingId, "ratingId", true);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    ratingInfo = await spotsData.getRatingById(ratingId);
+    if (
+      !req.session.user ||
+      req.session.user._id.toString() !== ratingInfo.posterId.toString()
+    ) {
+      errors.push(`You tried to delete a rating that doesn't belong to you!`);
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${ratingId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+
+  try {
+    await spotsData.deleteRating(ratingId, req.session.user._id.toString());
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    logger.log(
+      `Invalid session (${req.sessionID}) tried to delete ${ratingId}`
+    );
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  } else {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+});
+
+router.route("/removefavorite/:spotId").delete(async (req, res) => {
+  let errors = [];
+  let spotId;
+  let userInfo;
+  try {
+    spotId = validation.validateString(req.params.spotId, "spotId", true);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+  if (!req.session.user) {
+    logger.log("User not logged in");
+    errors.push("Please login first!");
+    res.session.authorizationErrors = errors;
+    return res.status(401).redirect("/users/login");
+  }
+  try {
+    userInfo = await userData.getUserProfileById(
+      req.session.user._id.toString()
+    );
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+  if (errors.length > 0) {
+    res.session.authorizationErrors = errors;
+    return res.status(401).redirect("users/login");
+  }
+
+  if (userInfo.favoriteSpots.indexOf(spotId) == -1) {
+    return res
+      .status(200)
+      .redirect(`/users/profile/${req.session.user.username}`);
+  }
+
+  try {
+    await userData.putFavoriteSpot(req.session.user._id.toString(), spotId);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    res.session.authorizationErrors = errors;
+    return res.status(401).redirect("users/login");
+  }
+
+  return res
+    .status(200)
+    .redirect(`/users/profile/${req.session.user.username}`);
+});
+
+router.route("/byDistanceJSON").get(async (req, res) => {
+  let errors = [];
+  logger.log(req.query);
+  let { longitude, latitude, distance } = req.query;
+  logger.log("Search by location for", longitude, latitude, distance);
+  try {
+    distance = parseFloat(distance);
+    validation.validateNumber(distance);
+    if (distance < 0) {
+      thorw`Invalid radius!`;
+    }
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  try {
+    longitude = parseFloat(longitude);
+    latitude = parseFloat(latitude);
+    validation.validateCoordinates(longitude, latitude);
+  } catch (e) {
+    logger.log(e);
+    errors = errors.concat(e);
+  }
+
+  if (errors.length > 0) {
+    return res.status(400).json({
+      errors: errors,
     });
   }
 
-  // const spots = await spotsData.getAllSpots(keyword, filter);
-  // res.render("spots/allSpots", {
-  //   spots: spots,
-  //   user: req.session.user,
-  //   keyword: keyword,
-  // });
+  try {
+    const spots = await spotsData.getSpotsByDistance(
+      distance,
+      longitude,
+      latitude
+    );
+
+    return res.status(200).json({ data: spots });
+  } catch (e) {
+    logger.log(e);
+    return res.status(500).json({
+      errors: [e],
+    });
+  }
+});
+
+router.route("/byDistance").get(async (req, res) => {
+  return res.status(200).render("spots/searchByDistance", {
+    user: req.session.user,
+    styles: [
+      `<link rel="stylesheet" href="/public/css/distanceSearch.css">`,
+      `<link href="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.css" rel="stylesheet">`,
+      `<link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.css" type="text/css">`,
+    ],
+    apikey: process.env.MAPBOX_API_TOKEN,
+  });
 });
 export default router;

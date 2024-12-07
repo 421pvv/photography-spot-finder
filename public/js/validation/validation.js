@@ -1,5 +1,12 @@
 export const usernamePolicies = [
-  { regex: /^[^ ]{6,}$/, error: "Username must have at least six characters!" },
+  {
+    regex: /^.{6,20}$/,
+    error: "Username must be between 6 to 20 characters long!",
+  },
+  {
+    regex: /^[0-9A-Za-z]+$/,
+    error: "Username must contain only alpha numeric characters!",
+  },
 ];
 
 export const passwordPolicies = [
@@ -223,6 +230,17 @@ function validateRating(rating) {
   }
 }
 
+const validateEmail = (email) => {
+  email = validateString(email, "email");
+  // got email regex from https://regex101.com/library/SOgUIV
+  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+
+  if (!emailRegex.test(email)) {
+    throw [`Email (${email}) is not valid!`];
+  }
+  return email.toLowerCase();
+};
+
 export default {
   validateString,
   validateUsername,
@@ -232,4 +250,5 @@ export default {
   validateRating,
   validateCoordinates,
   validateNumber,
+  validateEmail,
 };

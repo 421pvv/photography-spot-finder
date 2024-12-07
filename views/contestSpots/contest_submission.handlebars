@@ -1,0 +1,159 @@
+<article data-id="{{spot._id}}">
+    <header>
+        <h1 class="page_title">{{spot.spotName}}</h1>
+    </header>
+
+    <div id="summary-container">
+        <section>
+            <h2>Overview</h2>
+
+            <p>Average Rating: <span>{{spot.averageRating}}</span></p>
+            <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
+            <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
+            <p>Tags: <span>{{spot.spotTags}}</span></p>
+        </section>
+
+        <section>
+            <h2>Poster</h2>
+            <p>First name: <span>{{poster.firstName}}</span></p>
+            <p>Last name: <span>{{poster.lastName}}</span></p>
+            <p>Username: <span>{{poster.username}}</span></p>
+            <p><a href="/users/profile/{{poster.username}}">View Profile</a></p>
+
+        </section>
+    </div>
+    <section id="imageSection">
+        <h2>Images</h2>
+        <div id="spotImages">
+            {{#if spot.spotImages}}
+            {{#each spot.spotImages}}
+            <img class="spotImage" alt="{{spot.spotName}} spot image" src="{{this.url}}"
+                onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg'">
+            {{/each}}
+            {{/if}}
+        </div>
+    </section>
+
+    <section>
+        <h2>Description</h2>
+
+        {{#each spot.spotDescription}}
+        <p>{{this}}</p>
+        {{/each}}
+    </section>
+
+    <section>
+        <h2>Accessibility</h2>
+        {{#each spot.spotAccessibility}}
+        <p>{{this}}</p>
+        {{/each}}
+    </section>
+
+    <section>
+        <h2>Location</h2>
+        <div id="map"></div>
+        <button id="mapRecenter">Recenter map</button>
+    </section>
+
+    {{#if viewingUser.hasNotSubmitted}}
+
+    <div id="userInteractionsDiv">
+
+        <form id="addSubmissionForm" class="detailForms">
+            <h2>Join the contest!</h2>
+
+            <label id="imageUploadLabel" for="upload_widget">
+                Upload Image
+            </label>
+
+            <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
+
+            <input type="hidden" name="image" id="submissionImage" value="">
+            <input type="hidden" name="orphanImages" id="removeImages" value="">
+            <input type="hidden" name="spotId" id="spotId" value="{{spot._id}}">
+
+            <p id="contestDisclaimer">*Only one image submission per contest spot allowed! Cannot edit submission for a
+                contest spot!*</p>
+            <input type="submit" id="commentSubmit">
+
+            <div id="contestSubmissionErrors">
+            </div>
+
+        </form>
+
+        <div id="imageUploadPreviews">
+            {{#if addComment}}
+            {{#if addComment.image.public_id}}
+            <div id="{{addComment.image.public_id}}" class="previewImageContainer">
+                <img src="{{addComment.image.url}}">
+                <span class="removeImageIcon">❌</span>
+            </div>
+            {{/if}}
+            {{/if}}
+        </div>
+
+
+    </div>
+    {{/if}}
+
+
+    <section>
+        <h2>Submissions</h2>
+
+        <ul id="submission-list">
+            {{#each submissions}}
+            {{> submitted_image }}
+            {{/each}}
+        </ul>
+    </section>
+
+</article>
+
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+<script id="search-js" defer src="https://api.mapbox.com/search-js/v1.0.0-beta.21/web.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v3.3.0/mapbox-gl.js"></script>
+<script
+    src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v5.0.1-dev/mapbox-gl-geocoder.min.js"></script>
+
+
+<script>
+    // set up map
+    const prev_lat = "{{spot.spotLatitude}}";
+    const prev_long = "{{spot.spotLongitude}}";
+    let setDefault = false;
+    let defaultLoc;
+    if (!isNaN(parseFloat(prev_lat)) && !isNaN(parseFloat(prev_long))) {
+        defaultLoc = [parseFloat(prev_long), parseFloat(prev_lat)];
+
+    }
+
+
+    mapboxgl.accessToken = "{{apikey}}"
+    let map;
+    let marker;
+
+    map = new mapboxgl.Map({
+        container: 'map',
+        center: defaultLoc,
+        style: 'mapbox://styles/mapbox/satellite-v9',
+        projection: "globe",
+        zoom: 15
+    });
+    marker = new mapboxgl.Marker()
+        .setLngLat(defaultLoc)
+        .addTo(map);
+
+    map.on('style.load', () => {
+        map.setFog({});
+    });
+
+    $("#mapRecenter").click(() => {
+        map.flyTo({
+            center: defaultLoc,
+            zoom: 15
+        })
+    })
+</script>
+
+<script type="module" src="/public/js/contest/flagContestSubmission.js"> </script>

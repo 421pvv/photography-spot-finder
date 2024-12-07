@@ -1,7 +1,7 @@
 #map {
   border-radius: 1em;
   width: 100%;
-  height: 40em;
+  height: 50vh;
   margin: 0.5em 0;
   display: block;
   align-content: center;
@@ -36,17 +36,25 @@ article h2 {
   overflow: auto;
   white-space: nowrap;
   scroll-snap-type: x mandatory;
-}
-
-#spotImages {
   height: 50vh;
   width: auto;
   object-fit: cover;
   scroll-snap-align: start;
   flex-shrink: 0;
 }
+#spotImages img {
+  display: block;
+  margin: 0 auto;
+  object-fit: contain;
+  max-height: 50vh;
+  border-radius: 1em;
 
-#userInteractionsDiv {
+  min-height: none;
+  width: auto;
+  max-width: 100%;
+}
+
+.userInteractionsDiv {
   margin: 2%;
   display: flex;
   justify-content: space-between;
@@ -54,10 +62,11 @@ article h2 {
   width: 100%;
 }
 
-#userInteractionsDiv section {
+.userInteractionsDiv section {
   width: 40%;
 }
-#userInteractionsDiv label {
+
+.userInteractionsDiv label {
   display: block;
 }
 
@@ -96,7 +105,7 @@ article h2 {
   margin: 2% auto;
   border-radius: 1em;
   padding: 3%;
-  background-color: rgb(233, 233, 227);
+  background-color: #fbf8ef;
   box-shadow: 0.15 0.05;
   box-shadow: #d2d2d7 0em 0.5em 2em;
 }
@@ -114,8 +123,12 @@ article h2 {
 .comment-content img {
   display: block;
   margin: 0 auto;
-  height: 25vh;
+  object-fit: contain;
+  max-height: 25vh;
+  min-height: none;
   width: auto;
+  border-radius: 1em;
+  max-width: 100%;
 }
 
 .comment-meta {
@@ -131,4 +144,102 @@ article h2 {
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+}
+
+.addSpot input[type="text"] {
+  width: 100%;
+  padding: 0.8em 1.25em;
+  margin: 0.5em 0;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1em;
+}
+
+section h3 {
+  text-align: center;
+}
+.detailForms {
+  align-self: center;
+  width: 80%;
+  margin: 0 auto;
+  padding: 5% 5%;
+  background-color: white;
+  border-radius: 1em;
+  box-shadow: 0.3 0.1;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+}
+.detailForms label {
+  margin: 5% 0 5% 0;
+  font-size: 1.3em;
+}
+.detailForms p {
+  margin: 5% 0 5% 0;
+  font-size: 1.5em;
+  text-align: center;
+}
+.detailForms input[type="text"],
+input[type="range"],
+input[type="file"] {
+  width: 100%;
+  padding: 0.8em 1.25em;
+  margin: 0.5em 0;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1em;
+}
+#rangeSliderDiaplay {
+  display: block;
+  text-align: center;
+}
+.detailForms input[type="submit"] {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 2em;
+}
+.detailForms input[type="submit"] {
+  cursor: pointer;
+  width: 40%;
+  display: block;
+  margin: 0 auto;
+  padding: 0.75em;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
+}
+.detailForms input[type="submit"] {
+  background-color: #37d857;
+  align-items: flex-start;
+}
+.detailForms input[type="submit"]:hover {
+  background-color: #00ff33;
+}
+
+.fa {
+  font-size: 5vh;
+  margin-right: 1em;
+  margin-left: 1em;
+  cursor: pointer;
+  user-select: none;
+}
+
+.fa-star,
+.fa-flag {
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+}
+
+.favorite {
+  color: yellow;
+}
+
+.flagged {
+  color: red;
+}
+
+.actionButton {
+  all: unset;
+  display: block;
+  margin: 0 auto;
 }

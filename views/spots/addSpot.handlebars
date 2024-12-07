@@ -35,6 +35,7 @@
     <textarea id="spotAccessibility" name="spotAccessibility"
       placeholder="Describe how accessible the spot is.">{{spot.spotAccessibility}}</textarea>
     <div id="spotAccessibilityErrors">
+
       {{#if errors.error_spotAccessibility}}
       {{#each errors.error_spotAccessibility}}
       <p class="formInputError">{{this}}</p>
@@ -75,6 +76,8 @@
 
     </label>
     <div id="map"></div>
+    <button id="mapRecenter">Recenter map</button>
+
     <div id="spotLocationErrors">
       {{#if errors.error_spotLocation}}
       {{#each errors.error_spotLocation}}
@@ -85,7 +88,7 @@
 
 
     <label id="imageUploadLabel">
-      Upload Images (At most 3 allowed)
+      Upload Images (At most 3 allowed, First image is featured on search page)
       <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
     </label>
 
@@ -207,6 +210,15 @@
 
   });
 
+
+  $("#mapRecenter").click((e) => {
+    e.preventDefault()
+    map.flyTo({
+      center: nycCoor,
+      zoom: 11
+    })
+  })
+
 </script>
 
 
@@ -222,6 +234,9 @@
     uploadPreset: 'Spot Images',
     resourceType: "image",
     multiple: false,
+    transformation: [
+      { quality: 'auto', fetch_format: 'auto' },
+    ]
   }, (error, result) => {
     if (!error && result && result.event === "success") {
       urls.push({

@@ -1,6 +1,13 @@
 import { ObjectId } from "mongodb";
 export const usernamePolicies = [
-  { regex: /^[^ ]{6,}$/, error: "Username must have at least six characters!" },
+  {
+    regex: /^.{6,20}$/,
+    error: "Username must be between 6 to 20 characters long!",
+  },
+  {
+    regex: /^[0-9A-Za-z]+$/,
+    error: "Username must contain only alpha numeric characters!",
+  },
 ];
 
 export const passwordPolicies = [
@@ -146,11 +153,11 @@ function validateUsername(str, varName) {
 }
 
 const validateEmail = (email) => {
-  email = validateString(email);
+  email = validateString(email, "email");
   // got email regex from https://regex101.com/library/SOgUIV
   const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
 
-  if (!email.test(emailRegex)) {
+  if (!emailRegex.test(email)) {
     throw [`Email (${email}) is not valid!`];
   }
   return email.toLowerCase();
@@ -271,6 +278,26 @@ function validateArray(array, varName) {
   }
 }
 
+function validateContestRequestTimeStamp(date, contestInfo) {
+  const start = new Date(
+    contestInfo.getFullYear(),
+    contestInfo.getMonth() + 1,
+    1
+  );
+  const end = new Date(
+    contestInfo.getFullYear(),
+    contestInfo.getMonth() + 2,
+    0
+  );
+
+  if (date < start) {
+    throw `Invalid contest update! Contest hasn't started yet!`;
+  }
+  if (date > end) {
+    throw `Invalid contest update! Contest had ended!`;
+  }
+}
+
 export default {
   validateString,
   validateUsername,
@@ -283,4 +310,5 @@ export default {
   validateEmail,
   validateArray,
   validateNumber,
+  validateContestRequestTimeStamp,
 };

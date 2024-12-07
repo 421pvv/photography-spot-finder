@@ -81,6 +81,7 @@ var myWidget = cloudinary.createUploadWidget(
     uploadPreset: "Spot Images",
     resourceType: "image",
     multiple: false,
+    transformation: [{ quality: "auto", fetch_format: "auto" }],
   },
   (error, result) => {
     if (!error && result && result.event === "success") {
@@ -114,15 +115,17 @@ var myWidget = cloudinary.createUploadWidget(
     }
   }
 );
-
-document.getElementById("upload_widget").addEventListener(
-  "click",
-  function () {
-    if (urls.length == 1) {
-      alert("Only one image upload allowed per comment");
-    } else {
-      myWidget.open();
-    }
-  },
-  false
-);
+const upload_widget = document.getElementById("upload_widget");
+if (upload_widget) {
+  upload_widget.addEventListener(
+    "click",
+    function () {
+      if (urls.length == 1) {
+        alert("Only one image upload allowed per comment");
+      } else {
+        myWidget.open();
+      }
+    },
+    false
+  );
+}

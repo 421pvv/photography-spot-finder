@@ -1,25 +1,27 @@
-<article>
+<article data-id="{{spot._id}}">
     <header>
         <h1 class="page_title">{{spot.spotName}}</h1>
     </header>
-
     <div id="summary-container">
         <section>
             <h2>Overview</h2>
-
             <p>Average Rating: <span>{{spot.averageRating}}</span></p>
             <p>Total Ratings: <span>{{spot.totalRatings}}</span></p>
             <p>Best Times: <span>{{spot.spotBestTimes}}</span></p>
             <p>Tags: <span>{{spot.spotTags}}</span></p>
+
         </section>
 
         <section>
             <h2>Poster</h2>
-
             <p>First name: <span>{{poster.firstName}}</span></p>
             <p>Last name: <span>{{poster.lastName}}</span></p>
             <p>Username: <span>{{poster.username}}</span></p>
-            <p><a href="users/profile/{{poster._id}}">View Profile</a></p>
+            <p><a href="/users/profile/{{poster.username}}">View Profile</a></p>
+
+            {{#if viewingUser.originalPoster}}
+            <p><a href="/spots/edit/{{spot._id}}">Edit Spot</a></p>
+            {{/if}}
         </section>
     </div>
     <section id="imageSection">
@@ -36,25 +38,54 @@
 
     <section>
         <h2>Description</h2>
-        <p>{{spot.spotDescription}}</p>
+
+        {{#each spot.spotDescription}}
+        <p>{{this}}</p>
+        {{/each}}
     </section>
 
     <section>
         <h2>Accessibility</h2>
-        <p>{{spot.spotAccessibility}}</p>
+        {{#each spot.spotAccessibility}}
+        <p>{{this}}</p>
+        {{/each}}
     </section>
 
     <section>
         <h2>Location</h2>
         <div id="map"></div>
+        <button id="mapRecenter">Recenter map</button>
+
     </section>
 
     {{#if viewingUser._id}}
-    <div id="userInteractionsDiv">
+    <div class="userInteractionsDiv">
+        <section>
+            <form>
+                <h3> <label for="likeLink"> Favorite Spot </label>
+                </h3>
+                <button type="button" class="actionButton" id="likeLink" name="likeLink">
+
+                    <i id="favoriteButton" class="fa fa-star {{viewingUser.favorite}}"></i>
+                </button>
+
+            </form>
+        </section>
+        <section>
+            <form action="#">
+                <h3> <label for="flagLink"> Flag Spot </label> </h3>
+                <button type="button" class="actionButton" id="flagLink" name="flagLink">
+                    <i id="spotFlagButton" data-id="{{spot._id}}" data-type="spot"
+                        class="fa fa-flag {{viewingUser.flag}}"></i>
+                </button>
+            </form>
+        </section>
+    </div>
+    <div class="userInteractionsDiv">
         <section>
             <h3>Add Comment</h3>
 
-            <form action="/spots/addComment/{{spot._id}}" id="addCommentForm" method="POST">
+            <form action="/spots/addComment/{{spot._id}}" id="addCommentForm" method="POST" class="detailForms">
                 <label for="commentInput">
                     Enter comment
                     {{#if addComment}}
@@ -98,26 +129,28 @@
         </section>
 
         <section>
-            {{#if viewingUser.rating}}
             <h3>Update Rating</h3>
-            {{else}}
-            <h3>Rate Spot</h3>
-            {{/if}}
-            <form action="/spots/putRating/{{spot._id}}" method="POST" id="putRatingForm">
+
+            <form action="/spots/putRating/{{spot._id}}" method="POST" id="putRatingForm" class="detailForms">
+                {{#if viewingUser.rating}}
+                {{else}}
+                <h3>Rate Spot</h3>
+                {{/if}}
                 <label for="ratingSlider">
                     Rating Slider
-
-                    {{#if viewingUser.rating}}
-                    <input name="rating" type="range" min="1" max="10" value="{{viewingUser.rating}}" id="ratingSlider"
-                        step="0.1">
-                    <span id="ratingSliderValue">{{viewingUser.rating}}</span>
-
-                    {{else}}
-                    <input name="rating" type="range" min="1" max="10" value="5" id="ratingSlider" step="0.1">
-                    <span id="ratingSliderValue">5</span>
-                    {{/if}}
-
                 </label>
+
+                {{#if viewingUser.rating}}
+                <input name="rating" type="range" min="1" max="10" value="{{viewingUser.rating}}" id="ratingSlider"
+                    step="0.1">
+                <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">{{viewingUser.rating}}</span></p>
+
+
+                {{else}}
+                <input name="rating" type="range" min="1" max="10" value="5" id="ratingSlider" step="0.1">
+                <p id="rangeSliderDiaplay">Value: <span id="ratingSliderValue">5</span></p>
+                {{/if}}
+
                 <input type="submit" id="ratingSubmit">
             </form>
 
@@ -144,6 +177,8 @@
                     <div class="comment-meta ">
                         <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
                         <p>Posted at {{this.createdAt}}</p>
+                        <label hidden="true" for="flagButton"> Flag Comment </label>
+                        <i data-id="{{this._id}}" class="commentFlagButton fa fa-flag {{this.flag}}"></i>
                     </div>
                 </div>
             </li>
@@ -178,14 +213,30 @@
 
     map = new mapboxgl.Map({
         container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
         center: defaultLoc,
+        style: 'mapbox://styles/mapbox/satellite-v9',
+        projection: "globe",
         zoom: 15
     });
     marker = new mapboxgl.Marker()
         .setLngLat(defaultLoc)
         .addTo(map);
+
+    map.on('style.load', () => {
+        map.setFog({});
+    });
+
+
+    $("#mapRecenter").click(() => {
+        map.flyTo({
+            center: defaultLoc,
+            zoom: 15
+        })
+    })
 </script>
 
 <script type="module" src="/public/js/spots/addSpotComment.js"> </script>
 <script type="module" src="/public/js/spots/addSpotRating.js"> </script>
+<script type="module" src="/public/js/spots/favoriteSpot.js"> </script>
+<script type="module" src="/public/js/spots/flagSpot.js"> </script>
+<script type="module" src="/public/js/spots/flagComment.js"> </script>

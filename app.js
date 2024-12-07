@@ -4,11 +4,9 @@ import configRoutes from "./routes/index.js";
 import secrets from "./config/secrets.js";
 import session from "express-session";
 import exphbs from "express-handlebars";
-import logging from "./log.js";
 import logger from "./log.js";
-import log from "./log.js";
 import dotenv from "dotenv";
-
+import xss from "xss";
 dotenv.config();
 
 const rewriteUnsupportedBrowserMethods = (req, res, next) => {
@@ -34,16 +32,60 @@ app.use(
 
 app.use(express.urlencoded({ extended: true }));
 app.use(rewriteUnsupportedBrowserMethods);
-app.engine("handlebars", exphbs.engine({ defaultLayout: "main" }));
+app.engine(
+  "handlebars",
+  exphbs.engine({
+    defaultLayout: "main",
+    helpers: {
+      eq: (a, b) => a === b,
+    },
+  })
+);
 app.set("view engine", "handlebars");
+
+// sanatize all inputs
+app.use("*", (req, res, next) => {
+  for (const [key, val] of Object.entries(req.query)) {
+    if (typeof val === "string") {
+      req.query[key] = xss(val);
+    }
+  }
+  for (const [key, val] of Object.entries(req.params)) {
+    if (typeof val === "string") {
+      req.params[key] = xss(val);
+    }
+  }
+  for (const [key, val] of Object.entries(req.body)) {
+    if (typeof val === "string") {
+      req.body[key] = xss(val);
+    }
+  }
+  next();
+});
+
+app.use((req, res, next) => {
+  if (req.originalUrl === "/") {
+    return res.redirect("/home");
+  }
+  next();
+});
 
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
-    { url: "users/profile", error: "access profile!" },
     { url: "spots/new", error: "add a new spot!" },
     { url: "spots/edit", error: "modify a spot!" },
     { url: "spots/addComment", error: "add comment to a spot!" },
     { url: "spots/putRating", error: "rate a spot!" },
+    {
+      url: "userVotes",
+      error: "vote for a contest submission!",
+    },
+    { url: "spots/favorite", error: "favorite a spot!" },
+    { url: "users/editprofile", error: "edit profile!" },
+    { url: "users/updatepassword", error: "update password!" },
+    { url: "spots/favorite", error: "flag a spot!" },
+    { url: "spots/comment/flag", error: "flag a spot comment!" },
+    { url: "/contest/submission/flag", error: "flag a contest submission!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>
@@ -52,7 +94,7 @@ app.use("*", (req, res, next) => {
 
   if (restrictedPath.length > 0 && !req.session.user) {
     logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
-    req.session.authErrors = [
+    req.session.authorizationErrors = [
       `You're not logged in! Please login in (or signup) before attempting to ${restrictedPath[0].error}`,
     ];
     return res.redirect("/users/login");
@@ -74,7 +116,7 @@ app.use("/spots/putRating/:spotId", (req, res, next) => {
 
 app.use("/users/login", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile");
+    return res.redirect(`/users/profile/${req.session.user.username}`);
   } else {
     next();
   }
@@ -82,11 +124,26 @@ app.use("/users/login", (req, res, next) => {
 
 app.use("/users/signup", (req, res, next) => {
   if (req.session.user) {
-    return res.redirect("/users/profile");
+    return res.redirect(`/users/profile/${req.session.user.username}`);
   } else {
     next();
   }
 });
+
+app.use("/admin", (req, res, next) => {
+  if (req.session.user) {
+    if (req.session.user.role !== "admin") {
+      return res.status(403).render("error", {
+        message: "403: You do not have permission to view this page",
+        user: req.session.user,
+      });
+    }
+  } else {
+    return res.redirect("/users/login");
+  }
+  next();
+});
+
 configRoutes(app);
 
 app.listen(3000, () => {

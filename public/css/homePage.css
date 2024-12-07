@@ -1,0 +1,61 @@
+main {
+  max-width: 95%;
+  margin: auto;
+  min-height: 80vh;
+}
+
+#HomePageMessage {
+  margin: auto;
+  align-self: center;
+  max-width: 70%;
+  min-width: 20%;
+  font-size: 1.5em;
+}
+
+.homePageSearch {
+  align-self: center;
+  align-items: center;
+  max-width: 70%;
+  min-width: 20%;
+  margin: auto;
+  padding: 2%;
+}
+
+.homePageSearch label {
+  width: 30%;
+  align-self: center;
+  font-size: 1.75em;
+}
+
+.homePageSearch input[type="text"] {
+  width: 55%;
+  padding: 0.75em;
+  margin: 0.5em 0;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
+}
+
+.homePageSearch button {
+  text-align: center;
+  width: 15%;
+  cursor: pointer;
+  padding: 0.75em;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
+}
+
+.homePageSearch button[type="submit"] {
+  background-color: #37d857;
+}
+
+.homePageSearch button[type="submit"]:hover {
+  background-color: #00ff33;
+}
+
+.formInputError {
+  text-align: center;
+  color: red;
+  font-weight: bold;
+}

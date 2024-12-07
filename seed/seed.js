@@ -8,6 +8,16 @@ export async function initDB() {
   await usersCollection.deleteMany({});
   const spotsCollection = await mongoCollections.spots();
   await spotsCollection.deleteMany({});
+  const spotRatings = await mongoCollections.spotRatings();
+  await spotRatings.deleteMany({});
+  const comments = await mongoCollections.comments();
+  await comments.deleteMany({});
+  const contestSpots = await mongoCollections.contestSpots();
+  await contestSpots.deleteMany({});
+  const contestSubmissions = await mongoCollections.contestSubmissions();
+  await contestSubmissions.deleteMany({});
+  const contestRatings = await mongoCollections.contestRatings();
+  await contestRatings.deleteMany({});
 }
 
 function convertUserObject(element) {
