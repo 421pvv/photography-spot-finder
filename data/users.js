@@ -546,6 +546,14 @@ const getUsersByKeyword = async (keyword) => {
       { firstName: searchRegex },
       { lastName: searchRegex },
       { username: searchRegex },
+      {
+        $expr: {
+          $regexMatch: {
+            input: { $concat: ["$firstName", " ", "$lastName"] },
+            regex: searchRegex,
+          },
+        },
+      },
     ],
   };
   const options = { projection: { firstName: 1, lastName: 1, username: 1 } };

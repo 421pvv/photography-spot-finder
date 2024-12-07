@@ -160,7 +160,7 @@ router
       ],
       scripts: [
         `<script defer src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
-        `<script defer type="module" src="/public/js/contest/contest_submission.js"></script>`,
+        `<script type="module" src="/public/js/contest/contest_submission.js"></script>`,
       ],
       apikey: process.env.MAPBOX_API_TOKEN,
       spot: publicSpot,
