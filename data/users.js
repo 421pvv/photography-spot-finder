@@ -580,33 +580,9 @@ const getUsersByKeyword = async (keyword) => {
   if (!usersFound) {
     throw ["Could not get the users!"];
   }
-  // logger.log(`Users found with the keyword ${keyword}: `);
-  // logger.log(usersFound);
   return usersFound;
 };
 
-
-// export default {
-//   createUser,
-//   getUserByUsername,
-//   authenticateUser,
-//   verifyNewUsername,
-//   getUserProfileById,
-//   updateUserProfile,
-//   getUserProfileByUsername,
-//   getUserComments,
-//   getAndUpdateUserFavoriteSpots,
-//   getUserSubmittedSpots,
-//   getUserRatings,
-//   getUserContestSubmissions,
-//   putFavoriteSpot,
-//   reportSpot,
-//   reportComment,
-//   reportContestSubmission,
-//   removeEmail,
-//   removeBio,
-//   getUsersByKeyword,
-// };
 
 
 const userData = {
