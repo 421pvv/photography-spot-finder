@@ -4,6 +4,7 @@ import {
   comments,
   spotRatings,
   contestSubmissions,
+
 } from "../config/mongoCollections.js";
 import { SALT_ROUNDS } from "../config/secrets.js";
 import validation from "../validation.js";
@@ -11,6 +12,7 @@ import bcrypt from "bcrypt";
 import logger from "../log.js";
 import { ObjectId } from "mongodb";
 import { spotsData, contestData } from "./index.js";
+
 
 export const createUser = async (firstName, lastName, username, password) => {
   firstName = validation.validateString(firstName, "First Name");
@@ -26,10 +28,12 @@ export const createUser = async (firstName, lastName, username, password) => {
   const newUser = {
     username,
     email: "",
+//    usercode: "",
     firstName,
     lastName,
     bio: "",
     password: encryptedPassword,
+    isVerified: false,
     role: "user",
     favoriteSpots: [],
     spotReports: [],
@@ -175,6 +179,18 @@ export const updateUserProfile = async (userObject) => {
       errors = errors.concat(e);
     }
   }
+
+
+
+  if (userObject.otp !== undefined) {
+    updateUserProfile.otp = userObject.otp;
+  }
+
+  if (userObject.isVerified !== undefined) {
+    updateUserProfile.isVerified = userObject.isVerified;
+  }
+
+
 
   if (bio !== undefined) {
     try {
@@ -571,7 +587,31 @@ const getUsersByKeyword = async (keyword) => {
   return usersFound;
 };
 
-export default {
+
+// export default {
+//   createUser,
+//   getUserByUsername,
+//   authenticateUser,
+//   verifyNewUsername,
+//   getUserProfileById,
+//   updateUserProfile,
+//   getUserProfileByUsername,
+//   getUserComments,
+//   getAndUpdateUserFavoriteSpots,
+//   getUserSubmittedSpots,
+//   getUserRatings,
+//   getUserContestSubmissions,
+//   putFavoriteSpot,
+//   reportSpot,
+//   reportComment,
+//   reportContestSubmission,
+//   removeEmail,
+//   removeBio,
+//   getUsersByKeyword,
+// };
+
+
+const userData = {
   createUser,
   getUserByUsername,
   authenticateUser,
@@ -592,3 +632,5 @@ export default {
   removeBio,
   getUsersByKeyword,
 };
+
+export default userData;
