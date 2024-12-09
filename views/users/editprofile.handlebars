@@ -15,9 +15,13 @@
             Email
             <input type="text" name="email" placeholder="Email" value="{{data.email}}" id="email" required>
         </label>
+        {{#if data.isVerified}}
+        <button type="button" id="change-email">Change Email</button>
+        {{else}}
         <button type="button" id="send-otp">Send OTP</button>
+        {{/if}}
         <br>
-        <div id="otp-section" style="display: none;">
+                <div id="otp-section" style="display: none;">
             <label>
                 Enter OTP
                 <input type="text" name="otp" placeholder="OTP" id="otp">
@@ -25,7 +29,7 @@
             <button type="button" id="verify-otp">Verify OTP</button>
             <p id="otp-error" style="color: red;"></p>
         </div>
-        <br>
+
         <label>
             Bio
             <input type="text" name="bio" placeholder="Bio" value="{{data.bio}}" id="bio" required>
@@ -68,6 +72,23 @@
             }
         });
 
+        $('#change-email').click(async function() {
+            const email = $('#email').val();
+            const response = await fetch('/users/send-otp', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ email })
+            });
+            const result = await response.json();
+            if (result.success) {
+                $('#otp-section').show();
+            } else {
+                alert('Failed to send OTP');
+            }
+        });
+
         $('#verify-otp').click(async function() {
             const otp = $('#otp').val();
             const response = await fetch('/users/verify-otp', {
@@ -86,4 +107,5 @@
             }
         });
     });
+    
 </script>

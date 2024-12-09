@@ -86,7 +86,7 @@ export const removeEmail = async (userId) => {
   const usersCollection = await users();
   const updatedUser = await usersCollection.findOneAndUpdate(
     { _id: ObjectId.createFromHexString(userId) },
-    { $set: { email: "" } },
+    { $set: { email: "", isVerified: false  } },
     { returnDocument: "after" }
   );
   if (!updatedUser) {
@@ -111,42 +111,36 @@ export const removeBio = async (userId) => {
 };
 
 export const updateUserProfile = async (userObject) => {
-  logger.log("Tring to update profile: ");
+  logger.log("Trying to update profile: ");
   logger.log(userObject);
   validation.validateObject(userObject, "Update object");
 
-  //validate existing user
+  // Validate existing user
   let username = userObject.username;
   let userInfo;
   try {
     username = validation.validateString(username, "username");
     userInfo = await getUserByUsername(username);
   } catch (e) {
-    throw ["User profile update failed. Invlaid username."];
+    throw ["User profile update failed. Invalid username."];
   }
-  //thorw if no addtional fields provided for udpate
+
+  // Throw if no additional fields provided for update
   if (Object.keys(userObject).length === 1) {
-    throw [`Must provide at leaset one update field to update user profile!`];
+    throw [`Must provide at least one update field to update user profile!`];
   }
+
   let firstName = userObject.firstName;
   let lastName = userObject.lastName;
   let email = userObject.email;
+  let oldEmail = userObject.oldEmail;
   let bio = userObject.bio;
-  let password = userObject.password;
+  let otp = userObject.otp;
+  let otpExpiration = userObject.otpExpiration;
+  let isVerified = userObject.isVerified;
 
   let errors = [];
   let updateUserProfile = {};
-
-  if (password !== undefined) {
-    try {
-      validation.validatePassword(password, "Password");
-      const salt = bcrypt.genSaltSync(SALT_ROUNDS);
-      password = bcrypt.hashSync(password, salt);
-      updateUserProfile.password = password;
-    } catch (e) {
-      errors = errors.concat(e);
-    }
-  }
 
   if (firstName !== undefined) {
     try {
@@ -180,17 +174,21 @@ export const updateUserProfile = async (userObject) => {
     }
   }
 
-
-
-  if (userObject.otp !== undefined) {
-    updateUserProfile.otp = userObject.otp;
+  if (oldEmail !== undefined) {
+    updateUserProfile.oldEmail = oldEmail;
   }
 
-  if (userObject.isVerified !== undefined) {
-    updateUserProfile.isVerified = userObject.isVerified;
+  if (otp !== undefined) {
+    updateUserProfile.otp = otp;
   }
 
+  if (otpExpiration !== undefined) {
+    updateUserProfile.otpExpiration = otpExpiration;
+  }
 
+  if (isVerified !== undefined) {
+    updateUserProfile.isVerified = isVerified;
+  }
 
   if (bio !== undefined) {
     try {
