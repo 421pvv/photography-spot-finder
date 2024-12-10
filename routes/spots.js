@@ -162,6 +162,26 @@ router.route("/details/:spotId").get(async (req, res) => {
     return res.status(404).redirect("/spots/search");
   }
 
+  if (spotInfo.reportCount >= 20) {
+    if (req.session.user) {
+      if (req.session.user.role !== "admin") {
+        errors.push(
+          "The spot you are trying to access is flagged by many users. Please wait till an Admin reviews it before trying to view it!"
+        );
+      }
+    } else {
+      errors.push(
+        "The spot you are trying to access is flagged by many users. Please wait till an Admin reviews it before trying to view it!"
+      );
+    }
+  }
+
+  if (errors.length > 0) {
+    logger.log(`Invalid session (${req.sessionID}) tried to access ${spotId}`);
+    req.session.authorizationErrors = errors;
+    return res.status(401).redirect("/home");
+  }
+
   logger.log("Rendering spot details for :", spotId);
   logger.log(spotInfo);
 
@@ -456,6 +476,20 @@ router
       );
       req.session.authorizationErrors = errors;
       return res.status(401).redirect("/users/login");
+    }
+
+    if (spotInfo.reportCount >= 20) {
+      errors.push(
+        "The Spot is flagged by many users. Please wait till an Admin reviews it before modifying!"
+      );
+    }
+
+    if (errors.length > 0) {
+      logger.log(
+        `Invalid session (${req.sessionID}) tried to modify ${spotId}`
+      );
+      req.session.authorizationErrors = errors;
+      return res.status(401).redirect("/home");
     }
 
     logger.log("Rendering edit spot for :", spotId);
@@ -1372,4 +1406,164 @@ router.route("/byDistance").get(async (req, res) => {
     apikey: process.env.MAPBOX_API_TOKEN,
   });
 });
+router
+  .route("/updatecomment/:commentId")
+  .get(async (req, res) => {
+    let errors = [];
+
+    let commentId;
+    let commentInfo;
+    try {
+      commentId = validation.validateString(req.params.commentId, "commentId");
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
+    }
+
+    try {
+      commentInfo = await spotsData.getCommentById(commentId);
+      if (
+        !req.session.user ||
+        req.session.user._id.toString() !== commentInfo.posterId.toString()
+      ) {
+        errors.push(
+          `You tried to update a comment that doesn't belong to you!`
+        );
+      }
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(e);
+    }
+
+    if (errors.length > 0) {
+      logger.log(
+        `Invalid session (${req.sessionID}) tried to modify ${commentId}`
+      );
+      req.session.authorizationErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+
+    if (commentInfo.reportCount > 20) {
+      errors.push(
+        "The comment is flagged. Please wait till an Admin reviews it before modifying!"
+      );
+    }
+
+    if (errors.length > 0) {
+      logger.log(
+        `Invalid session (${req.sessionID}) tried to modify ${commentId}`
+      );
+      req.session.authorizationErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+
+    logger.log("Rendering edit comment for :", commentId);
+    logger.log(commentInfo);
+
+    const publicComment = {
+      _id: commentInfo._id.toString(),
+      spotId: commentInfo.spotId,
+      posterId: commentInfo.posterId,
+      message: commentInfo.message,
+      createdAt: commentInfo.createdAt.toString(),
+      image: commentInfo.image,
+      reportCount: commentInfo.reportCount,
+    };
+
+    res.render("spots/updateComment", {
+      user: req.session.user,
+      styles: [`<link rel="stylesheet" href="/public/css/addSpot.css">`],
+      scripts: [
+        `<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+      ],
+      comment: publicComment,
+    });
+  })
+  .post(async (req, res) => {
+    let discardImages = req.body.orphanImages;
+    let errors = [];
+
+    const comment = {
+      message: req.body.message,
+    };
+
+    if (req.body.image && req.body.image !== "[]") {
+      try {
+        comment.image = JSON.parse(req.body.image);
+        validation.validateObject(comment.image, "Image Object");
+        if (!comment.image.public_id || !comment.image.url) {
+          delete comment.image;
+          throw "Image Object is missing properties. Try to upload image again.";
+        }
+      } catch (e) {
+        logger.log(e);
+        errors = errors.concat(
+          "Image Object is missing properties. Try to upload image again."
+        );
+        return res.status(400).render("spots/updateComment", {
+          user: req.session.user,
+          styles: [`<link rel="stylesheet" href="/public/css/addSpot.css">`],
+          scripts: [
+            `<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+          ],
+          comment: comment,
+          errors: errors,
+        });
+      }
+    }
+
+    try {
+      comment.message = validation.validateString(comment.message);
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(
+        "Invalid comment message (message must be non-empty string)!"
+      );
+      return res.status(400).render("spots/updateComment", {
+        user: req.session.user,
+        styles: [`<link rel="stylesheet" href="/public/css/addSpot.css">`],
+        scripts: [
+          `<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+        ],
+        comment: comment,
+        errors: errors,
+      });
+    }
+
+    logger.log("modified comment: ", comment);
+
+    try {
+      await spotsData.updateComment(
+        req.body.commentId,
+        req.session.user._id.toString(),
+        comment.message,
+        comment.image
+      );
+      res.status(200).redirect("/users/profile/" + req.session.user.username);
+    } catch (e) {
+      logger.log(e);
+      errors = ["Updating comment failed. Please try again."];
+      return res.status(400).render("spots/updateComment", {
+        user: req.session.user,
+        styles: [`<link rel="stylesheet" href="/public/css/addSpot.css">`],
+        scripts: [
+          `<script src="https://upload-widget.cloudinary.com/latest/global/all.js"></script>`,
+        ],
+        comment: comment,
+        errors: errors,
+      });
+    }
+
+    // delete orphan images from cloud
+    if (discardImages) {
+      const spotDiscardedImages = JSON.parse(discardImages);
+      for (const public_id of spotDiscardedImages) {
+        try {
+          cloudinary.uploader.destroy(public_id);
+        } catch (e) {
+          logger.log(e);
+        }
+      }
+    }
+  });
 export default router;

@@ -524,6 +524,8 @@ const updateComment = async (commentId, userId, message, image) => {
       public_id: image.public_id,
       url: image.url,
     };
+  } else {
+    commentObject.image = null;
   }
 
   try {
@@ -541,7 +543,13 @@ const updateComment = async (commentId, userId, message, image) => {
     throw [`Comment update failed!`];
   }
   const newComment = await getCommentById(commentId);
-  if (newComment.image.public_id !== comment.image.public_id) {
+  if (
+    newComment.image &&
+    comment.image &&
+    newComment.image.public_id !== comment.image.public_id
+  ) {
+    await cloudinaryData.deleteImages([comment.image.public_id]);
+  } else if (comment.image && !newComment.image) {
     await cloudinaryData.deleteImages([comment.image.public_id]);
   }
   return newComment;

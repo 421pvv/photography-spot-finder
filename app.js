@@ -86,6 +86,7 @@ app.use("*", (req, res, next) => {
     { url: "spots/favorite", error: "flag a spot!" },
     { url: "spots/comment/flag", error: "flag a spot comment!" },
     { url: "/contest/submission/flag", error: "flag a contest submission!" },
+    { url: "spots/updateComment", error: "modify a comment!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>
