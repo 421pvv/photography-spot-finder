@@ -178,8 +178,8 @@ router.route("/details/:spotId").get(async (req, res) => {
 
   if (errors.length > 0) {
     logger.log(`Invalid session (${req.sessionID}) tried to access ${spotId}`);
-    req.session.authorizationErrors = errors;
-    return res.status(401).redirect("/home");
+    req.session.invalidResourceErrors = errors;
+    return res.status(401).redirect("/spots/search");
   }
 
   logger.log("Rendering spot details for :", spotId);
@@ -488,8 +488,8 @@ router
       logger.log(
         `Invalid session (${req.sessionID}) tried to modify ${spotId}`
       );
-      req.session.authorizationErrors = errors;
-      return res.status(401).redirect("/home");
+      req.session.invalidResourceErrors = errors;
+      return res.status(401).redirect("/spots/search");
     }
 
     logger.log("Rendering edit spot for :", spotId);
