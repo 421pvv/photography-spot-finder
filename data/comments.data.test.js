@@ -299,6 +299,7 @@ describe("Testing comments data functions", () => {
           expectedComment.message
         );
 
+        expectedComment.image = null;
         expect(receivedComment).toEqual(expectedComment);
       });
     });
