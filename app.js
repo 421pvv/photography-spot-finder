@@ -48,20 +48,37 @@ app.use("*", (req, res, next) => {
   for (const [key, val] of Object.entries(req.query)) {
     if (typeof val === "string") {
       req.query[key] = xss(val);
+    } else if (typeof val == object) {
+      req.query[key] = cleanObject(val);
     }
   }
   for (const [key, val] of Object.entries(req.params)) {
     if (typeof val === "string") {
       req.params[key] = xss(val);
+    } else if (typeof val == object) {
+      req.params[key] = cleanObject(val);
     }
   }
   for (const [key, val] of Object.entries(req.body)) {
     if (typeof val === "string") {
       req.body[key] = xss(val);
+    } else if (typeof val == object) {
+      req.body[key] = cleanObject(val);
     }
   }
   next();
 });
+
+function cleanObject(object) {
+  for (const [key, val] of Object.entries(object)) {
+    if (typeof val === "string") {
+      object[key] = xss(val);
+    } else if (typeof val == object) {
+      object[key] = cleanObject(val);
+    }
+  }
+  return object;
+}
 
 app.use((req, res, next) => {
   if (req.originalUrl === "/") {
