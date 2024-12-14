@@ -15,7 +15,18 @@ const getContestSpotsList = async () => {
   if (!contestSpotsList) {
     throw ["cannot get contest spots"];
   }
-  return await contestSpotsList.find({}).toArray();
+  const current = new Date();
+  const contestInfo = new Date(
+    current.getFullYear(),
+    current.getMonth() - 1,
+    1
+  );
+
+  return await contestSpotsList
+    .find({
+      contestInfo: contestInfo,
+    })
+    .toArray();
 };
 
 const getContestSpotsById = async (spotId) => {
