@@ -67,6 +67,9 @@ function errorMessage(msg) {
             userLocation
           );
           console.log("here");
+          if (result.data.length == 0) {
+            alert("There are no spots in your current search radius.");
+          }
           for (const spot of result.data) {
             const marker = new mapboxgl.Marker({ color: "#b40219" })
               .setLngLat(spot.location.coordinates)
@@ -94,7 +97,9 @@ function errorMessage(msg) {
             currentSpots.push(marker);
             spotsBounds.extend(spot.location.coordinates);
           }
-          map.fitBounds(spotsBounds);
+          map.fitBounds(spotsBounds, {
+            padding: { left: 50, right: 50, top: 50, bottom: 50 },
+          });
         })
         .catch((e) => {
           distanceSearchForm.append(errorMessage(e));
