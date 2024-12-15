@@ -4,6 +4,7 @@ import {
   comments,
   spotRatings,
   contestSubmissions,
+  verifiedUsers,
 } from "../config/mongoCollections.js";
 import { SALT_ROUNDS } from "../config/secrets.js";
 import validation from "../validation.js";
@@ -43,6 +44,19 @@ export const createUser = async (firstName, lastName, username, password) => {
     throw "Could not add the new user";
 
   const userInfo = await getUserByUsername(username);
+
+  // Code added for email verification
+  const newAddedUser = {
+    _id: ObjectId.createFromHexString(userInfo._id.toString()),
+    username: userInfo.username,
+    verified: false,
+    otp: "",
+    otpExpiration: new Date(1990, 1, 1),
+  };
+  const verifiedUsersCollection = await verifiedUsers();
+  const insertInfo2 = await verifiedUsersCollection.insertOne(newAddedUser);
+  if (!insertInfo2.acknowledged || !insertInfo2.insertedId)
+    throw "Could not add the new user";
   return userInfo;
 };
 
@@ -86,6 +100,21 @@ export const removeEmail = async (userId) => {
     { returnDocument: "after" }
   );
   if (!updatedUser) {
+    throw ["Failed to remove email"];
+  }
+  try {
+    const verifiedUsersCollection = await verifiedUsers();
+    const updatedData = await verifiedUsersCollection.updateOne(
+      { _id: ObjectId.createFromHexString(user._id.toString()) },
+      {
+        $set: {
+          verified: false,
+          otp: "",
+          otpExpiration: new Date(1990, 1, 1),
+        },
+      }
+    );
+  } catch (e) {
     throw ["Failed to remove email"];
   }
   return { emailRemoved: true };
@@ -162,6 +191,15 @@ export const updateUserProfile = async (userObject) => {
     }
   }
 
+  if (bio !== undefined) {
+    try {
+      bio = validation.validateString(bio);
+      updateUserProfile.bio = bio;
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+  }
+
   if (email !== undefined) {
     try {
       email = validation.validateEmail(email);
@@ -176,17 +214,28 @@ export const updateUserProfile = async (userObject) => {
     }
   }
 
-  if (bio !== undefined) {
-    try {
-      bio = validation.validateString(bio);
-      updateUserProfile.bio = bio;
-    } catch (e) {
-      errors = errors.concat(e);
-    }
-  }
-
   if (errors.length > 0) {
     throw errors;
+  }
+
+  if (email !== undefined) {
+    if (userInfo.email !== email) {
+      try {
+        const verifiedUsersCollection = await verifiedUsers();
+        const updatedData = await verifiedUsersCollection.updateOne(
+          { _id: ObjectId.createFromHexString(userInfo._id.toString()) },
+          {
+            $set: {
+              verified: false,
+              otp: "",
+              otpExpiration: new Date(1990, 1, 1),
+            },
+          }
+        );
+      } catch (e) {
+        throw ["Error: Update Failed"];
+      }
+    }
   }
 
   const filter = {
@@ -571,6 +620,87 @@ const getUsersByKeyword = async (keyword) => {
   return usersFound;
 };
 
+// email verification functions
+const userVerificationStatus = async (userId) => {
+  userId = validation.validateString(userId, "userId", true);
+  const verifiedUsersCollection = await verifiedUsers();
+  const userInfo = await verifiedUsersCollection.findOne({
+    _id: ObjectId.createFromHexString(userId),
+  });
+  if (!userInfo) {
+    throw ["Cannot find user verification status"];
+  }
+  return userInfo.verified;
+};
+
+const setOtp = async (userId, otp) => {
+  userId = validation.validateString(userId, "userId", true);
+  try {
+    otp = validation.validateString(otp, "otp", false);
+  } catch (e) {
+    throw ["Could not send otp"];
+  }
+
+  const verificationStatus = await userVerificationStatus(userId);
+  if (verificationStatus) {
+    throw ["Already Verified"];
+  }
+
+  const verifiedUsersCollection = await verifiedUsers();
+  const userInfo = await verifiedUsersCollection.updateOne(
+    {
+      _id: ObjectId.createFromHexString(userId),
+    },
+    {
+      $set: {
+        otp: otp,
+        otpExpiration: new Date(Date.now() + 5 * 60 * 1000), // OTP expires in 5 minutes
+      },
+    }
+  );
+};
+
+const verifyUserEmail = async (userId, otp) => {
+  userId = validation.validateString(userId, "userId", true);
+  try {
+    otp = validation.validateString(otp, "otp", false);
+  } catch (e) {
+    throw ["invalid otp"];
+  }
+  const verificationStatus = await userVerificationStatus(userId);
+  if (verificationStatus) {
+    throw ["Already Verified"];
+  }
+
+  const verifiedUsersCollection = await verifiedUsers();
+  const userInfo = await verifiedUsersCollection.findOne({
+    _id: ObjectId.createFromHexString(userId),
+  });
+
+  if (userInfo.otp === otp) {
+    const currentDate = new Date();
+    if (currentDate > userInfo.otpExpiration) {
+      throw ["OTP has expired. Please click on resend OTP and try again"];
+    } else {
+      const updatedInfo = await verifiedUsersCollection.updateOne(
+        {
+          _id: ObjectId.createFromHexString(userId),
+        },
+        {
+          $set: {
+            verified: true,
+            otp: "",
+            otpExpiration: new Date(1990, 1, 1),
+          },
+        }
+      );
+      return { success: true };
+    }
+  } else {
+    throw ["OTP is incorrect!"];
+  }
+};
+
 export default {
   createUser,
   getUserByUsername,
@@ -591,4 +721,7 @@ export default {
   removeEmail,
   removeBio,
   getUsersByKeyword,
+  userVerificationStatus,
+  setOtp,
+  verifyUserEmail,
 };

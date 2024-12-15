@@ -1,6 +1,6 @@
 import express from "express";
 import validation from "../validation.js";
-import { userData } from "../data/index.js";
+import { userData, verificationData } from "../data/index.js";
 import logging from "../log.js";
 import { contestSubmissions } from "../config/mongoCollections.js";
 const router = express.Router();
@@ -186,6 +186,7 @@ router.route("/profile/:username").get(async (req, res) => {
     userProfile._id
   );
   const userRatings = await userData.getUserRatings(userProfile._id);
+  const isVerified = await userData.userVerificationStatus(userProfile._id);
   let sameUser = false;
   if (req.session.user) {
     if (userProfile._id === req.session.user._id) {
@@ -203,6 +204,7 @@ router.route("/profile/:username").get(async (req, res) => {
     comments: userComments,
     ratings: userRatings,
     contestSubmissions: userContestSubmissions,
+    isVerified: isVerified,
   });
   delete req.session.authorizationErrors;
 });
@@ -572,6 +574,127 @@ router
       searched: true,
       styles: [`<link rel="stylesheet" href="/public/css/userSearch.css">`],
     });
+  });
+
+router
+  .route("/verifyEmail")
+  .get(async (req, res) => {
+    let errors = [];
+
+    if (!req.session.user) {
+      errors.push("You must login before trying to verify email!");
+      req.session.authorizationErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+
+    const userId = req.session.user._id.toString();
+
+    try {
+      const verified = await userData.userVerificationStatus(userId);
+      if (verified) {
+        errors.push("You already verified your email!");
+        req.session.authorizationErrors = errors;
+        return res.redirect(`/users/profile/${req.session.user.username}`);
+      }
+    } catch (e) {
+      errors = errors.concat(e);
+      req.session.authorizationErrors = errors;
+      return res.redirect(`/users/profile/${req.session.user.username}`);
+    }
+
+    const userInfo = await userData.getUserProfileById(userId);
+
+    try {
+      await verificationData.sendVerificationEmail(userId, userInfo.email);
+    } catch (e) {
+      logging.log(e);
+      errors = errors.concat(e);
+      req.session.authorizationErrors = errors;
+      return res.redirect(`/users/profile/${req.session.user.username}`);
+    }
+
+    return res.status(200).render("users/verifyemail", {
+      message: `OTP sent to ${userInfo.email}. It expires in 5 minutes`,
+      email: userInfo.email,
+      user: req.session.user,
+    });
+  })
+  .post(async (req, res) => {
+    let errors = [];
+
+    if (!req.session.user) {
+      errors.push("You must login before trying to verify email!");
+      req.session.authorizationErrors = errors;
+      return res.status(401).redirect("/users/login");
+    }
+
+    const userId = req.session.user._id.toString();
+
+    try {
+      const verified = await userData.userVerificationStatus(userId);
+      if (verified) {
+        errors.push("You already verified your email!");
+        req.session.authorizationErrors = errors;
+        return res.redirect(`/users/profile/${req.session.user.username}`);
+      }
+    } catch (e) {
+      errors = errors.concat(e);
+      req.session.authorizationErrors = errors;
+      return res.redirect(`/users/profile/${req.session.user.username}`);
+    }
+
+    const userInfo = await userData.getUserProfileById(userId);
+
+    const otpData = req.body;
+
+    if (!otpData || otpData.length === 0) {
+      errors.push("The request body is empty");
+      return res.status(400).render("users/verifyemail", {
+        email: userInfo.email,
+        user: req.session.user,
+        hasErrors: true,
+        errors: errors,
+      });
+    }
+
+    let otp;
+    try {
+      otp = validation.validateString(otpData.otp, "OTP", false);
+    } catch (e) {
+      errors = errors.concat(e);
+    }
+
+    if (errors.length > 0) {
+      return res.status(400).render("users/verifyemail", {
+        email: userInfo.email,
+        user: req.session.user,
+        hasErrors: true,
+        errors: errors,
+        otp: otp,
+      });
+    }
+
+    let verification;
+    try {
+      verification = await userData.verifyUserEmail(userId, otp);
+    } catch (e) {
+      errors = errors.concat(e);
+      return res.status(400).render("users/verifyemail", {
+        email: userInfo.email,
+        user: req.session.user,
+        hasErrors: true,
+        errors: errors,
+      });
+    }
+
+    if (!verification || !verification.success) {
+      return res.status(500).render("error", {
+        message: "500: Internal Server Error",
+        user: req.session.user,
+      });
+    } else {
+      return res.redirect(`/users/profile/${req.session.user.username}`);
+    }
   });
 
 export default router;

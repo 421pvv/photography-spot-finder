@@ -169,6 +169,14 @@ h3 {
   text-align: center;
 }
 
+#VerifiedUser {
+  color: #37d857;
+}
+
+#emailverify {
+  background-color: #37d857;
+}
+
 @media (max-width: 35em) {
   .activity-sections {
     grid-template-columns: 1fr;
