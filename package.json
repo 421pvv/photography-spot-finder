@@ -7,7 +7,7 @@
   "scripts": {
     "start": "node app.js",
     "watch": "node --watch app.js",
-    "test": "jest --watchAll --runInBand --verbose",
+    "test": "jest --runInBand --verbose && npm run seed",
     "ci_tests": "jest --runInBand --verbose",
     "export": "node ./seed/exportDB.js",
     "seed": "node ./seed/seedDB.js"
