@@ -22,6 +22,10 @@
       Edit Profile</a>
     <a href="/users/updatepassword">Update Password</a>
     {{#if profile.email}}
+    {{#if isVerified}}
+    {{else}}
+    <a href="/users/verifyEmail">Verify Email</a>
+    {{/if}}
     <form method="POST" action="/users/editprofile/removeEmail">
       <input type="hidden" name="_method" value="DELETE">
       <button type="submit">Remove Email</button>
@@ -37,6 +41,9 @@
   {{/if}}
   <h1 id="userFirstLastNames">{{profile.firstName}} {{profile.lastName}}</h1>
   <p class="username">@{{profile.username}}</p>
+  {{#if isVerified}}
+  <p id="VerifiedUser">Verified User ✅</p>
+  {{/if}}
   {{#if sameUser}}
   {{#if profile.email}}
   <p class="bio">{{profile.email}}</p>

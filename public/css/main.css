@@ -185,6 +185,31 @@ a:hover {
   font-size: 1em;
 }
 
+#emailtobeverified {
+  font-size: 3em;
+}
+
+.mainForms #ResendOTPLink {
+  margin: 1em;
+  cursor: pointer;
+  border: solid black;
+  width: 40%;
+  padding: 0.75em;
+  box-sizing: border-box;
+  border-radius: 1em;
+  font-size: 1.5em;
+  color: black;
+  text-align: center;
+}
+.mainForms #ResendOTPLink {
+  background-color: #37d857;
+  align-items: flex-start;
+}
+.mainForms #ResendOTPLink:hover {
+  background-color: #00ff33;
+  text-decoration: none;
+}
+
 /* Error Page styles */
 .errorPageMessage {
   text-align: center;

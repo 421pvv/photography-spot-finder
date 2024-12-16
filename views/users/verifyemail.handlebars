@@ -1,0 +1,36 @@
+<section>
+    <h1 class="page_title">Verify Email</h1>
+    {{#if message}}
+    <p class="authError">{{message}}</p>
+    {{/if}}
+    <form method="POST" class="mainForms" id="verify-form">
+        <p id="emailtobeverified">Email: {{email}}</p>
+        <label>
+            OTP
+            <input type="text" name="otp" placeholder="Enter the 6 digit otp" value="{{otp}}" id="otp">
+        </label>
+
+        <input type="hidden" name="current-username" value="{{user.username}}" id="current-username">
+
+        <div class="formInputError" id="form-errors-div">
+            {{#if hasErrors}}
+            {{#each errors}}
+            <p>
+                {{this}}
+            <p>
+                {{/each}}
+                {{/if}}
+        </div>
+
+        <div class="form_buttons">
+            <button type="reset" id="back-to-profile">
+                Back to Profile
+            </button>
+            <a href="/users/verifyEmail" id="ResendOTPLink">Resend OTP</a>
+            <button type="submit" id="submitotp">Verify</button>
+        </div>
+    </form>
+</section>
+<script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc="
+    crossorigin="anonymous"></script>
+<script type="module" src="/public/js/users/verifyemail_validation.js"></script>
