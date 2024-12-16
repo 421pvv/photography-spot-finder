@@ -23,6 +23,11 @@ Step 4: Finally, run the application using `npm start`. The application will run
 
 **Note:** While testing our application, if you delete an asset that contains an image, we also **made sure it is deleted in the cloud** (for storage optimization and to prevent orphan images in the cloud). So, if you reseed the database using the seed command after deleting an asset with an image, the image will not be shown. Alternately, you can run `npm run export` to export your current database state and then run the seed command to reflect the deleted assets. We currently provided **enough seed data to test all aspects and features** but deleting an asset with an image will require adding more assets with images and then exporting the current database state to test them again.
 
+**Admin credentials**:
+
+- username: sivaanand
+- password: Password@1234
+
 ## Core Features
 
 1. **Landing Page:** Introduces the platform’s purpose and provides links to the top three rated photography spots of the month.
