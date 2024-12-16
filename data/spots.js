@@ -971,7 +971,7 @@ const getLastMonthTopSpots = async () => {
         },
       },
       {
-        $sort: { averageRating: -1 },
+        $sort: { averageRating: -1, totalRatings: -1 },
       },
       {
         $lookup: {

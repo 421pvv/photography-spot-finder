@@ -69,3 +69,23 @@
   width: 200px;
   height: auto;
 }
+
+/* spinner adapted from: https://www.w3schools.com/howto/howto_css_loader.asp */
+.loader {
+  margin: 32vh auto;
+  border: 1em solid #f3f3f3;
+  border-top: 1em solid #db3434;
+  border-radius: 50%;
+  width: 8em;
+  height: 8em;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}

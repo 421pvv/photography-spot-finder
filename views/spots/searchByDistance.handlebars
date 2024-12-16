@@ -14,6 +14,7 @@
 </div>
 
 <div id="spotsMapSection">
+    <div class="loader"></div>
     <div id="map"></div>
     <button id="mapRecenter">Recenter map</button>
 </div>
@@ -48,6 +49,7 @@
         }
 
         function setUpMap(position) {
+            $('.loader').remove();
             let defaultLoc = position;
             distanceLocation = position;
             mapboxgl.accessToken = "{{apikey}}";
