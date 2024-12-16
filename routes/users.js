@@ -283,13 +283,13 @@ router
     }
 
     try {
-      updateData.email = validation.validateEmail(updateData.email);
+      updateData.email = validation.validateUpdateEmail(updateData.email);
     } catch (e) {
       errors = errors.concat(e);
     }
 
     try {
-      updateData.bio = validation.validateString(updateData.bio);
+      updateData.bio = validation.validateUpdateString(updateData.bio);
     } catch (e) {
       errors = errors.concat(e);
     }
