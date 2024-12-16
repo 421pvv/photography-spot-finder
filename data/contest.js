@@ -466,21 +466,16 @@ const clearContestSubmissionReports = async (submissionId, userId) => {
 
 const getContestWinners = async () => {
   const current = new Date();
-  const lastMonthStart = new Date(
-    current.getFullYear(),
-    current.getMonth() - 1,
-    1
-  );
+  const lastMonthStart = new Date(current.getFullYear(), current.getMonth(), 1);
   const currentMonthStart = new Date(
     current.getFullYear(),
-    current.getMonth(),
+    current.getMonth() + 1,
     1
   );
 
-  const spotsRatingsList = await spotRatings();
+  const contestRatingsCollection = await contestRatings();
 
-  // Aggregate to find the top 3 spots by average rating
-  const topSpots = await spotsRatingsList
+  const topSubmissions = await contestRatingsCollection
     .aggregate([
       {
         $match: {
@@ -492,63 +487,63 @@ const getContestWinners = async () => {
       },
       {
         $group: {
-          _id: "$spotId",
-          totalRatings: { $sum: 1 },
-          averageRating: { $avg: { $ifNull: ["$rating", 0] } },
+          _id: "$contestSubmissionId",
+          totalVotes: { $sum: { $ifNull: ["$vote", 0] } },
         },
       },
       {
-        $match: {
-          totalRatings: {
-            $gte: 5,
-          },
-          averageRating: {
-            $gte: 7.5,
-          },
-        },
-      },
-      {
-        $sort: { averageRating: -1, totalRatings: -1 },
+        $sort: { totalVotes: -1 },
       },
       {
         $lookup: {
-          from: "spots",
+          from: "contestSubmissions",
           localField: "_id",
           foreignField: "_id",
-          as: "spotDetails",
+          as: "contestSubmission",
         },
       },
       {
-        $unwind: "$spotDetails",
+        $unwind: {
+          path: "$contestSubmission",
+        },
       },
       {
-        $limit: 3,
+        $group: {
+          _id: "$contestSubmission.contestSpotId",
+
+          topSubmission: { $first: "$contestSubmission" },
+        },
+      },
+      {
+        $lookup: {
+          from: "contestSpots",
+          localField: "_id",
+          foreignField: "_id",
+          as: "contestSpot",
+        },
+      },
+      {
+        $unwind: {
+          path: "$contestSpot",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "topSubmission.posterId",
+          foreignField: "_id",
+          as: "posterInfo",
+        },
+      },
+      {
+        $unwind: {
+          path: "$posterInfo",
+        },
       },
     ])
     .toArray();
-  logger.log("Top spots: ", topSpots);
-
-  const newTopSpots = [];
-
-  for (const spot of topSpots) {
-    newTopSpots.push({
-      _id: spot.spotDetails._id,
-      name: spot.spotDetails.name,
-      location: spot.spotDetails.location,
-      address: spot.spotDetails.address,
-      description: spot.spotDetails.description,
-      accessibility: spot.spotDetails.accessibility,
-      bestTimes: spot.spotDetails.bestTimes,
-      images: spot.spotDetails.images,
-      tags: spot.spotDetails.tags,
-      posterId: spot.spotDetails.posterId,
-      createdAt: spot.spotDetails.createdAt,
-      reportCount: spot.spotDetails.reportCount,
-      averageRating: Number(spot.averageRating.toFixed(2)),
-      totalRatings: spot.totalRatings,
-    });
-  }
-  return newTopSpots;
+  logger.log("Top spots: ", topSubmissions);
+  return topSubmissions;
 };
 
 export default {
@@ -566,4 +561,5 @@ export default {
   updateTopContestSpots,
   deleteReportedContestSubmission,
   clearContestSubmissionReports,
+  getContestWinners,
 };

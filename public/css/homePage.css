@@ -78,7 +78,7 @@ h2 {
   font-size: 2em;
 }
 
-#spotsList {
+.spotsList {
   width: auto;
   border-radius: 1em;
   padding: 0;
@@ -86,14 +86,14 @@ h2 {
   align-items: center;
 }
 
-#spotsList ul {
+.spotsList ul {
   width: auto;
   list-style: none;
   margin: 0;
   padding: 0;
 }
 
-#spotsList li {
+.spotsList li {
   margin: 2em auto;
   width: auto;
   padding: 2em;
@@ -104,14 +104,14 @@ h2 {
   box-shadow: #d2d2d7 0em 0.5em 2em;
 }
 
-#spotsList li h2 {
+.spotsList li h2 {
   font-size: 2em;
   font-weight: bold;
   color: #333;
   text-align: center;
 }
 
-#spotsList li p {
+.spotsList li p {
   font-size: 0.875em;
   margin: 0.5em 0;
 }
@@ -123,7 +123,7 @@ h2 {
   font-size: 1.5em;
 }
 
-#spotsList li img {
+.spotsList li img {
   width: auto;
   height: 60vh;
   display: block;
@@ -133,16 +133,16 @@ h2 {
   margin: 2em auto;
   padding: 0;
 }
-#spotsList a {
+.spotsList a {
   text-decoration: none;
   color: blue;
 }
-#spotsList a:hover {
+.spotsList a:hover {
   text-decoration: underline;
   color: rgb(135, 19, 237);
 }
 
-#spotsList li span {
+.spotsList li span {
   display: inline-block;
   margin-right: 0.5em;
   padding: 0.5em 0.5em;
@@ -160,19 +160,22 @@ h2 {
   font-weight: bold;
 }
 
-#spotsList {
+.homeSection {
   text-align: center;
 }
 
-#spotsList ul {
+.homeSection ul {
   display: flex;
-  overflow-y: auto;
+  overflow-x: auto;
   gap: 5%;
-  overflow: auto;
   white-space: nowrap;
   scroll-snap-type: x mandatory;
   width: auto;
   object-fit: cover;
-  scroll-snap-align: start;
   flex-shrink: 0;
+}
+
+.homeSection img {
+  object-fit: fill;
+  border-radius: 1em;
 }
