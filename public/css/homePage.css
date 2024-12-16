@@ -159,3 +159,20 @@ h2 {
   color: red;
   font-weight: bold;
 }
+
+#spotsList {
+  text-align: center;
+}
+
+#spotsList ul {
+  display: flex;
+  overflow-y: auto;
+  gap: 5%;
+  overflow: auto;
+  white-space: nowrap;
+  scroll-snap-type: x mandatory;
+  width: auto;
+  object-fit: cover;
+  scroll-snap-align: start;
+  flex-shrink: 0;
+}
