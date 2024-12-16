@@ -78,6 +78,7 @@ app.use("*", (req, res, next) => {
     { url: "/spots/putRating", error: "rate a spot!" },
     { url: "/spots/favorite", error: "favorite a spot!" },
     { url: "/users/editprofile", error: "edit profile!" },
+    { url: "/users/verifyEmail", error: "verify an email!" },
     { url: "/users/updatepassword", error: "update password!" },
     { url: "/spots/flag", error: "flag a spot!" },
     { url: "/spots/comment/flag", error: "flag a spot comment!" },
