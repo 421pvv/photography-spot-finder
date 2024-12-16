@@ -177,8 +177,10 @@
                     <div class="comment-meta ">
                         <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
                         <p>Posted at {{this.createdAt}}</p>
+                        {{#if viewingUser._id}}
                         <label hidden="true" for="flagButton"> Flag Comment </label>
                         <i data-id="{{this._id}}" class="commentFlagButton fa fa-flag {{this.flag}}"></i>
+                        {{/if}}
                     </div>
                 </div>
             </li>

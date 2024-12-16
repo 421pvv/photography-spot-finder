@@ -1,7 +1,7 @@
 import validation from "../validation/validation.js";
 
 function errorMessage(msg) {
-  return `<p class="fohttp://localhost:3000/users/signuprmInputError" > ${msg} </p>`;
+  return `<p class="formInputError" > ${msg} </p>`;
 }
 let urls = [];
 const discardedImagesIds = [];
@@ -44,6 +44,7 @@ var myWidget = cloudinary.createUploadWidget(
         url: result.info.secure_url,
       });
       imageFileUrls.value = JSON.stringify(urls[0]);
+      $(".formInputError").remove();
 
       console.log("Selected image: ", urls);
       // set up image preview and handle images to be removed at server side
@@ -100,7 +101,6 @@ console.log("contest submisson");
     const dislikeButton = submissionImage.find(`.fa-thumbs-down`);
     const deleteVoteButton = submissionImage.find(` .fa-trash`);
     const voteDisplay = submissionImage.find(`.user-vote`);
-
     function putRating(contestSubmissionId, vote) {
       let requestConfig = {
         method: "PUT",
@@ -233,6 +233,27 @@ console.log("contest submisson");
           $("#imageUploadPreviews").remove();
           submissionSection.append(newElement);
           bindVoteEvents(newElement);
+
+          function flagContestSubmission(e) {
+            const submision = $(e.target);
+            let requestConfig = {
+              method: "POST",
+              url: `/contest/submission/flag/${submision.data("id")}`,
+            };
+            $.ajax(requestConfig)
+              .then(() => {
+                $(e.target).toggleClass("flagged");
+              })
+              .fail((xhr, status, e) => {
+                if (xhr.status == "406") {
+                  alert("You already flagged this contest submission!");
+                }
+              });
+          }
+          newElement.on("click", (e) => {
+            console.log("fine");
+            flagContestSubmission(e);
+          });
         })
         .catch((e) => {
           contestSubmissionErrors.append(errorMessage(e.message));

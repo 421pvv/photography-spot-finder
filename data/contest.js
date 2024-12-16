@@ -22,9 +22,18 @@ const getContestSpotsList = async () => {
     1
   );
 
+  const boundryDate = new Date(
+    current.getFullYear(),
+    current.getMonth() - 1,
+    2
+  );
+  logger.log("Fetching contest spots for: ", contestInfo.toISOString());
   return await contestSpotsList
     .find({
-      contestInfo: contestInfo,
+      contestInfo: {
+        $gte: contestInfo,
+        $lte: boundryDate,
+      },
     })
     .toArray();
 };
