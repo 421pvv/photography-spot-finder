@@ -875,7 +875,7 @@ const getReportedComments = async (userId) => {
 
 const deleteReportedComment = async (commentId, userId) => {
   commentId = validation.validateString(commentId, "commentId", true);
-  const commentInfo = await getCommentById(id);
+  const commentInfo = await getCommentById(commentId);
   if (commentInfo.reportCount < 20) {
     throw ["The comment has report count less than 20"];
   }
