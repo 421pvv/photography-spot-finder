@@ -22,3 +22,33 @@
         <button type="submit">Search</button>
     </form>
 </section>
+
+
+<section>
+    <h2>Last Month's Top Spots</h2>
+    <div id="spotsList">
+        {{#if spots.length}}
+        <ul>
+            {{#each spots}}
+            <li>
+                <h2><a href="/spots/details/{{this._id}}">
+                        {{this.name}}
+                    </a></h2>
+                <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
+                    onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
+
+                <div class="spot-info">
+                    <p>Tags:
+                        {{#each this.tags}} <span>{{this}}</span> {{/each}}
+                    </p>
+                    <p>Average Rating: {{this.averageRating}} out of 10</p>
+                    <p> Posted on {{this.createdAt}}</p>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p id="NoSpotsFound">No spots meet the top spot criteria for last month.</p>
+        {{/if}}
+    </div>
+</section>

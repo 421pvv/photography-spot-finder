@@ -926,6 +926,93 @@ const clearCommentReports = async (commentId, userId) => {
   return clearedComment;
 };
 
+const getLastMonthTopSpots = async () => {
+  const current = new Date();
+  const lastMonthStart = new Date(
+    current.getFullYear(),
+    current.getMonth() - 1,
+    1
+  );
+  const currentMonthStart = new Date(
+    current.getFullYear(),
+    current.getMonth(),
+    1
+  );
+
+  const spotsRatingsList = await spotRatings();
+
+  // Aggregate to find the top 3 spots by average rating
+  const topSpots = await spotsRatingsList
+    .aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: lastMonthStart,
+            $lt: currentMonthStart,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$spotId",
+          totalRatings: { $sum: 1 },
+          averageRating: { $avg: { $ifNull: ["$rating", 0] } },
+        },
+      },
+      {
+        $match: {
+          totalRatings: {
+            $gte: 5,
+          },
+          averageRating: {
+            $gte: 7.5,
+          },
+        },
+      },
+      {
+        $sort: { averageRating: -1 },
+      },
+      {
+        $lookup: {
+          from: "spots",
+          localField: "_id",
+          foreignField: "_id",
+          as: "spotDetails",
+        },
+      },
+      {
+        $unwind: "$spotDetails",
+      },
+      {
+        $limit: 3,
+      },
+    ])
+    .toArray();
+  logger.log("Top spots: ", topSpots);
+
+  const newTopSpots = topSpots.map((spot) => {
+    return {
+      _id: spot.spotDetails._id,
+      name: spot.spotDetails.name,
+      location: spot.spotDetails.location,
+      address: spot.spotDetails.address,
+      description: spot.spotDetails.description,
+      accessibility: spot.spotDetails.accessibility,
+      bestTimes: spot.spotDetails.bestTimes,
+      images: spot.spotDetails.images,
+      tags: spot.spotDetails.tags,
+      posterId: spot.spotDetails.posterId,
+      createdAt: spot.spotDetails.createdAt,
+      reportCount: spot.spotDetails.reportCount,
+      averageRating: spot.averageRating,
+      totalRatings: spot.totalRatings,
+      contestInfo: currentMonth,
+    };
+  });
+
+  return newTopSpots;
+};
+
 export default {
   createSpot,
   updateSpot,
@@ -950,4 +1037,5 @@ export default {
   deleteReportedComment,
   clearCommentReports,
   getSpotsByDistance,
+  getLastMonthTopSpots,
 };

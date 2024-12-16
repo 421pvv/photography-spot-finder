@@ -7,10 +7,18 @@ const router = express.Router();
 router.route("/home").get(async (req, res) => {
   const errors = req.session.authorizationErrors;
   delete req.session.authorizationErrors;
+
+  let topSpots;
+  try {
+    topSpots = await spotsData.getLastMonthTopSpots();
+  } catch (e) {
+    topSpots = [];
+  }
   return res.status(200).render("home", {
     user: req.session.user,
     styles: [`<link rel="stylesheet" href="/public/css/homePage.css">`],
     authErrors: errors,
+    spots: topSpots,
   });
 });
 
