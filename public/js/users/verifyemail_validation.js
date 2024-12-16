@@ -13,6 +13,7 @@ verifyForm.addEventListener("submit", (event) => {
 
   try {
     otpInput.value = validation.validateString(otpInput.value, "OTP", false);
+    validation.validateOTP(otpInput.value);
   } catch (e) {
     errors = errors.concat(e);
   }

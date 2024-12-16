@@ -241,6 +241,17 @@ const validateEmail = (email) => {
   return email.toLowerCase();
 };
 
+const validateOTP = (otp) => {
+  otp = validateString(otp, "OTP");
+
+  const otpRegex = /^[0-9]{6}$/;
+
+  if (!otpRegex.test(otp)) {
+    throw [`OTP (${otp}) must be six digits!`];
+  }
+  return otp;
+};
+
 export default {
   validateString,
   validateUsername,
@@ -251,4 +262,5 @@ export default {
   validateCoordinates,
   validateNumber,
   validateEmail,
+  validateOTP,
 };
