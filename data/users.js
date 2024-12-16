@@ -193,7 +193,7 @@ export const updateUserProfile = async (userObject) => {
 
   if (bio !== undefined) {
     try {
-      bio = validation.validateString(bio);
+      bio = validation.validateUpdateString(bio);
       updateUserProfile.bio = bio;
     } catch (e) {
       errors = errors.concat(e);
@@ -202,15 +202,17 @@ export const updateUserProfile = async (userObject) => {
 
   if (email !== undefined) {
     try {
-      email = validation.validateEmail(email);
+      email = validation.validateUpdateEmail(email);
       updateUserProfile.email = email;
     } catch (e) {
       errors = errors.concat(e);
     }
-    try {
-      await checkIfEmailExists(email, username);
-    } catch (e) {
-      errors = errors.concat(e);
+    if (email !== "") {
+      try {
+        await checkIfEmailExists(email, username);
+      } catch (e) {
+        errors = errors.concat(e);
+      }
     }
   }
 

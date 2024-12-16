@@ -33,13 +33,17 @@ editForm.addEventListener("submit", (event) => {
   }
 
   try {
-    emailInput.value = validation.validateEmail(emailInput.value);
+    emailInput.value = validation.validateUpdateEmail(emailInput.value);
   } catch (e) {
     errors = errors.concat(e);
   }
 
   try {
-    bioInput.value = validation.validateString(bioInput.value, "bio", false);
+    bioInput.value = validation.validateUpdateString(
+      bioInput.value,
+      "bio",
+      false
+    );
   } catch (e) {
     errors = errors.concat(e);
   }
