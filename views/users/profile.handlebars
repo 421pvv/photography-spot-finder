@@ -62,7 +62,8 @@
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
         <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
-            alt="{{this.name}} top image"></a>
+            alt="{{this.name}} top image"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg"></a>
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -78,7 +79,8 @@
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
         <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
-            alt="{{this.name}} top image"></a>
+            alt="{{this.name}} top image"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg"></a>
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -100,7 +102,8 @@
       {{#each submittedSpots}}
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -116,7 +119,8 @@
       {{#each submittedSpots}}
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -140,7 +144,8 @@
         <h3 class="comment-message">{{this.message}}</h3>
         {{#if this.image}}
         <img class="comment-image-user-profile" src="{{this.image.url}}"
-          alt="{{profile.firstName}} {{profile.lastName}} comment image">
+          alt="{{profile.firstName}} {{profile.lastName}} comment image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         {{/if}}
         <div class="link-buttons">
           <a href="/spots/details/{{this.spotId}}">View Comment's Spot Details</a>
@@ -158,7 +163,8 @@
         <h3 class="comment-message">{{this.message}}</h3>
         {{#if this.image}}
         <img class="comment-image-user-profile" src="{{this.image.url}}"
-          alt="{{profile.firstName}} {{profile.lastName}} comment image">
+          alt="{{profile.firstName}} {{profile.lastName}} comment image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         {{/if}}
         <div class="link-buttons">
           <a href="/spots/details/{{this.spotId}}">View Comment's Spot Details</a>
@@ -206,7 +212,8 @@
       {{#each contestSubmissions}}
       <div class="submissions">
         <img class="contest-image-user-profile" src="{{this.image.url}}"
-          alt="{{profile.firstName}} {{profile.lastName}} contest image">
+          alt="{{profile.firstName}} {{profile.lastName}} contest image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
       </div>
       {{/each}}
       {{else}}

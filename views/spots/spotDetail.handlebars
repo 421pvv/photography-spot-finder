@@ -171,7 +171,8 @@
                         <p class="comment-main">{{this.message}}</p>
                         {{#if this.image}}
                         <img alt="{{this.poster.firstName}} {{this.poster.lastName}} comment image"
-                            src="{{this.image.url}}">
+                            src="{{this.image.url}}"
+                            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
                         {{/if}}
                     </div>
                     <div class="comment-meta ">

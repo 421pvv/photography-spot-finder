@@ -17,7 +17,8 @@
         {{#each reportedSpots}}
         <section>
           <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-          <img src="{{this.images.0.url}}" alt="{{this.name}} top image" class="spot-image-admin">
+          <img src="{{this.images.0.url}}" alt="{{this.name}} top image" class="spot-image-admin"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
           <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
           <p>Report Count: {{this.reportCount}}</p>
           <div class="link-buttons">
@@ -47,7 +48,8 @@
         <section class="commentsSection">
           <h3>{{this.message}}</h3>
           {{#if this.image}}
-          <img class="spot-image-admin" src="{{this.image.url}}" alt="{{this.posterFullName}} comment image">
+          <img class="spot-image-admin" src="{{this.image.url}}" alt="{{this.posterFullName}} comment image"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
           {{/if}}
           <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
           <p>Report Count: {{this.reportCount}}</p>
@@ -76,7 +78,8 @@
         {{#if reportedContenstSpots}}
         {{#each reportedContenstSpots}}
         <div class="submissions">
-          <img class="contest-image-admin" src="{{this.image.url}}" alt="Contest submission image">
+          <img class="contest-image-admin" src="{{this.image.url}}" alt="Contest submission image"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
           <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
           <p>Report Count: {{this.reportCount}}</p>
           <div class="link-buttons">
