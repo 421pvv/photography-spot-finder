@@ -21,6 +21,7 @@ async function importDB(fileName) {
     "contestSpots",
     "contestSubmissions",
     "contestRatings",
+    "verifiedUsers",
   ];
   for (const collection of collections) {
     const command = `mongoimport --uri="${mongoConfig.serverUrl}" --db=${
