@@ -270,6 +270,7 @@ router.route("/details/:spotId").get(async (req, res) => {
       } else {
         comment.flag = "";
       }
+      comment.canInteract = req.session.user !== undefined;
       return comment;
     });
     logger.log("Comments", comments);

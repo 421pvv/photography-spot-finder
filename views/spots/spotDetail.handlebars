@@ -180,7 +180,7 @@
                         <p>Posted at {{this.createdAt}}</p>
                         <p><a href="/users/profile/{{this.poster.username}}">View Profile</a></p>
 
-                        {{#if viewingUser._id}}
+                        {{#if this.canInteract}}
                         <label hidden="true" for="flagButton"> Flag Comment </label>
                         <i data-id="{{this._id}}" class="commentFlagButton fa fa-flag {{this.flag}}"></i>
                         {{/if}}
