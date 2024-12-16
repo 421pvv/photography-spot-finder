@@ -18,6 +18,8 @@ export async function initDB() {
   await contestSubmissions.deleteMany({});
   const contestRatings = await mongoCollections.contestRatings();
   await contestRatings.deleteMany({});
+  const verifiedUsers = await mongoCollections.verifiedUsers();
+  await verifiedUsers.deleteMany({});
 }
 
 function convertUserObject(element) {
