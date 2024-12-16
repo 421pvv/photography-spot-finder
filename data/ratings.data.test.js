@@ -322,7 +322,9 @@ describe("Testing ratings data functions", () => {
 
       receivedSpot = await spotsData.getSpotById(originalSpot._id.toString());
       expect(receivedSpot.totalRatings).toEqual(2);
-      expect(receivedSpot.averageRating).toEqual((5.5 + 6.923) / 2);
+      let expectedValue = (5.5 + 6.923) / 2;
+      expectedValue = Number(expectedValue.toFixed(2));
+      expect(receivedSpot.averageRating).toEqual(expectedValue);
     });
   });
   describe("Testing userData.deleteRating", () => {

@@ -145,7 +145,7 @@ export const updateUserProfile = async (userObject) => {
   let userInfo;
   try {
     username = validation.validateString(username, "username");
-    userInfo = await getUserByUsername(username);
+    userInfo = await getUserProfileByUsername(username);
   } catch (e) {
     throw ["User profile update failed. Invlaid username."];
   }
@@ -218,23 +218,21 @@ export const updateUserProfile = async (userObject) => {
     throw errors;
   }
 
-  if (email !== undefined) {
-    if (userInfo.email !== email) {
-      try {
-        const verifiedUsersCollection = await verifiedUsers();
-        const updatedData = await verifiedUsersCollection.updateOne(
-          { _id: ObjectId.createFromHexString(userInfo._id.toString()) },
-          {
-            $set: {
-              verified: false,
-              otp: "",
-              otpExpiration: new Date(1990, 1, 1),
-            },
-          }
-        );
-      } catch (e) {
-        throw ["Error: Update Failed"];
-      }
+  if (email !== undefined && userInfo.email !== email) {
+    try {
+      const verifiedUsersCollection = await verifiedUsers();
+      const updatedData = await verifiedUsersCollection.updateOne(
+        { _id: ObjectId.createFromHexString(userInfo._id.toString()) },
+        {
+          $set: {
+            verified: false,
+            otp: "",
+            otpExpiration: new Date(1990, 1, 1),
+          },
+        }
+      );
+    } catch (e) {
+      throw ["Error: Update Failed"];
     }
   }
 

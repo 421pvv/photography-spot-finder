@@ -171,14 +171,14 @@
                         <p class="comment-main">{{this.message}}</p>
                         {{#if this.image}}
                         <img alt="{{this.poster.firstName}} {{this.poster.lastName}} comment image"
-                            src="{{this.image.url}}">
+                            src="{{this.image.url}}"
+                            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
                         {{/if}}
                     </div>
                     <div class="comment-meta ">
                         <p>Posted by {{this.poster.firstName}} {{this.poster.lastName}}</p>
                         <p>Posted at {{this.createdAt}}</p>
-                        {{#if viewingUser._id}}
-                        <label hidden="true" for="flagButton"> Flag Comment </label>
+                        {{!-- <label hidden="true" for="flagButton"> Flag Comment </label> --}}
                         <i data-id="{{this._id}}" class="commentFlagButton fa fa-flag {{this.flag}}"></i>
                         {{/if}}
                     </div>
