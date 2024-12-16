@@ -100,10 +100,11 @@ app.use("*", (req, res, next) => {
     { url: "spots/favorite", error: "favorite a spot!" },
     { url: "users/editprofile", error: "edit profile!" },
     { url: "users/updatepassword", error: "update password!" },
-    { url: "spots/favorite", error: "flag a spot!" },
+    { url: "spots/flag", error: "flag a spot!" },
     { url: "spots/comment/flag", error: "flag a spot comment!" },
-    { url: "/contest/submission/flag", error: "flag a contest submission!" },
+    { url: "contest/submission/flag", error: "flag a contest submission!" },
     { url: "spots/updateComment", error: "modify a comment!" },
+    { url: "admin", error: "flag a contest submission!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>
