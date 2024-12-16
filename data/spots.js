@@ -121,7 +121,8 @@ const getSpotsByDistance = async (distance, long, lat) => {
   if (!allSpotsList) {
     throw ["Spots search by distance failed!"];
   }
-  return allSpotsList;
+  const allSpots = allSpotsList.filter((spot) => spot.reportCount < 20);
+  return allSpots;
 };
 
 // gets all spots with report count less than 20 and with the given filters (if filters are ptovided)
@@ -524,6 +525,8 @@ const updateComment = async (commentId, userId, message, image) => {
       public_id: image.public_id,
       url: image.url,
     };
+  } else {
+    commentObject.image = null;
   }
 
   try {
@@ -541,7 +544,13 @@ const updateComment = async (commentId, userId, message, image) => {
     throw [`Comment update failed!`];
   }
   const newComment = await getCommentById(commentId);
-  if (newComment.image.public_id !== comment.image.public_id) {
+  if (
+    newComment.image &&
+    comment.image &&
+    newComment.image.public_id !== comment.image.public_id
+  ) {
+    await cloudinaryData.deleteImages([comment.image.public_id]);
+  } else if (comment.image && !newComment.image) {
     await cloudinaryData.deleteImages([comment.image.public_id]);
   }
   return newComment;
@@ -734,7 +743,7 @@ const updateSpotAggregateStatistics = async (spotId) => {
     updatedRatings = updatedRatings[0];
 
     totalRatings = updatedRatings.totalRatings;
-    averageRating = updatedRatings.averageRating;
+    averageRating = Number(updatedRatings.averageRating.toFixed(2));
 
     if (
       !updatedRatings ||
@@ -918,6 +927,113 @@ const clearCommentReports = async (commentId, userId) => {
   return clearedComment;
 };
 
+const getLastMonthTopSpots = async () => {
+  const current = new Date();
+  const lastMonthStart = new Date(
+    current.getFullYear(),
+    current.getMonth() - 1,
+    1
+  );
+  const currentMonthStart = new Date(
+    current.getFullYear(),
+    current.getMonth(),
+    1
+  );
+
+  const spotsRatingsList = await spotRatings();
+
+  // Aggregate to find the top 3 spots by average rating
+  const topSpots = await spotsRatingsList
+    .aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: lastMonthStart,
+            $lt: currentMonthStart,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$spotId",
+          totalRatings: { $sum: 1 },
+          averageRating: { $avg: { $ifNull: ["$rating", 0] } },
+        },
+      },
+      {
+        $match: {
+          totalRatings: {
+            $gte: 5,
+          },
+          averageRating: {
+            $gte: 7.5,
+          },
+        },
+      },
+      {
+        $sort: { averageRating: -1, totalRatings: -1 },
+      },
+      {
+        $lookup: {
+          from: "spots",
+          localField: "_id",
+          foreignField: "_id",
+          as: "spotDetails",
+        },
+      },
+      {
+        $unwind: "$spotDetails",
+      },
+      {
+        $limit: 3,
+      },
+    ])
+    .toArray();
+  logger.log("Top spots: ", topSpots);
+
+  // const newTopSpots = topSpots.map((spot) => {
+  //   return {
+  //     _id: spot.spotDetails._id,
+  //     name: spot.spotDetails.name,
+  //     location: spot.spotDetails.location,
+  //     address: spot.spotDetails.address,
+  //     description: spot.spotDetails.description,
+  //     accessibility: spot.spotDetails.accessibility,
+  //     bestTimes: spot.spotDetails.bestTimes,
+  //     images: spot.spotDetails.images,
+  //     tags: spot.spotDetails.tags,
+  //     posterId: spot.spotDetails.posterId,
+  //     createdAt: spot.spotDetails.createdAt,
+  //     reportCount: spot.spotDetails.reportCount,
+  //     averageRating: spot.averageRating,
+  //     totalRatings: spot.totalRatings,
+  //     contestInfo: currentMonth,
+  //   };
+  // });
+
+  const newTopSpots = [];
+
+  for (const spot of topSpots) {
+    newTopSpots.push({
+      _id: spot.spotDetails._id,
+      name: spot.spotDetails.name,
+      location: spot.spotDetails.location,
+      address: spot.spotDetails.address,
+      description: spot.spotDetails.description,
+      accessibility: spot.spotDetails.accessibility,
+      bestTimes: spot.spotDetails.bestTimes,
+      images: spot.spotDetails.images,
+      tags: spot.spotDetails.tags,
+      posterId: spot.spotDetails.posterId,
+      createdAt: spot.spotDetails.createdAt,
+      reportCount: spot.spotDetails.reportCount,
+      averageRating: Number(spot.averageRating.toFixed(2)),
+      totalRatings: spot.totalRatings,
+    });
+  }
+  return newTopSpots;
+};
+
 export default {
   createSpot,
   updateSpot,
@@ -942,4 +1058,5 @@ export default {
   deleteReportedComment,
   clearCommentReports,
   getSpotsByDistance,
+  getLastMonthTopSpots,
 };

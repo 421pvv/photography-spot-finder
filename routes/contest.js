@@ -128,6 +128,19 @@ router
       averageRating: spotInfo.averageRating,
     };
 
+    let contestInProgress = true;
+    try {
+      validation.validateContestRequestTimeStamp(
+        new Date(),
+        new Date(spotInfo.contestInfo)
+      );
+      contestInProgress = true;
+    } catch (e) {
+      logger.log(spotId, " conest not in progress");
+      logger.log(e);
+      contestInProgress = false;
+    }
+
     const viewUser = {};
     if (req.session.user) {
       viewUser._id = req.session.user._id.toString();
@@ -147,6 +160,8 @@ router
         logger.log(e);
         viewUser.hasNotSubmitted = true;
       }
+      viewUser.canInteract = viewUser.hasNotSubmitted && contestInProgress;
+      logger.log("Can viewing user submit to contest: ", viewUser.canInteract);
     }
     logger.log("viewing user info", viewUser);
 
@@ -180,6 +195,8 @@ router
         } else {
           submission.flag = "";
         }
+        submission.canInteract = submission.user && contestInProgress;
+        submission;
         return submission;
       });
       logger.log("Submissions", submissions);
@@ -229,7 +246,19 @@ router
       errors = errors.concat("Invalid contest Spot!");
     }
 
-    //TODO: check if it's valid to still submit for this contest spot
+    let canInteract = true;
+    try {
+      validation.validateContestRequestTimeStamp(
+        new Date(),
+        new Date(spotInfo.contestInfo)
+      );
+    } catch (e) {
+      canInteract = false;
+      logger.log(e);
+      errors = errors.concat(
+        "Cannot submit to a contest that's not in progress!"
+      );
+    }
 
     const submissionImage = {};
     try {
@@ -269,6 +298,7 @@ router
         url: submision.image.url,
         createdAt: new Date(submision.createdAt).toString(),
         user: req.session.user,
+        canInteract: req.session.user && canInteract,
       };
       return res.status(200).render("partials/submitted_image", {
         layout: null,
@@ -335,14 +365,33 @@ router
       errors = errors.concat(e);
     }
 
+    let contestSubmissionInfo;
+
     try {
       contestSubmissionId = validation.validateString(
         contestSubmissionId,
         "Contest Submission Id"
       );
+      contestSubmissionInfo = await contestData.getContestSubmissionById(
+        contestSubmissionId
+      );
     } catch (e) {
       logger.log(e);
       errors = errors.concat(e);
+    }
+    try {
+      const spotInfo = await contestData.getContestSpotsById(
+        contestSubmissionInfo.contestSpotId.toString()
+      );
+      validation.validateContestRequestTimeStamp(
+        new Date(),
+        new Date(spotInfo.contestInfo)
+      );
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(
+        "Cannot delete vote for contest that's not in progress!"
+      );
     }
 
     if (errors.length > 0) {
@@ -370,15 +419,33 @@ router
   .delete(async (req, res) => {
     let { contestSubmissionId } = req.body;
     let errors = [];
+    let contestSubmissionInfo;
     try {
       contestSubmissionId = validation.validateString(
         contestSubmissionId,
         "Contest Submission Id"
       );
-      await contestData.getContestSubmissionById(contestSubmissionId);
+      contestSubmissionInfo = await contestData.getContestSubmissionById(
+        contestSubmissionId
+      );
     } catch (e) {
       logger.log(e);
       errors = errors.concat(e);
+    }
+
+    try {
+      const spotInfo = await contestData.getContestSpotsById(
+        contestSubmissionInfo.contestSpotId.toString()
+      );
+      validation.validateContestRequestTimeStamp(
+        new Date(),
+        new Date(spotInfo.contestInfo)
+      );
+    } catch (e) {
+      logger.log(e);
+      errors = errors.concat(
+        "Cannot delete vote for contest that's not in progress!"
+      );
     }
 
     if (errors.length > 0) {

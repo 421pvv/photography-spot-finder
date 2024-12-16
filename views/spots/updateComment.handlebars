@@ -1,0 +1,46 @@
+<section>
+    <h1 class="page_title">Edit Comment</h1>
+
+    <form id="addCommentForm" method="POST" class="mainForms">
+        <label for="commentInput">
+            Comment Message
+            <input name="message" type="text" value="{{comment.message}}" id="commentInput" required>
+        </label>
+        <label id="imageUploadLabel">
+            Image (optional)
+            <input type="button" id="upload_widget" class="cloudinary-button" value="Upload files">
+        </label>
+
+        <input type="hidden" name="image" id="commentImage" value="{{comment.image.url}}">
+        <input type="hidden" name="orphanImages" id="removeImages" value="">
+        <input type="hidden" name="username" id="username" value="{{user.username}}">
+        <input type="hidden" name="commentId" id="commentId" value="{{comment._id}}">
+
+        <div id="spotCommentErrors">
+            {{#if errors}}
+            {{#each errors}}
+            <p class="formInputError">{{this}}</p>
+            {{/each}}
+            {{/if}}
+        </div>
+
+        <div class="form_buttons">
+            <button type="reset" id="back-to-profile">
+                Back to Profile
+            </button>
+            <button type="submit" id="commentSubmit">Confirm Changes</button>
+        </div>
+
+    </form>
+    <div id="imageUploadPreviews">
+        {{#if comment}}
+        {{#if comment.image.public_id}}
+        <div id="{{comment.image.public_id}}" class="previewImageContainer">
+            <img src="{{comment.image.url}}" alt="commentImage">
+            <span class="removeImageIcon">❌</span>
+        </div>
+        {{/if}}
+        {{/if}}
+    </div>
+</section>
+<script type="module" src="/public/js/spots/editSpotComment.js"> </script>

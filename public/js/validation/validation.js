@@ -241,6 +241,64 @@ const validateEmail = (email) => {
   return email.toLowerCase();
 };
 
+const validateOTP = (otp) => {
+  otp = validateString(otp, "OTP");
+
+  const otpRegex = /^[0-9]{6}$/;
+
+  if (!otpRegex.test(otp)) {
+    throw [`OTP (${otp}) must be six digits!`];
+  }
+  return otp;
+};
+
+const validateUpdateString = (str, varName) => {
+  if (str == undefined) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is not provided!`,
+    ];
+  }
+  if (str == null) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is null!`,
+    ];
+  }
+  if (Array.isArray(str)) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is an array!`,
+    ];
+  }
+  if (typeof str !== "string") {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is of type ${typeof str}!`,
+    ];
+  }
+  const trimmedStr = str.trim();
+  return trimmedStr;
+};
+
+const validateUpdateEmail = (email) => {
+  email = validateUpdateString(email, "email");
+  if (email == "") {
+    return email.toLowerCase();
+  }
+  // got email regex from https://regex101.com/library/SOgUIV
+  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+
+  if (!emailRegex.test(email)) {
+    throw [`Email (${email}) is not valid!`];
+  }
+  return email.toLowerCase();
+};
+
 export default {
   validateString,
   validateUsername,
@@ -251,4 +309,7 @@ export default {
   validateCoordinates,
   validateNumber,
   validateEmail,
+  validateOTP,
+  validateUpdateString,
+  validateUpdateEmail,
 };

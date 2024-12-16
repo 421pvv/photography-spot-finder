@@ -1,5 +1,5 @@
 <div id="authErrors">
-  {{#if hasAuthErrors}}
+  {{#if authErrors}}
   {{#each authErrors}}
   <p class="authError">
     {{this}}
@@ -22,6 +22,10 @@
       Edit Profile</a>
     <a href="/users/updatepassword">Update Password</a>
     {{#if profile.email}}
+    {{#if isVerified}}
+    {{else}}
+    <a href="/users/verifyEmail">Verify Email</a>
+    {{/if}}
     <form method="POST" action="/users/editprofile/removeEmail">
       <input type="hidden" name="_method" value="DELETE">
       <button type="submit">Remove Email</button>
@@ -37,6 +41,9 @@
   {{/if}}
   <h1 id="userFirstLastNames">{{profile.firstName}} {{profile.lastName}}</h1>
   <p class="username">@{{profile.username}}</p>
+  {{#if isVerified}}
+  <p id="VerifiedUser">Verified User ✅</p>
+  {{/if}}
   {{#if sameUser}}
   {{#if profile.email}}
   <p class="bio">{{profile.email}}</p>
@@ -55,7 +62,8 @@
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
         <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
-            alt="{{this.name}} top image"></a>
+            alt="{{this.name}} top image"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg"></a>
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -71,7 +79,8 @@
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
         <a href="/spots/details/{{this._id}}"><img class="spot-image-user-profile" src="{{this.images.0.url}}"
-            alt="{{this.name}} top image"></a>
+            alt="{{this.name}} top image"
+            onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg"></a>
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -93,7 +102,8 @@
       {{#each submittedSpots}}
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -109,7 +119,8 @@
       {{#each submittedSpots}}
       <section>
         <h3><a href="/spots/details/{{this._id}}">{{this.name}}</a></h3>
-        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image">
+        <img class="spot-image-user-profile" src="{{this.images.0.url}}" alt="{{this.name}} top image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         <p class="rating">Average Rating: {{this.averageRating}} out of 10</p>
         <div class="link-buttons">
           <a href="/spots/details/{{this._id}}">View Spot Details</a>
@@ -133,11 +144,12 @@
         <h3 class="comment-message">{{this.message}}</h3>
         {{#if this.image}}
         <img class="comment-image-user-profile" src="{{this.image.url}}"
-          alt="{{profile.firstName}} {{profile.lastName}} comment image">
+          alt="{{profile.firstName}} {{profile.lastName}} comment image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         {{/if}}
         <div class="link-buttons">
           <a href="/spots/details/{{this.spotId}}">View Comment's Spot Details</a>
-          <a href="/spots/comments/edit/">Edit Comment</a>
+          <a href="/spots/updateComment/{{this._id}}">Edit Comment</a>
           <form method="POST" action="/spots/deleteComment/{{this._id}}">
             <input type="hidden" name="_method" value="DELETE">
             <button class="delete" type="submit">Delete Comment</button>
@@ -151,7 +163,8 @@
         <h3 class="comment-message">{{this.message}}</h3>
         {{#if this.image}}
         <img class="comment-image-user-profile" src="{{this.image.url}}"
-          alt="{{profile.firstName}} {{profile.lastName}} comment image">
+          alt="{{profile.firstName}} {{profile.lastName}} comment image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
         {{/if}}
         <div class="link-buttons">
           <a href="/spots/details/{{this.spotId}}">View Comment's Spot Details</a>
@@ -199,7 +212,8 @@
       {{#each contestSubmissions}}
       <div class="submissions">
         <img class="contest-image-user-profile" src="{{this.image.url}}"
-          alt="{{profile.firstName}} {{profile.lastName}} contest image">
+          alt="{{profile.firstName}} {{profile.lastName}} contest image"
+          onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
       </div>
       {{/each}}
       {{else}}

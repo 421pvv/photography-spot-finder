@@ -13,6 +13,9 @@
       })
       .fail((xhr, status, e) => {
         if (xhr.status == "406") {
+          console.log("here");
+          $(e.target).toggleClass("flagged");
+
           alert("You already flagged this contest submission!");
         }
       });

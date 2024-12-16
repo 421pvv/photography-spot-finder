@@ -1,3 +1,13 @@
+<div id="authErrors">
+    {{#if authErrors}}
+    {{#each authErrors}}
+    <p class="authError">
+        {{this}}
+    </p>
+    {{/each}}
+    {{/if}}
+</div>
+
 <section>
     <h1 class="page_title">Photography Spot Finder</h1>
     <p id="HomePageMessage">Welcome to Photography Spot Finder! Our platform is designed to help photographers of
@@ -12,4 +22,62 @@
         <input type="text" name="keyword" placeholder="Enter a keyword to explore..." id="keyword" required>
         <button type="submit">Search</button>
     </form>
+</section>
+
+
+<section>
+    <h2>Last Month's Top Spots</h2>
+    <div id="spotsList" class="spotsList homeSection">
+        {{#if spots.length}}
+        <ul>
+            {{#each spots}}
+            <li>
+                <h2><a href="/spots/details/{{this._id}}">
+                        {{this.name}}
+                    </a></h2>
+                <img src="{{this.images.0.url}}" alt="{{this.name}} top image"
+                    onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
+
+                <div class="spot-info">
+                    <p>Tags:
+                        {{#each this.tags}} <span>{{this}}</span> {{/each}}
+                    </p>
+                    <p>Average Rating: {{this.averageRating}} out of 10</p>
+                    <p> Posted on {{this.createdAt}}</p>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p id="NoSpotsFound">No spots meet the top spot criteria for last month.</p>
+        {{/if}}
+    </div>
+</section>
+
+<section>
+    <h2>Curent Contest Leaders</h2>
+    <div class="spotsList homeSection">
+        {{#if contestWinners.length}}
+        <ul>
+            {{#each contestWinners}}
+            <li>
+                <h2><a href="/users/profile/{{this.posterInfo.username}}">
+                        {{this.posterInfo.firstName}} {{this.posterInfo.lastName}}
+                    </a></h2>
+                <img src="{{this.topSubmission.image.url}}" alt="{{this.contestSpot.name}} top image"
+                    onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
+
+                <div class="spot-info">
+                    <p>Contest Spot: <a href="/contest/{{this.contestSpot._id}}"> {{this.contestSpot.name}} </a></p>
+                    <p> Submitted at {{this.topSubmission.createdAt}}</p>
+                </div>
+            </li>
+            {{/each}}
+        </ul>
+        {{else}}
+        <p id="NoSpotsFound">No current winners yet for this months's contest.</p>
+        {{/if}}
+    </div>
+</section>
+
 </section>

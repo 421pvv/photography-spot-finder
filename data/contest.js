@@ -15,7 +15,27 @@ const getContestSpotsList = async () => {
   if (!contestSpotsList) {
     throw ["cannot get contest spots"];
   }
-  return await contestSpotsList.find({}).toArray();
+  const current = new Date();
+  const contestInfo = new Date(
+    current.getFullYear(),
+    current.getMonth() - 1,
+    1
+  );
+
+  const boundryDate = new Date(
+    current.getFullYear(),
+    current.getMonth() - 1,
+    2
+  );
+  logger.log("Fetching contest spots for: ", contestInfo.toISOString());
+  return await contestSpotsList
+    .find({
+      contestInfo: {
+        $gte: contestInfo,
+        $lte: boundryDate,
+      },
+    })
+    .toArray();
 };
 
 const getContestSpotsById = async (spotId) => {
@@ -444,6 +464,88 @@ const clearContestSubmissionReports = async (submissionId, userId) => {
   return clearedSubmission;
 };
 
+const getContestWinners = async () => {
+  const current = new Date();
+  const lastMonthStart = new Date(current.getFullYear(), current.getMonth(), 1);
+  const currentMonthStart = new Date(
+    current.getFullYear(),
+    current.getMonth() + 1,
+    1
+  );
+
+  const contestRatingsCollection = await contestRatings();
+
+  const topSubmissions = await contestRatingsCollection
+    .aggregate([
+      {
+        $match: {
+          createdAt: {
+            $gte: lastMonthStart,
+            $lt: currentMonthStart,
+          },
+        },
+      },
+      {
+        $group: {
+          _id: "$contestSubmissionId",
+          totalVotes: { $sum: { $ifNull: ["$vote", 0] } },
+        },
+      },
+      {
+        $sort: { totalVotes: -1 },
+      },
+      {
+        $lookup: {
+          from: "contestSubmissions",
+          localField: "_id",
+          foreignField: "_id",
+          as: "contestSubmission",
+        },
+      },
+      {
+        $unwind: {
+          path: "$contestSubmission",
+        },
+      },
+      {
+        $group: {
+          _id: "$contestSubmission.contestSpotId",
+
+          topSubmission: { $first: "$contestSubmission" },
+        },
+      },
+      {
+        $lookup: {
+          from: "contestSpots",
+          localField: "_id",
+          foreignField: "_id",
+          as: "contestSpot",
+        },
+      },
+      {
+        $unwind: {
+          path: "$contestSpot",
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "topSubmission.posterId",
+          foreignField: "_id",
+          as: "posterInfo",
+        },
+      },
+      {
+        $unwind: {
+          path: "$posterInfo",
+        },
+      },
+    ])
+    .toArray();
+  logger.log("Top spots: ", topSubmissions);
+  return topSubmissions;
+};
+
 export default {
   getContestSpotsList,
   getContestSpotsById,
@@ -459,4 +561,5 @@ export default {
   updateTopContestSpots,
   deleteReportedContestSubmission,
   clearContestSubmissionReports,
+  getContestWinners,
 };

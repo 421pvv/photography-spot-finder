@@ -298,6 +298,53 @@ function validateContestRequestTimeStamp(date, contestInfo) {
   }
 }
 
+const validateUpdateString = (str, varName) => {
+  if (str == undefined) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is not provided!`,
+    ];
+  }
+  if (str == null) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is null!`,
+    ];
+  }
+  if (Array.isArray(str)) {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is an array!`,
+    ];
+  }
+  if (typeof str !== "string") {
+    throw [
+      `Expected ${
+        varName ? varName : ""
+      } to be of type string, but it is of type ${typeof str}!`,
+    ];
+  }
+  const trimmedStr = str.trim();
+  return trimmedStr;
+};
+
+const validateUpdateEmail = (email) => {
+  email = validateUpdateString(email, "email");
+  if (email == "") {
+    return email.toLowerCase();
+  }
+  // got email regex from https://regex101.com/library/SOgUIV
+  const emailRegex = /^((?!\.)[\w\-_.]*[^.])(@\w+)(\.\w+(\.\w+)?[^.\W])$/;
+
+  if (!emailRegex.test(email)) {
+    throw [`Email (${email}) is not valid!`];
+  }
+  return email.toLowerCase();
+};
+
 export default {
   validateString,
   validateUsername,
@@ -311,4 +358,6 @@ export default {
   validateArray,
   validateNumber,
   validateContestRequestTimeStamp,
+  validateUpdateString,
+  validateUpdateEmail,
 };

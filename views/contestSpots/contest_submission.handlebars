@@ -55,7 +55,7 @@
         <button id="mapRecenter">Recenter map</button>
     </section>
 
-    {{#if viewingUser.hasNotSubmitted}}
+    {{#if viewingUser.canInteract}}
 
     <div id="userInteractionsDiv">
 
@@ -74,6 +74,17 @@
 
             <p id="contestDisclaimer">*Only one image submission per contest spot allowed! Cannot edit submission for a
                 contest spot!*</p>
+
+            <div id="imageUploadPreviews">
+                {{#if addComment}}
+                {{#if addComment.image.public_id}}
+                <div id="{{addComment.image.public_id}}" class="previewImageContainer">
+                    <img src="{{addComment.image.url}}">
+                    <span class="removeImageIcon">❌</span>
+                </div>
+                {{/if}}
+                {{/if}}
+            </div>
             <input type="submit" id="commentSubmit">
 
             <div id="contestSubmissionErrors">
@@ -81,21 +92,9 @@
 
         </form>
 
-        <div id="imageUploadPreviews">
-            {{#if addComment}}
-            {{#if addComment.image.public_id}}
-            <div id="{{addComment.image.public_id}}" class="previewImageContainer">
-                <img src="{{addComment.image.url}}">
-                <span class="removeImageIcon">❌</span>
-            </div>
-            {{/if}}
-            {{/if}}
-        </div>
-
 
     </div>
     {{/if}}
-
 
     <section>
         <h2>Submissions</h2>

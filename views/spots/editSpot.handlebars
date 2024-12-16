@@ -94,7 +94,7 @@
             {{#if spot.spotImages}}
             {{#each spot.spotImages}}
             <div id="{{this.public_id}}" class="previewImageContainer">
-                <img src="{{this.url}}">
+                <img src="{{this.url}}" alt="SpotImage">
                 <span class="removeImageIcon">❌</span>
             </div>
             {{/each}}
@@ -117,7 +117,7 @@
         <input type="hidden" id="spotDiscardedImages" name="spotDiscardedImages">
 
         <div class="form_buttons">
-            <button id="formSubmitButton" type="submit">Add</button>
+            <button id="formSubmitButton" type="submit">Confirm Edit</button>
             <button type="reset">Clear</button>
             <button id="formCancelButton" type="button">Cancel</button>
         </div>

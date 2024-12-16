@@ -38,6 +38,7 @@
     "express-session": "^1.18.1",
     "mongodb": "^6.10.0",
     "node-cron": "^3.0.3",
+    "nodemailer": "^6.9.16",
     "uuid": "^11.0.2",
     "xss": "^1.0.15"
   },

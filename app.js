@@ -72,30 +72,43 @@ app.use((req, res, next) => {
 
 app.use("*", (req, res, next) => {
   const restrictedPaths = [
-    { url: "spots/new", error: "add a new spot!" },
-    { url: "spots/edit", error: "modify a spot!" },
-    { url: "spots/addComment", error: "add comment to a spot!" },
-    { url: "spots/putRating", error: "rate a spot!" },
-    {
-      url: "userVotes",
-      error: "vote for a contest submission!",
-    },
-    { url: "spots/favorite", error: "favorite a spot!" },
-    { url: "users/editprofile", error: "edit profile!" },
-    { url: "users/updatepassword", error: "update password!" },
-    { url: "spots/favorite", error: "flag a spot!" },
-    { url: "spots/comment/flag", error: "flag a spot comment!" },
+    { url: "/spots/new", error: "add a new spot!" },
+    { url: "/spots/edit", error: "modify a spot!" },
+    { url: "/spots/addComment", error: "add comment to a spot!" },
+    { url: "/spots/putRating", error: "rate a spot!" },
+    { url: "/spots/favorite", error: "favorite a spot!" },
+    { url: "/users/editprofile", error: "edit profile!" },
+    { url: "/users/updatepassword", error: "update password!" },
+    { url: "/spots/flag", error: "flag a spot!" },
+    { url: "/spots/comment/flag", error: "flag a spot comment!" },
     { url: "/contest/submission/flag", error: "flag a contest submission!" },
+    { url: "/spots/updateComment", error: "modify a comment!" },
+    { url: "/admin", error: "access the admin console!" },
   ];
   let curPath = req.baseUrl + req.path;
   const restrictedPath = restrictedPaths.filter((path) =>
-    curPath.includes(path.url)
+    curPath.startsWith(path.url)
   );
 
   if (restrictedPath.length > 0 && !req.session.user) {
-    logger.log(`Invalid session (${req.sessionID}) tried to access ${curPath}`);
+    logger.log(
+      `${new Date().toString()}: Invalid session (${
+        req.sessionID
+      }) tried to access ${curPath}`
+    );
     req.session.authorizationErrors = [
       `You're not logged in! Please login in (or signup) before attempting to ${restrictedPath[0].error}`,
+    ];
+    return res.redirect("/users/login");
+  } else {
+    next();
+  }
+});
+
+app.use("/contest/:contestSpotId/userVotes", (req, res, next) => {
+  if (!req.session.user) {
+    req.session.authorizationErrors = [
+      `You're not logged in! Please login in (or signup) before attempting to vote for a contest submission`,
     ];
     return res.redirect("/users/login");
   } else {
