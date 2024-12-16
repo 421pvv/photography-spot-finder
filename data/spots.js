@@ -121,7 +121,8 @@ const getSpotsByDistance = async (distance, long, lat) => {
   if (!allSpotsList) {
     throw ["Spots search by distance failed!"];
   }
-  return allSpotsList;
+  const allSpots = allSpotsList.filter((spot) => spot.reportCount < 20);
+  return allSpots;
 };
 
 // gets all spots with report count less than 20 and with the given filters (if filters are ptovided)
@@ -742,7 +743,7 @@ const updateSpotAggregateStatistics = async (spotId) => {
     updatedRatings = updatedRatings[0];
 
     totalRatings = updatedRatings.totalRatings;
-    averageRating = updatedRatings.averageRating;
+    averageRating = Number(updatedRatings.averageRating.toFixed(2));
 
     if (
       !updatedRatings ||
@@ -990,8 +991,30 @@ const getLastMonthTopSpots = async () => {
     .toArray();
   logger.log("Top spots: ", topSpots);
 
-  const newTopSpots = topSpots.map((spot) => {
-    return {
+  // const newTopSpots = topSpots.map((spot) => {
+  //   return {
+  //     _id: spot.spotDetails._id,
+  //     name: spot.spotDetails.name,
+  //     location: spot.spotDetails.location,
+  //     address: spot.spotDetails.address,
+  //     description: spot.spotDetails.description,
+  //     accessibility: spot.spotDetails.accessibility,
+  //     bestTimes: spot.spotDetails.bestTimes,
+  //     images: spot.spotDetails.images,
+  //     tags: spot.spotDetails.tags,
+  //     posterId: spot.spotDetails.posterId,
+  //     createdAt: spot.spotDetails.createdAt,
+  //     reportCount: spot.spotDetails.reportCount,
+  //     averageRating: spot.averageRating,
+  //     totalRatings: spot.totalRatings,
+  //     contestInfo: currentMonth,
+  //   };
+  // });
+
+  const newTopSpots = [];
+
+  for (const spot of topSpots) {
+    newTopSpots.push({
       _id: spot.spotDetails._id,
       name: spot.spotDetails.name,
       location: spot.spotDetails.location,
@@ -1004,12 +1027,10 @@ const getLastMonthTopSpots = async () => {
       posterId: spot.spotDetails.posterId,
       createdAt: spot.spotDetails.createdAt,
       reportCount: spot.spotDetails.reportCount,
-      averageRating: spot.averageRating,
+      averageRating: Number(spot.averageRating.toFixed(2)),
       totalRatings: spot.totalRatings,
-      contestInfo: currentMonth,
-    };
-  });
-
+    });
+  }
   return newTopSpots;
 };
 

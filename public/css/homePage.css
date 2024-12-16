@@ -78,6 +78,80 @@ h2 {
   font-size: 2em;
 }
 
+#spotsList {
+  width: auto;
+  border-radius: 1em;
+  padding: 0;
+  justify-content: center;
+  align-items: center;
+}
+
+#spotsList ul {
+  width: auto;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+#spotsList li {
+  margin: 2em auto;
+  width: auto;
+  padding: 2em;
+  margin-bottom: 5%;
+  background-color: #ffffff;
+  border: 0.1em solid #ddd;
+  border-radius: 1em;
+  box-shadow: #d2d2d7 0em 0.5em 2em;
+}
+
+#spotsList li h2 {
+  font-size: 2em;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+#spotsList li p {
+  font-size: 0.875em;
+  margin: 0.5em 0;
+}
+
+.spot-info {
+  text-align: center;
+  display: block;
+  margin: 0 auto;
+  font-size: 1.5em;
+}
+
+#spotsList li img {
+  width: auto;
+  height: 60vh;
+  display: block;
+  object-fit: contain;
+  border-radius: 1em;
+  max-width: 100%;
+  margin: 2em auto;
+  padding: 0;
+}
+#spotsList a {
+  text-decoration: none;
+  color: blue;
+}
+#spotsList a:hover {
+  text-decoration: underline;
+  color: rgb(135, 19, 237);
+}
+
+#spotsList li span {
+  display: inline-block;
+  margin-right: 0.5em;
+  padding: 0.5em 0.5em;
+  background-color: #007bff;
+  color: white;
+  font-size: 0.75em;
+  border-radius: 0.5em;
+}
+
 #NoSpotsFound {
   font-size: 1.5em;
   text-align: center;
