@@ -214,6 +214,9 @@
         <img class="contest-image-user-profile" src="{{this.image.url}}"
           alt="{{profile.firstName}} {{profile.lastName}} contest image"
           onerror="this.onerr=null; this.src='/public/images/no_image_avaliable.jpeg">
+        <div class="link-buttons">
+          <a href="/contest/{{this.contestSpotId}}">View Contest Details</a>
+        </div>
       </div>
       {{/each}}
       {{else}}

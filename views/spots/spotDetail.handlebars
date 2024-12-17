@@ -54,6 +54,8 @@
     <section>
         <h2>Location</h2>
         <div id="map"></div>
+        <p>Address: <span>{{spot.spotAddress}}</span></p>
+
         <button id="mapRecenter">Recenter map</button>
 
     </section>
@@ -181,7 +183,6 @@
                         <p><a href="/users/profile/{{this.poster.username}}">View Profile</a></p>
 
                         {{#if this.canInteract}}
-                        <label hidden="true" for="flagButton"> Flag Comment </label>
                         <i data-id="{{this._id}}" class="commentFlagButton fa fa-flag {{this.flag}}"></i>
                         {{/if}}
                     </div>
