@@ -83,6 +83,9 @@
           <p>Posted By: <a href="/users/profile/{{this.posterUsername}}">{{this.posterFullName}}</a></p>
           <p>Report Count: {{this.reportCount}}</p>
           <div class="link-buttons">
+            <div class="link-buttons">
+              <a href="/contest/{{this.contestSpotId}}">View Contest Details</a>
+            </div>
             <form method="POST" action="/admin/clearReportedContestSubmission">
               <input type="hidden" name="spotId" value="{{this._id}}">
               <button class="clear-reports" type="submit">Clear Reports</button>
